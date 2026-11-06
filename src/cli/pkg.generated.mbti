@@ -1,0 +1,43 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "soehi/edgeplan/cli"
+
+import {
+  "soehi/edgeplan/manifest",
+  "soehi/edgeplan/plan",
+}
+
+// Values
+pub fn cmd_convert(String, Array[(String, Bytes)]) -> CmdResult
+
+pub fn cmd_emit_wac(String) -> CmdResult
+
+pub fn cmd_plan(String, Map[String, Bytes]) -> CmdResult
+
+pub let help_text : String
+
+pub fn load_plan_input(String, Map[String, Bytes]) -> @plan.Input raise @plan.PlanError
+
+pub fn manifest_json(@manifest.Manifest) -> String
+
+pub fn parse_args(Array[String]) -> Command
+
+// Errors
+
+// Types and methods
+pub(all) struct CmdResult {
+  ok : Bool
+  text : String
+}
+
+pub(all) enum Command {
+  Help
+  Plan(String, String?)
+  Convert(String, Array[(String, String)], String?)
+  EmitWac(String, String?)
+  Run(String)
+  Unknown(String)
+}
+
+// Type aliases
+
+// Traits

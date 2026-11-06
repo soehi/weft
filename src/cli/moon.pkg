@@ -1,0 +1,31 @@
+// `edgeplan` command line entry point.
+//
+// The planning subcommands (`plan`, `convert`, `emit-wac`) are pure and work on
+// all three backends. Only `run` needs the native wasmoon adapter; on wasm-gc/js
+// it reports "runtime adapter requires native" instead of failing to compile.
+// That split is why `cli` imports `plan` and `wac_adapter` unconditionally and
+// gates the runtime bits per-file.
+
+import {
+  "soehi/edgeplan/ir" @ir,
+  "soehi/edgeplan/manifest" @manifest,
+  "soehi/edgeplan/plan" @plan,
+  "soehi/edgeplan/wac_adapter" @wac,
+  "moonbitlang/core/env" @env,
+  "moonbitlang/core/json" @json,
+  "moonbitlang/x/fs" @fs,
+  "moonbitlang/x/sys" @sys,
+}
+
+pkgtype(kind: "executable")
+
+options(
+  targets: {
+    "main_native.mbt": [ "native" ],
+    "main_wasm.mbt": [ "wasm", "wasm-gc", "js" ],
+    "runtime_native.mbt": [ "native" ],
+  },
+)
+import {
+  "Milky2018/wasm_component/text",
+} for "wbtest"

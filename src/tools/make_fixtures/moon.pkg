@@ -1,0 +1,13 @@
+// Developer tool: generate the example component binaries from WAT.
+//
+// Keeps `examples/` reproducible without shipping opaque binaries: run
+// `moon run tools/make_fixtures --target native -- examples` and the `.wasm`
+// files appear next to the manifest.
+
+import {
+  "Milky2018/wasm_component/text" @text,
+  "moonbitlang/x/fs" @fs,
+  "moonbitlang/core/env" @env,
+}
+
+pkgtype(kind: "executable")
