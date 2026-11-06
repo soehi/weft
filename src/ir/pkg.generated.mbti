@@ -1,0 +1,117 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "soehi/edgeplan/ir"
+
+import {
+  "Milky2018/wasm_component/model",
+  "Milky2018/wasm_core/types",
+  "moonbitlang/core/debug",
+  "soehi/edgeplan/manifest",
+}
+
+// Values
+pub fn cmp_str(String, String) -> Int32
+
+pub fn decode_component(String, String, Bytes) -> Iface raise IrError
+
+pub fn flatten(ValTy, Array[TypeDef?]) -> Array[@types.ValueType]?
+
+pub fn flatten_func(FuncSig, Array[TypeDef?]) -> (Array[@types.ValueType], Array[@types.ValueType])?
+
+pub fn to_model_table(Array[TypeDef?]) -> Array[@model.TypeDef?]
+
+// Errors
+pub(all) suberror IrError {
+  DecodeFailed(String, String)
+  UnsupportedType(String)
+}
+pub fn IrError::output(Self, &Logger) -> Unit
+pub fn IrError::to_string(Self) -> String
+pub impl Show for IrError
+
+// Types and methods
+pub(all) struct CaseSig {
+  label : String
+  payload : ValTy?
+}
+
+pub(all) struct Component {
+  decl : @manifest.ComponentDecl
+  iface : Iface
+}
+
+pub(all) struct FuncSig {
+  name : String
+  is_async : Bool
+  params : Array[ParamSig]
+  result : ValTy?
+}
+
+pub(all) struct Iface {
+  name : String
+  path : String
+  exports : Array[PortEntry]
+  imports : Array[PortEntry]
+  types : Array[TypeDef?]
+}
+
+pub(all) struct ParamSig {
+  name : String
+  ty : ValTy
+}
+
+pub(all) enum Port {
+  Func(FuncSig)
+  Interface(String, Array[FuncSig])
+}
+
+pub(all) struct PortEntry {
+  name : String
+  port : Port
+}
+
+pub(all) enum TypeDef {
+  Func(FuncSig)
+  Record(Array[ParamSig])
+  List(ValTy)
+  FixedList(ValTy, Int32)
+  MapType(ValTy, ValTy)
+  Tuple(Array[ValTy])
+  Option(ValTy)
+  Result(ValTy?, ValTy?)
+  Variant(Array[CaseSig])
+  Flags(Array[String])
+  Enum(Array[String])
+  Own(Int32)
+  Borrow(Int32)
+  Future(ValTy?)
+  Stream(ValTy?)
+  Resource
+}
+
+pub(all) enum ValTy {
+  Bool
+  S8
+  U8
+  S16
+  U16
+  S32
+  U32
+  S64
+  U64
+  F32
+  F64
+  Char
+  String
+  ErrorContext
+  Index(Int32)
+} derive(Eq, @debug.Debug)
+pub fn ValTy::equal(Self, Self) -> Bool
+pub fn ValTy::not_equal(Self, Self) -> Bool
+pub fn ValTy::output(Self, &Logger) -> Unit
+pub fn ValTy::to_repr(Self) -> @debug.Repr
+pub fn ValTy::to_string(Self) -> String
+pub impl Show for ValTy
+
+// Type aliases
+
+// Traits

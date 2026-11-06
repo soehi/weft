@@ -1,0 +1,18 @@
+// Internal representation: component interfaces as a clean, planner-friendly
+// model.
+//
+// This package owns the *only* place where a raw component binary is decoded.
+// It depends on `wasm_component` + `wac/verifier` and converts their arenas into
+// a self-contained type table. No wasmoon. Must behave identically on all three
+// backends.
+
+import {
+  "Milky2018/wasm_component",
+  "Milky2018/wasm_component/model" @model,
+  "Milky2018/wasm_core/types" @core,
+  "moonrockz/wac/verifier" @verifier,
+  "soehi/edgeplan/manifest",
+}
+import {
+  "Milky2018/wasm_component/text",
+} for "wbtest"
