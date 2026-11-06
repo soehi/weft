@@ -1,0 +1,16 @@
+// The planner: manifest + component binaries -> deterministic instantiation
+// plan.
+//
+// Pure logic over the IR. No wasmoon, no filesystem, no wasi. Must produce
+// byte-identical output on native, wasm-gc and js; that is the project's core
+// claim and is asserted by tests.
+
+import {
+  "moonbitlang/core/json" @json,
+  "Milky2018/wasm_core/types" @core,
+  "soehi/edgeplan/ir",
+  "soehi/edgeplan/manifest",
+}
+import {
+  "Milky2018/wasm_component/text",
+} for "wbtest"

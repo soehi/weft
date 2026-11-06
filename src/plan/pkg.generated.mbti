@@ -1,0 +1,102 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "soehi/edgeplan/plan"
+
+import {
+  "soehi/edgeplan/ir",
+  "soehi/edgeplan/manifest",
+}
+
+// Values
+pub fn build_graph(@manifest.Manifest) -> Graph raise PlanError
+
+pub fn check_acyclic(Graph) -> Unit raise PlanError
+
+pub fn check_wire_signatures(String, String, FlatSig, String, String, FlatSig) -> Unit raise PlanError
+
+pub fn flatten_sig(String, String, @ir.FuncSig, Array[@ir.TypeDef?]) -> FlatSig raise PlanError
+
+pub fn fnv1a64_hex(String) -> String
+
+pub fn plan(Input) -> Plan raise PlanError
+
+pub fn plan_body(Plan) -> String
+
+pub fn plan_json(Plan) -> String
+
+pub fn render_flat(FlatSig) -> String
+
+pub fn resolve_port(@ir.Iface, Side, String) -> @ir.FuncSig raise PlanError
+
+pub fn show_flat(Array[String]) -> String
+
+pub fn topo_order(Graph) -> Array[Int32]
+
+// Errors
+pub(all) suberror PlanError {
+  UnknownComponent(String)
+  UnknownPort(String, String)
+  PortKindMismatch(String, String, String)
+  Cycle(Array[String])
+  SignatureMismatch(String, String, String, String, String)
+  Unflattenable(String, String)
+  InvalidManifest(String)
+}
+pub fn PlanError::output(Self, &Logger) -> Unit
+pub fn PlanError::to_string(Self) -> String
+pub impl Show for PlanError
+
+// Types and methods
+pub(all) struct FlatSig {
+  params : Array[String]
+  results : Array[String]
+}
+
+pub(all) struct Graph {
+  nodes : Array[String]
+  edges : Array[Array[Int32]]
+}
+
+pub(all) struct Input {
+  manifest : @manifest.Manifest
+  ifaces : Map[String, @ir.Iface]
+}
+
+pub(all) struct Plan {
+  plan_version : String
+  instances : Array[PlannedInstance]
+  wires : Array[PlannedWire]
+  resources : PlannedResources
+  hash : String
+}
+
+pub(all) struct PlannedInstance {
+  name : String
+  path : String
+  order : Int32
+  incoming : Array[Int32]
+}
+
+pub(all) struct PlannedResources {
+  max_memory_pages : Int32?
+  quota : Int32?
+}
+
+pub(all) struct PlannedWire {
+  from_component : String
+  from_port : String
+  to_component : String
+  to_port : String
+  from_flat_params : Array[String]
+  from_flat_results : Array[String]
+  to_flat_params : Array[String]
+  to_flat_results : Array[String]
+}
+
+pub(all) enum Side {
+  ExportSide
+  ImportSide
+}
+
+// Type aliases
+
+// Traits
