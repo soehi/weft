@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  portable:
+    # The planner must behave identically on every backend. This is the
+    # project's core claim: run the same tests three times, then compare the
+    # plan each backend produces.
+    name: portable (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [native, wasm-gc, js]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: moonbit-community/setup-moonbit@v1
+      - name: Resolve dependencies
+        run: moon update
+      - name: Test portable packages
+        # runtime_native is excluded on purpose: it is the only package that
+        # needs wasmoon, and it is covered by the job below.
+        run: |
+          moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan \
+            --target ${{ matrix.target }}
+
+  identical:
+    # Byte-for-byte comparison of the three backends' plans. Runs the same
+    # script developers run locally, so CI and a laptop check the same thing.
+    name: plans are byte-identical
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: moonbit-community/setup-moonbit@v1
+      - run: moon update
+      - name: Check all three backends
+        run: bash scripts/check-backends.sh
+
+  runtime-native:
+    # The execution adapter depends on wasmoon, whose C runtime needs a
+    # C11-capable toolchain. Linux is the documented platform; Windows/MSVC
+    # cannot build it (see docs/S3-EXECUTION.md).
+    name: runtime adapter (linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: moonbit-community/setup-moonbit@v1
+      - run: moon update
+      - name: Type-check the adapter
+        run: moon check src/runtime_native --target native
+      - name: Generate fixtures
+        run: moon run src/tools/make_fixtures --target native -- examples
+      - name: Link the adapter (pulls in wasmoon's C runtime)
+        run: moon build src/runtime_native --target native
+      - name: Run the example chain
+        # The example components are stubs: `reader` returns whatever scalar is
+        # passed in, so the observable result is the input.
+        run: |
+          moon run src/runtime_native --target native -- \
+            examples/chain.json --call read --arg s32:41
