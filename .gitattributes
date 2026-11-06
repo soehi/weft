@@ -1,0 +1,3 @@
+
+# Git line-ending policy: keep files as written (the tree is LF).
+* text=auto eol=lf
