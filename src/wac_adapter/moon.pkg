@@ -1,0 +1,15 @@
+// WAC <-> manifest adapter.
+//
+// We do NOT re-implement the WAC language: parsing and verification go through
+// `moonrockz/wac`. This package only maps the verified composition model onto
+// our own declarative manifest, and renders a manifest back out as WAC text.
+// Pure logic; all three backends.
+
+import {
+  "moonrockz/wac/parser" @parser,
+  "moonrockz/wac/verifier" @verifier,
+  "soehi/edgeplan/manifest" @manifest,
+}
+import {
+  "Milky2018/wasm_component/text",
+} for "wbtest"

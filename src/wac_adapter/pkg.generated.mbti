@@ -1,0 +1,39 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "soehi/edgeplan/wac_adapter"
+
+import {
+  "soehi/edgeplan/manifest",
+}
+
+// Values
+pub fn instance_name(String) -> String
+
+pub fn manifest_to_wac(@manifest.Manifest) -> String
+
+pub fn short_name(String) -> String
+
+pub fn wac_to_manifest(String, Array[WacDep]) -> @manifest.Manifest raise WacError
+
+// Errors
+pub(all) suberror WacError {
+  ParseFailed(Array[String])
+  VerifyFailed(Array[String])
+  UnknownDependency(String)
+  Unsupported(String)
+  DuplicateInstance(String)
+}
+pub fn WacError::output(Self, &Logger) -> Unit
+pub fn WacError::to_string(Self) -> String
+pub impl Show for WacError
+
+// Types and methods
+pub(all) struct WacDep {
+  name : String
+  version : String?
+  path : String
+  bytes : Bytes
+}
+
+// Type aliases
+
+// Traits
