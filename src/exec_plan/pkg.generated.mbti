@@ -1,0 +1,29 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "soehi/edgeplan/exec_plan"
+
+import {
+  "soehi/edgeplan/plan",
+}
+
+// Values
+pub fn append_terminal_call(Array[Step], @plan.Plan, String) -> Unit
+
+pub fn render(Array[Step]) -> String
+
+pub fn trace(@plan.Plan) -> Array[Step]
+
+// Errors
+
+// Types and methods
+pub(all) enum Step {
+  Instantiate(String, String)
+  Bind(String, String, String, String)
+  Call(String, String)
+}
+pub fn Step::output(Self, &Logger) -> Unit
+pub fn Step::to_string(Self) -> String
+pub impl Show for Step
+
+// Type aliases
+
+// Traits

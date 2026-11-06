@@ -1,0 +1,15 @@
+// Execution trace: the pure, backend-portable half of the runtime adapter.
+//
+// Given a Plan, compute the exact ordered sequence an executor must perform:
+// instantiate each component in order, then bind each wire's source export to
+// the consumer's import. No wasmoon, no filesystem. Runs on all three backends
+// so the sequencing logic is testable without a native runtime.
+
+import {
+  "soehi/edgeplan/plan" @plan,
+}
+import {
+  "soehi/edgeplan/ir",
+  "soehi/edgeplan/manifest",
+  "Milky2018/wasm_component/text",
+} for "wbtest"
