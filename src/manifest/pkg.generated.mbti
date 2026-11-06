@@ -1,0 +1,51 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "soehi/edgeplan/manifest"
+
+// Values
+pub fn parse(String) -> Manifest raise ManifestError
+
+pub fn parse_port_ref(String) -> (String, String)?
+
+// Errors
+pub(all) suberror ManifestError {
+  InvalidJson(String)
+  MissingField(String, String)
+  WrongType(String, String, String)
+  DuplicateComponent(String)
+  InvalidPortRef(String, String)
+  InvalidNumber(String, String)
+  NegativeNumber(String, String)
+  UnsupportedManifestVersion(String)
+}
+pub fn ManifestError::output(Self, &Logger) -> Unit
+pub fn ManifestError::to_string(Self) -> String
+pub impl Show for ManifestError
+
+// Types and methods
+pub(all) struct ComponentDecl {
+  name : String
+  path : String
+}
+
+pub(all) struct Manifest {
+  version : String
+  components : Array[ComponentDecl]
+  wires : Array[WireDecl]
+  resources : ResourceLimits
+}
+
+pub(all) struct ResourceLimits {
+  max_memory_pages : Int32?
+  quota : Int32?
+}
+
+pub(all) struct WireDecl {
+  from_component : String
+  from_port : String
+  to_component : String
+  to_port : String
+}
+
+// Type aliases
+
+// Traits

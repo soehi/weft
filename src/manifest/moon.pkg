@@ -1,0 +1,9 @@
+// Declarative manifest: the planner's primary input format.
+//
+// Pure MoonBit + core/json. No filesystem, no wasmoon: this package must build
+// and behave identically on native, wasm-gc and js. Reading a manifest *file*
+// is the caller's job; this package only parses and validates a JSON string.
+
+import {
+  "moonbitlang/core/json",
+}
