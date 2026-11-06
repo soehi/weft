@@ -1,0 +1,20 @@
+// The only code in this repository that imports `wasmoon`.
+//
+// wasmoon's component runtime is `supported_targets = "+native"`, so this
+// package is native-only by construction. It consumes a plan (produced by the
+// portable planner) and carries it out.
+
+import {
+  "soehi/edgeplan/exec_plan" @exec,
+  "soehi/edgeplan/manifest" @manifest,
+  "soehi/edgeplan/plan" @plan,
+  "soehi/edgeplan/ir" @ir,
+  "Milky2018/wasmoon/component" @component,
+  "moonbitlang/x/fs" @fs,
+  "moonbitlang/core/env" @env,
+  "moonbitlang/core/string" @strparse,
+}
+
+pkgtype(kind: "executable")
+
+supported_targets = "native"
