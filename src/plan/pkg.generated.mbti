@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "soehi/edgeplan/plan"
+package "soehi/weft/plan"
 
 import {
-  "soehi/edgeplan/ir",
-  "soehi/edgeplan/manifest",
+  "soehi/weft/ir",
+  "soehi/weft/manifest",
 }
 
 // Values

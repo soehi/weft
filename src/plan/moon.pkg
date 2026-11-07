@@ -8,8 +8,8 @@
 import {
   "moonbitlang/core/json" @json,
   "Milky2018/wasm_core/types" @core,
-  "soehi/edgeplan/ir",
-  "soehi/edgeplan/manifest",
+  "soehi/weft/ir",
+  "soehi/weft/manifest",
 }
 import {
   "Milky2018/wasm_component/text",

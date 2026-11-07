@@ -123,21 +123,21 @@ fn dep_pairs(args : Array[String]) -> Array[(String, String)] {
 
 ///|
 pub let help_text : String =
-  #|edgeplan — a backend-portable planner for WebAssembly Component deployment.
+  #|weft — a backend-portable planner for WebAssembly Component deployment.
   #|
   #|Usage:
-  #|  edgeplan plan <manifest.json> [--out <file>]
+  #|  weft plan <manifest.json> [--out <file>]
   #|      Validate the manifest and its component binaries, then print the
   #|      deterministic instantiation plan as JSON.
   #|
-  #|  edgeplan emit-wac <manifest.json> [--out <file>]
+  #|  weft emit-wac <manifest.json> [--out <file>]
   #|      Render the manifest as WAC, for composition with external tooling.
   #|
-  #|  edgeplan convert <file.wac> --dep <ns:name>=<path> [--dep ...] [--out <file>]
+  #|  weft convert <file.wac> --dep <ns:name>=<path> [--dep ...] [--out <file>]
   #|      Convert a WAC composition into this tool's manifest format. Every
   #|      instantiated package must be supplied with --dep.
   #|
-  #|  edgeplan run <manifest.json>
+  #|  weft run <manifest.json>
   #|      Execute a planned linear chain. Requires the native runtime adapter;
   #|      on wasm-gc/js this prints a diagnostic instead.
   #|

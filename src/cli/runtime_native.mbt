@@ -31,8 +31,8 @@ pub fn run_plan(
     )
   }
   sb.write_string(
-    "\nto execute, use the `edgeplan_runtime_native` binary (src/runtime_native),\n" +
-    "or export WAC with `edgeplan emit-wac` and compose with external tooling.\n",
+    "\nto execute, use the `weft-runtime` binary (src/runtime_native),\n" +
+    "or export WAC with `weft emit-wac` and compose with external tooling.\n",
   )
   Ok(sb.to_string())
 }

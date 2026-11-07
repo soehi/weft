@@ -5,10 +5,10 @@
 // portable planner) and carries it out.
 
 import {
-  "soehi/edgeplan/exec_plan" @exec,
-  "soehi/edgeplan/manifest" @manifest,
-  "soehi/edgeplan/plan" @plan,
-  "soehi/edgeplan/ir" @ir,
+  "soehi/weft/exec_plan" @exec,
+  "soehi/weft/manifest" @manifest,
+  "soehi/weft/plan" @plan,
+  "soehi/weft/ir" @ir,
   "Milky2018/wasmoon/component" @component,
   "moonbitlang/x/fs" @fs,
   "moonbitlang/core/env" @env,

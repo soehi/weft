@@ -11,7 +11,7 @@ import {
   "Milky2018/wasm_component/model" @model,
   "Milky2018/wasm_core/types" @core,
   "moonrockz/wac/verifier" @verifier,
-  "soehi/edgeplan/manifest",
+  "soehi/weft/manifest",
 }
 import {
   "Milky2018/wasm_component/text",

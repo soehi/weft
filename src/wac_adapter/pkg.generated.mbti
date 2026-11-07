@@ -1,8 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "soehi/edgeplan/wac_adapter"
+package "soehi/weft/wac_adapter"
 
 import {
-  "soehi/edgeplan/manifest",
+  "soehi/weft/manifest",
 }
 
 // Values

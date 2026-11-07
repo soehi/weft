@@ -6,10 +6,10 @@
 // so the sequencing logic is testable without a native runtime.
 
 import {
-  "soehi/edgeplan/plan" @plan,
+  "soehi/weft/plan" @plan,
 }
 import {
-  "soehi/edgeplan/ir",
-  "soehi/edgeplan/manifest",
+  "soehi/weft/ir",
+  "soehi/weft/manifest",
   "Milky2018/wasm_component/text",
 } for "wbtest"

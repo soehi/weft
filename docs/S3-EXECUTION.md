@@ -4,13 +4,13 @@
 
 ## 分层结论
 
-执行层被**物理隔离**：同一模块 `soehi/edgeplan` 下的 `src/runtime_native` 包
+执行层被**物理隔离**：同一模块 `soehi/weft` 下的 `src/runtime_native` 包
 是唯一依赖 wasmoon 的包，`supported_targets = "native"`。没有独立的
 `moon.mod`——发布物是单一模块。
 
 | 模块 | 依赖 wasmoon | 目标 | 状态 |
 |---|---|---|---|
-| `soehi/edgeplan`（主模块） | **否** | native / wasm-gc / js | 全绿，`moon test` 三后端全部通过 |
+| `soehi/weft`（主模块） | **否** | native / wasm-gc / js | 全绿，`moon test` 三后端全部通过 |
 | `src/runtime_native`（包，native only） | **是** | native only | MoonBit 代码 `moon check` 通过；链接阶段被 MSVC 挡住 |
 
 主模块的 `src/**/moon.pkg` 里没有任何 `wasmoon` import（只有注释提到它）。这条隔离是可 grep 验证的，也是项目"规划逻辑全后端可跑"这一核心主张成立的前提。
@@ -78,14 +78,14 @@ vcruntime_c11_stdatomic.h(12): fatal error C1189: #error: "C atomic support is n
 
 - **主交付物（规划器）不受影响**：它从不 import wasmoon，三后端全绿。
 - **执行层是"可编译但未能在本平台运行"**：代码正确性靠类型检查 + 纯逻辑轨迹测试保证，但端到端跑不了。
-- 按 §7 退路，闭环仍然完整：`edgeplan plan` → `edgeplan emit-wac` → 交给外部 `wasm-tools compose` / `wasmtime` 执行。这条链路已在 S2 双向验证（manifest → WAC → manifest 连线一致）。
+- 按 §7 退路，闭环仍然完整：`weft plan` → `weft emit-wac` → 交给外部 `wasm-tools compose` / `wasmtime` 执行。这条链路已在 S2 双向验证（manifest → WAC → manifest 连线一致）。
 
 ## 复现执行层的方法
 
 在 Linux AMD64 或 macOS AArch64 上：
 
 ```bash
-cd edgeplan
+cd weft
 moon build src/runtime_native --target native
 moon run src/runtime_native --target native -- examples/chain.json --call read --arg s32:41
 ```

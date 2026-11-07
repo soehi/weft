@@ -125,10 +125,10 @@ test "emit-wac: renders wiring in instantiation order" {
     e => fail(e.to_string())
   }
   let wac = manifest_to_wac(m)
-  inspect(wac.has_prefix("package edgeplan:generated;"), content="true")
-  inspect(wac.contains("let reader = new edgeplan:reader {};"), content="true")
+  inspect(wac.has_prefix("package weft:generated;"), content="true")
+  inspect(wac.contains("let reader = new weft:reader {};"), content="true")
   inspect(
-    wac.contains("let filter = new edgeplan:filter { in: reader.read };"),
+    wac.contains("let filter = new weft:filter { in: reader.read };"),
     content="true",
   )
   inspect(wac.contains("export reader as \"reader\";"), content="true")
@@ -161,10 +161,10 @@ test "wac round trip: manifest -> wac -> plan works" {
   let wac_text = manifest_to_wac(m)
   // The generated WAC must itself parse and verify against the same binaries.
   let deps = [
-    { name: "edgeplan:reader", version: None, path: "reader.wasm", bytes: wasm_of(s32_component("read")) catch {
+    { name: "weft:reader", version: None, path: "reader.wasm", bytes: wasm_of(s32_component("read")) catch {
       e => fail(e.to_string())
     } },
-    { name: "edgeplan:filter", version: None, path: "filter.wasm", bytes: wasm_of(import_export_component()) catch {
+    { name: "weft:filter", version: None, path: "filter.wasm", bytes: wasm_of(import_export_component()) catch {
       e => fail(e.to_string())
     } },
   ]

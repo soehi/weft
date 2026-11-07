@@ -18,7 +18,7 @@ fn msg_of(e : Error) -> String {
 
 ///|
 /// Resolve a manifest-relative path against the manifest's own directory, so
-/// `edgeplan plan examples/chain.json` works from any working directory.
+/// `weft plan examples/chain.json` works from any working directory.
 fn resolve_beside(manifest_path : String, rel : String) -> String {
   // Absolute paths (POSIX or Windows drive) are used as-is.
   if rel.has_prefix("/") || (rel.length() >= 2 && rel.get_char(1) == Some(':')) {
@@ -158,8 +158,8 @@ fn run_command(cmd : Command) -> Unit {
       // execution adapter does not.
       die(
         "the `run` subcommand requires the native runtime adapter; " +
-        "this build targets wasm-gc/js. Use `edgeplan plan` here, or " +
-        "`edgeplan emit-wac` and compose with external tooling.",
+        "this build targets wasm-gc/js. Use `weft plan` here, or " +
+        "`weft emit-wac` and compose with external tooling.",
       )
     }
   }

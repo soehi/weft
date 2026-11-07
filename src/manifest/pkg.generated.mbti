@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "soehi/edgeplan/manifest"
+package "soehi/weft/manifest"
 
 // Values
 pub fn parse(String) -> Manifest raise ManifestError

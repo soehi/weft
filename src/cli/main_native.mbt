@@ -16,7 +16,7 @@ fn msg_of(e : Error) -> String {
 
 ///|
 /// Resolve a manifest-relative path against the manifest's own directory, so
-/// `edgeplan plan examples/chain.json` works from any working directory.
+/// `weft plan examples/chain.json` works from any working directory.
 fn resolve_beside(manifest_path : String, rel : String) -> String {
   // Absolute paths (POSIX or Windows drive) are used as-is.
   if rel.has_prefix("/") || (rel.length() >= 2 && rel.get_char(1) == Some(':')) {

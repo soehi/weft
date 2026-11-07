@@ -1,4 +1,4 @@
-// `edgeplan-run <manifest.json> --call <port> [--arg <kind>:<value>]...`
+// `weft-run <manifest.json> --call <port> [--arg <kind>:<value>]...`
 //
 // Thin driver: load the manifest, run the portable planner, then hand the plan
 // to the wasmoon executor. All the interesting logic lives outside wasmoon, so
@@ -61,7 +61,7 @@ fn main {
   }
   if manifest_path == "" || call_port == "" {
     println(
-      "usage: edgeplan-run <manifest.json> --call <port> [--arg <kind>:<value>]...",
+      "usage: weft-run <manifest.json> --call <port> [--arg <kind>:<value>]...",
     )
     return
   }

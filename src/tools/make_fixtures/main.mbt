@@ -1,7 +1,7 @@
 // Emit the three example components plus the example manifest.
 //
 // Each component is a real, valid component binary built from WAT via
-// `wasm_component/text`, so `edgeplan plan examples/chain.json` is an honest
+// `wasm_component/text`, so `weft plan examples/chain.json` is an honest
 // end-to-end run rather than a mock.
 
 ///|

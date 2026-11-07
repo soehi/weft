@@ -18,11 +18,11 @@ fn wac_name(s : String) -> String {
 
 ///|
 /// Render a manifest as a WAC package. The package name defaults to
-/// `edgeplan:generated`; component packages are
-/// `edgeplan:<name>`.
+/// `weft:generated`; component packages are
+/// `weft:<name>`.
 pub fn manifest_to_wac(m : @manifest.Manifest) -> String {
   let sb = StringBuilder()
-  sb.write_string("package edgeplan:generated;\n\n")
+  sb.write_string("package weft:generated;\n\n")
   // Declare one external package per component and instantiate each.
   let mut i = 0
   for c in m.components {
@@ -46,7 +46,7 @@ pub fn manifest_to_wac(m : @manifest.Manifest) -> String {
       " { " + args.join(", ") + " }"
     }
     sb.write_string(
-      "let \{instance_name(c.name)} = new edgeplan:\{instance_name(c.name)}\{arg_text};\n",
+      "let \{instance_name(c.name)} = new weft:\{instance_name(c.name)}\{arg_text};\n",
     )
   }
   sb.write_string("\n")

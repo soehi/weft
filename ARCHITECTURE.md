@@ -1,6 +1,6 @@
 # 架构
 
-本文档解释 edgeplan 的分层、数据流，以及每个关键决策背后的理由。README 讲"是什么"，这里讲"为什么这样切"。
+本文档解释 weft 的分层、数据流，以及每个关键决策背后的理由。README 讲"是什么"，这里讲"为什么这样切"。
 
 ## 一眼图
 
@@ -37,7 +37,7 @@ cli  ──▶ plan ──▶ ir ──▶ manifest
 | 规划层不碰 wasmoon | `grep -r wasmoon src/ --include=*.pkg` 只应命中 `runtime_native`（注释不算） |
 | 规划层不碰文件系统 | `src/{manifest,ir,plan,wac_adapter,exec_plan}/*.moon.pkg` 无 `moonbitlang/x/fs` |
 | `runtime_native` 仅 native | 该包 `supported_targets = "native"` |
-| 模块级 wasmoon 依赖不污染纯规划路径 | 外部消费者项目在 **js 后端** `import soehi/edgeplan/plan` 编译通过——`+native` 限制只在真正 import `runtime_native` 的包上生效，模块级声明 `Milky2018/wasmoon` 不会传染 |
+| 模块级 wasmoon 依赖不污染纯规划路径 | 外部消费者项目在 **js 后端** `import soehi/weft/plan` 编译通过——`+native` 限制只在真正 import `runtime_native` 的包上生效，模块级声明 `Milky2018/wasmoon` 不会传染 |
 | CLI 三后端可编译 | CI 对三个 target 各跑一次 `moon build src/cli` |
 
 ## 数据流
@@ -133,7 +133,7 @@ bind reader.read -> filter.in
 - **输入**：`@wac/verifier::verify` 的 `Verified` 模型（需要调用方把组件二进制作为 `dependencies` 传入）。
 - **映射**：`CompositionNode` 的 `Instantiate(pkg, ver, args)` → 一个清单组件；参数值是 `Access(node, port)`，反查得到 `(源实例, 端口)` → 一条 wire。
 - **拒绝**：spread、嵌套 `new`、rename、整实例连线（非端口级）都报 `Unsupported`，不猜测。
-- **输出**：`manifest_to_wac` 生成 `package edgeplan:generated;` 的 WAC，每个组件 `new edgeplan:<name> { ... }`，最后具名 `export`。
+- **输出**：`manifest_to_wac` 生成 `package weft:generated;` 的 WAC，每个组件 `new weft:<name> { ... }`，最后具名 `export`。
 
 往返测试（`wac round trip: manifest -> wac -> plan works`）证明生成的 WAC 能被同一验证器接受并还原出相同连线。
 

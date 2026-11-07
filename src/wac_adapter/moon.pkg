@@ -8,7 +8,7 @@
 import {
   "moonrockz/wac/parser" @parser,
   "moonrockz/wac/verifier" @verifier,
-  "soehi/edgeplan/manifest" @manifest,
+  "soehi/weft/manifest" @manifest,
 }
 import {
   "Milky2018/wasm_component/text",
