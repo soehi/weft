@@ -23,16 +23,16 @@ pub(all) struct PlannedInstance {
   name : String
   path : String
   /// 0-based position in the topological order.
-  order : Int
+  order : Int32
   /// Wire indices (into `Plan::wires`) whose destination is this instance.
-  incoming : Array[Int]
+  incoming : Array[Int32]
 }
 
 ///|
 /// Resource limits, mirroring the manifest but resolved (absent = unconstrained).
 pub(all) struct PlannedResources {
-  max_memory_pages : Int?
-  quota : Int?
+  max_memory_pages : Int32?
+  quota : Int32?
 }
 
 ///|
@@ -59,8 +59,10 @@ pub(all) suberror PlanError {
   PortKindMismatch(String, String, String)
   /// The dependency graph has a cycle; `members` lists the cycle in order.
   Cycle(Array[String])
-  /// Canonical ABI signatures on the two ends of a wire do not match.
+  /// Component-value semantics or canonical ABI signatures do not match.
   SignatureMismatch(String, String, String, String, String)
+  /// Connected function or value semantics are outside the supported subset.
+  Unsupported(String, String, String)
   /// A type could not be flattened to core value types.
   Unflattenable(String, String)
   /// The same binary was supplied twice under one name; internal consistency.
@@ -85,14 +87,13 @@ pub fn PlanError::to_string(self : PlanError) -> String {
   match self {
     UnknownComponent(name) =>
       "plan: wire references unknown component `\{name}`"
-    UnknownPort(comp, port) =>
-      "plan: `\{comp}` has no port `\{port}`"
-    PortKindMismatch(comp, port, want) =>
-      "plan: `\{comp}.\{port}` is \{want}"
-    Cycle(members) =>
-      "plan: dependency cycle: \{members.join(" -> ")}"
+    UnknownPort(comp, port) => "plan: `\{comp}` has no port `\{port}`"
+    PortKindMismatch(comp, port, want) => "plan: `\{comp}.\{port}` is \{want}"
+    Cycle(members) => "plan: dependency cycle: \{members.join(" -> ")}"
     SignatureMismatch(fc, fp, tc, tp, detail) =>
       "plan: signature mismatch on wire \{fc}.\{fp} -> \{tc}.\{tp}: \{detail}"
+    Unsupported(comp, port, detail) =>
+      "plan: unsupported `\{comp}.\{port}`: \{detail}"
     Unflattenable(comp, port) =>
       "plan: `\{comp}.\{port}` cannot be flattened by the canonical ABI"
     InvalidManifest(msg) => "plan: \{msg}"

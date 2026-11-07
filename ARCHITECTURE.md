@@ -67,7 +67,13 @@ cli  ──▶ plan ──▶ ir ──▶ manifest
 
 `docs/S0-FINDINGS.md` 记录了这条路径的实测证据（六个探针 + 三后端一致性）。
 
-### 签名检查为什么能复用上游
+### 语义检查与上游 ABI 的分工
+
+`src/plan/semantic.mbt` 先验证两端函数及可达值类型属于支持子集，然后按双方各自的类型表迭代比较结构。
+类型索引只作表内引用，不用于跨组件判等；显式工作栈与已访问类型对避免递归和重复比较。
+字段、case、参数名称及顺序参与匹配；未支持类型返回点名组件、端口与值路径的 `Unsupported`。
+具体规则见 [支持矩阵](docs/TYPE-SUPPORT.md)。上游 WAC 的 `Check::compatible` 为内部 API，
+不在公开接口中；本项目没有绕过可见性或复制资源身份/subtyping 机制。
 
 `src/ir/convert.mbt::to_model_table` 把 IR 表转回 `model.TypeDef?`，索引不变；`flatten_func` 调 `wasm_component::canonical_flat_types`。所以：
 
@@ -79,9 +85,10 @@ cli  ──▶ plan ──▶ ir ──▶ manifest
 
 ### 规划阶段
 
-`src/plan` 分四个文件，各管一件事：
+`src/plan` 的主要职责分布：
 
 - `graph.mbt`：从清单的 wires 建图。边是 `provider → consumer`，因为 provider 必须先实例化。邻接表排序去重。DFS 找环（显式栈，避免大图递归过深）。Kahn 拓扑排序，ready 集合按名字取最小。
+- `semantic.mbt`：支持子集验证与严格的跨类型表结构比较。
 - `types.mbt`：端口路径解析（`f` 或 `iface.f`）+ canonical 展开 + 两端比较。比较给出**具体的差异**（"parameter 0: i32 vs i64"），不是布尔。
 - `emit.mbt`：手写 JSON 拼装。键顺序、数组顺序、数字格式全部显式，不用反射。`plan_body` 是去掉 hash 字段的版本，hash 就覆盖它。
 - `planner.mbt`：驱动。先解析所有 wire（保证端口错误先于排序错误被报），再排序、挂 incoming 索引、算 hash。

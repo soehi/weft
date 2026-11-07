@@ -38,6 +38,7 @@ pub(all) suberror PlanError {
   PortKindMismatch(String, String, String)
   Cycle(Array[String])
   SignatureMismatch(String, String, String, String, String)
+  Unsupported(String, String, String)
   Unflattenable(String, String)
   InvalidManifest(String)
 }

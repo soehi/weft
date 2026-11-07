@@ -3,7 +3,7 @@
 // Steps, each independently testable and independently failable:
 //   1. index components by name (unknown names already caught by the graph)
 //   2. resolve both endpoints of every wire to concrete function signatures
-//   3. flatten and compare signatures (canonical ABI, function level)
+//   3. check supported value semantics and structural equality, then canonical ABI
 //   4. topologically order the components (deterministic)
 //   5. attach incoming-wire indices and compute the plan hash
 //
@@ -27,14 +27,28 @@ fn lookup_iface(input : Input, name : String) -> @ir.Iface raise PlanError {
 
 ///|
 /// Resolve one wire into a `PlannedWire`, checking both ports exist and have
-/// matching canonical signatures.
-fn plan_wire(input : Input, w : @manifest.WireDecl) -> PlannedWire raise PlanError {
+/// matching component-value types and supplementary canonical signatures.
+fn plan_wire(
+  input : Input,
+  w : @manifest.WireDecl,
+) -> PlannedWire raise PlanError {
   let from_iface = lookup_iface(input, w.from_component)
   let to_iface = lookup_iface(input, w.to_component)
   let from_sig = resolve_port(from_iface, ExportSide, w.from_port)
   let to_sig = resolve_port(to_iface, ImportSide, w.to_port)
+  check_wire_value_types(
+    from_iface,
+    w.from_port,
+    from_sig,
+    to_iface,
+    w.to_port,
+    to_sig,
+  )
   let from_flat = flatten_sig(
-    w.from_component, w.from_port, from_sig, from_iface.types,
+    w.from_component,
+    w.from_port,
+    from_sig,
+    from_iface.types,
   )
   let to_flat = flatten_sig(w.to_component, w.to_port, to_sig, to_iface.types)
   check_wire_signatures(
@@ -93,7 +107,7 @@ pub fn plan(input : Input) -> Plan raise PlanError {
   }
   sort_wires(wires)
   // Incoming wires per component, as indices into the sorted wire list.
-  let incoming : Map[String, Array[Int]] = Map([])
+  let incoming : Map[String, Array[Int32]] = Map([])
   for i in 0..<wires.length() {
     let key = wires[i].to_component
     match incoming.get(key) {
@@ -117,7 +131,7 @@ pub fn plan(input : Input) -> Plan raise PlanError {
       Some(x) => x
       None => []
     }
-    instances.push({ name, path: decl.path, order: pos, incoming: inc })
+    instances.push({ name, path: decl.path, order: pos, incoming: inc, })
     pos = pos + 1
   }
   let resources : PlannedResources = {

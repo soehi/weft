@@ -1,4 +1,4 @@
-// Port addressing and canonical signature checks.
+// Port addressing and supplementary canonical ABI checks.
 //
 // A wire endpoint is `<component>.<port>` where `<port>` is either a plain
 // function name (`f`) or an interface path (`iface.f`). This module resolves
@@ -53,7 +53,7 @@ pub fn resolve_port(
     raise UnknownPort(iface.name, port_path)
   }
   let iface_name = port_path[:dot].to_owned()
-  let func_name = port_path[dot + 1 :].to_owned()
+  let func_name = port_path[dot + 1:].to_owned()
   for e in table {
     if @ir.cmp_str(e.name, iface_name) == 0 {
       match e.port {
@@ -107,25 +107,25 @@ pub(all) struct FlatSig {
 }
 
 ///|
-/// Flatten a signature using the canonical ABI. Only function-level signatures
-/// are checked; resource and async semantics are explicitly out of scope.
+/// Reject unsupported function/value semantics, then flatten via canonical ABI.
+/// Structural wire compatibility is checked separately before this step.
 pub fn flatten_sig(
   comp : String,
   port : String,
   sig : @ir.FuncSig,
   types : Array[@ir.TypeDef?],
 ) -> FlatSig raise PlanError {
+  check_supported_func(comp, port, sig, types)
   match @ir.flatten_func(sig, types) {
     Some((params, results)) =>
-      { params: core_names(params), results: core_names(results) }
+      { params: core_names(params), results: core_names(results), }
     None => raise Unflattenable(comp, port)
   }
 }
 
 ///|
-/// Compare two flattened signatures for wire compatibility. The canonical ABI
-/// says the consumer's lowered import must match the provider's lifted export
-/// exactly at the core-type level for this planner's scope.
+/// Supplementary core-ABI equality check only. Equal flat signatures do not
+/// establish component-value compatibility; plan() checks semantics first.
 pub fn check_wire_signatures(
   from_comp : String,
   from_port : String,
@@ -143,8 +143,7 @@ pub fn check_wire_signatures(
     let mut i = 0
     while i < from_side.params.length() {
       if from_side.params[i] != to_side.params[i] {
-        detail =
-          "parameter \{i}: \{from_side.params[i]} vs \{to_side.params[i]}"
+        detail = "parameter \{i}: \{from_side.params[i]} vs \{to_side.params[i]}"
         break
       }
       i = i + 1

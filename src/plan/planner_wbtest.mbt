@@ -234,7 +234,7 @@ test "plan: unknown export port" {
 ///|
 test "plan: signature mismatch is reported with both sides" {
   let a = s32_comp(["out"], [])
-  let b = func_comp([], [("in", "(param \"y\" s64) (result s64)", "(param i64) (result i64)")])
+  let b = func_comp([], [("in", "(param \"x\" s64) (result s64)", "(param i64) (result i64)")])
   let m = manifest_of(
     (
       #|{"components":[{"name":"a","path":"a"},{"name":"b","path":"b"}],
@@ -246,7 +246,7 @@ test "plan: signature mismatch is reported with both sides" {
   }
   let msg = plan_err(input)
   inspect(msg.contains("signature mismatch"), content="true")
-  inspect(msg.contains("parameter 0: i32 vs i64"), content="true")
+  inspect(msg.contains("parameter 0: s32 vs s64"), content="true")
 }
 
 ///|

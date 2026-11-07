@@ -139,6 +139,6 @@ pub let help_text : String =
   #|
   #|Notes:
   #|  * Plans are byte-identical across native, wasm-gc and js.
-  #|  * The planner checks function-level canonical signatures only; resource
-  #|    and async semantics are out of scope.
+  #|  * Wires require matching synchronous component-value types and canonical ABI.
+  #|    Async, resources and other unsupported value semantics are rejected.
   #|
