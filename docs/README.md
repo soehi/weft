@@ -6,6 +6,8 @@
 这两份是"计划中应当如此"的说明。下面三份是**实测记录**，记录在真实工具链上
 发生了什么、哪些假设被证伪、哪些做法被换掉。
 
+后续开发的优先级、里程碑与验收标准见 [ROADMAP.md](ROADMAP.md)。规划中的能力不代表当前已实现。
+
 | 文件 | 内容 |
 |---|---|
 | [S0-FINDINGS.md](S0-FINDINGS.md) | 三后端门禁的六次探针：`wasm_component` / `wac` 的真实 API、`Export.desc` 为 `None` 的坑、为什么改用语义模型、canonical 展开如何复用 |
@@ -25,4 +27,7 @@
 bash scripts/check-backends.sh
 ```
 
-一条命令完成：生成夹具 → 三后端跑 75 个测试 → 三后端各生成一份计划 → 逐字节比较。
+一条命令完成：三后端各跑 78 个测试 → 生成夹具 → 三后端各生成计划并跑 23 项 CLI 进程检查 → 逐字节比较。
+
+Windows 可运行 `pwsh -NoProfile -File scripts/check-backends.ps1`；两个入口调用同一检查程序，失败保留原始日志并返回非零。
+故意失败夹具：`node scripts/test-gate.mjs`（需要 Bash 与 pwsh）。

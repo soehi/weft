@@ -2,7 +2,7 @@
 
 > *weft*：织造时横向穿过的纬线。清单里的 `wires` 就是纬线——本项目把它们织成一份计划。
 
-一个用 MoonBit 写的、可编译到 **native / wasm-gc / js** 的 WebAssembly Component **部署计划编译器**，附一个 native 执行适配层作为可行性证明。
+一个用 MoonBit 写的、可编译到 **native / wasm-gc / js** 的 WebAssembly Component **部署计划编译器**，附一个尚未验证真实连线的实验性 native 执行适配层。
 
 它不做运行时、不做分布式、不做静态合成。它只做一件事：**读一份声明式清单和若干组件二进制，算出一份确定性的实例化计划**，并且**同一份输入在三个后端产出逐字节相同的计划**。
 
@@ -83,15 +83,19 @@ moon run src/cli --target js -- plan examples/chain.json
 |---|---|---|
 | `weft plan <manifest> [--out <file>]` | 校验清单与组件二进制，输出确定性计划 JSON | native / wasm-gc / js |
 | `weft emit-wac <manifest> [--out <file>]` | 把清单渲染成 WAC，交给外部工具链 | 全部 |
-| `weft convert <file.wac> --dep <ns:name>=<path>...` | WAC 组合 → 本工具的清单格式 | 全部 |
-| `weft run <manifest>` | 执行（原生适配层） | 仅 native |
+| `weft convert <file.wac> --dep <ns:name>[@version]=<path>... [--out <file>]` | WAC 组合 → 本工具的清单格式 | 全部 |
+| `weft run <manifest>` | 预留命令，明确报未支持并退出 1 | 全部 |
 
-`run` 在 wasm-gc/js 上**能编译**，运行时明确报：
+`run` 在所有后端均返回 `error: run is unsupported`，退出码为 1。
+真实跨实例 import 安装尚未验证；单独的 `src/runtime_native` 入口也已关闭执行。
+查看规划结果使用 `plan`。
 
-```
-error: the `run` subcommand requires the native runtime adapter; this build targets wasm-gc/js.
-       Use `weft plan` here, or `weft emit-wac` and compose with external tooling.
-```
+`convert` 默认把清单打印到标准输出，`--out` 指定输出文件。`--dep` 的文件路径和
+`--out` 均相对于**调用时工作目录**解析；输出清单中的组件路径为规范化的绝对路径，
+因此输出文件放到另一目录后仍可直接交给 `plan`。这保证本机可读回，不提供跨机器路径可移植性。
+包版本通过 `--dep ns:name@1.0.0=path` 显式提供。
+未知选项、缺值、额外位置参数、重复 `--out`、格式错误或同一包版本的重复 `--dep` 均报错。
+文件名以 `-` 开头时请使用 `./` 前缀。
 
 失败时退出码为 1，错误消息总是点名具体对象：
 
@@ -151,7 +155,7 @@ weft/
 3. **连线类型检查**（canonical ABI，**只做函数签名级**）：对每条 wire，把两端签名展开成 core 类型序列后逐项比较。
 4. **依赖图 + 环检测**：DFS，报出环上的组件序列。
 5. **拓扑排序**：Kahn，同层按组件名字典序 tie-break（自有 `cmp_str`，不依赖库的 `compare`）。
-6. **输出计划**：JSON，含实例化顺序、连线绑定、资源配额、`plan_hash`（对规范化后的计划体做 FNV-1a 64）。
+6. **输出计划**：JSON，含实例化顺序、连线绑定、资源策略元数据、`plan_hash`（对规范化后的计划体做 FNV-1a 64）。
 
 ### 确定性从哪来
 
@@ -166,12 +170,12 @@ weft/
 ## 测试
 
 ```bash
-moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan --target native
-moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan --target wasm-gc
-moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan --target js
+moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target native
+moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target wasm-gc
+moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target js
 ```
 
-部署前实测：**75 个测试，三个后端全部通过**。
+本轮实测：**78 个测试，三个后端各自全部通过**；各后端另外执行 23 项真实 CLI 检查。
 
 | 包 | 测试数 | 覆盖 |
 |---|---|---|
@@ -180,11 +184,24 @@ moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan --target js
 | `plan` | 35 | 线性链、菱形、宽扇出、成环（自环/多节点）、未知组件/端口、签名不匹配、接口路径、资源、hash 敏感性、21 节点扇入、黄金字节 |
 | `wac_adapter` | 9 | WAC→清单、Access→wire、缺依赖、往返、名称消毒 |
 | `exec_plan` | 5 | 两阶段顺序、轨迹确定性、终点调用、空计划 |
+| `cli` | 3 | 严格参数解析、版本与路径保留 |
 
 **跨后端一致性**由两条机制保证：
 
 1. `src/plan/golden_wbtest.mbt` 把示例计划的完整字节写死在测试里；它在三个后端都跑，任何一个后端的排序/格式/hash 有偏差都会在该后端失败。
-2. CI 的 `plan-identical` job 用三个后端分别生成计划文件，再 `cmp` 逐字节比较。
+2. CI 的 `identical` job 与本地入口使用同一 Node 检查程序，直接比较三个后端 `--out` 文件的完整字节，不过滤换行或错误日志。
+
+```bash
+bash scripts/check-backends.sh
+# Windows PowerShell（需要 moon、node）：
+pwsh -NoProfile -File scripts/check-backends.ps1
+# 故意失败的隔离夹具：验证两个入口均失败并保留原始诊断（另需 Bash、pwsh）
+node scripts/test-gate.mjs
+```
+
+Windows 的 `bash` 若指向未安装发行版的 WSL，可设置 `WEFT_TEST_BASH` 为 Git Bash 的完整路径。
+门禁包括三后端测试、示例计划逐字节比较，以及带空格目录、非默认文件名、版本依赖、
+跨工作目录 `convert → plan` 和非法 CLI 参数的进程退出码检查。
 
 ---
 
@@ -196,8 +213,8 @@ moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan --target js
   > "This project is primarily developed with AI assistance and has not been thoroughly audited. **Do not use in production or security-sensitive environments.**"
 
   本项目只能宣称"编排策略"，不能宣称"隔离保证"。
-- 执行层仅支持**线性链 + 组件模型标量**。不做热重启、故障恢复、健康检查、resource/stream/future。
-- 执行层平台：Linux AMD64 / macOS AArch64。**Windows 需 clang-cl 或 WSL**（MSVC 在 `/std:c11` 下缺 `_Atomic`，上游 C 运行时报 `C1189`）。见 `docs/S3-EXECUTION.md`。
+- 实验执行器包含线性链与标量处理代码，但尚未实现真实跨实例连线，执行入口关闭。
+- 执行层只做类型检查；Windows/MSVC 的 C11 原子链接阻塞仍存在。Linux/macOS 上的执行闭环也未验证。见 `docs/S3-EXECUTION.md`。
 - 不做分布式、不做集群、不做网络传输——那是 wasmCloud 的领域。
 - 不做静态合成产物——那是 wasm-compose 的领域。
 - 不重写 WAC 语言——解析与验证全部走 `moonrockz/wac`。本适配器只把**已通过验证**的语义模型映射成清单，遇到 spread、嵌套 `new`、rename 等超出清单模型的结构会明确报 `Unsupported`，不静默近似。
@@ -207,11 +224,17 @@ moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan --target js
 
 ## 执行层现状
 
-执行层代码完整（`src/runtime_native`），`moon check --target native` 通过；链接依赖的 wasmoon C 运行时在当前 Windows/MSVC 环境无法构建。这不是本项目代码的问题，是平台约束，已在设计阶段预料到。
+`src/runtime_native` 的类型检查通过，但当前 `Bind` 仅查找端口，没有把源 export 安装为目标 import。
+因此类型检查不构成执行验证，两个执行入口均返回未支持；CI 只报告适配器类型检查。
+下一步原生执行实验按 [E1 路线](docs/ROADMAP.md)推进。
 
-**退路已实现**：`weft emit-wac` 把计划渲染成标准 WAC，交给 `wasm-tools compose` / `wasmtime` 执行。闭环仍然是完整的：**解析 → 规划 → 生成可执行产物**，只是执行器是外部的。这条链路在 S2 做过双向验证（清单 → WAC → 清单，连线一致）。
+`emit-wac` 与 `convert` 已验证库级往返及 CLI 文件往返，外部组合与运行尚未建立固定命令和结果断言，
+所以暂不宣称可执行产物闭环。示例组件仅用于规划检查，reader 返回常数 0，sink 没有可调用导出。
 
-细节与复现步骤见 `docs/S3-EXECUTION.md`。
+`resources` 仅保留策略元数据，不代表配额已经执行。`plan_hash` 是规范计划体的 FNV-1a 64 标识，
+不包含组件二进制摘要，不能用作制品完整性或安全校验。同路径、同接口的组件内容变化可能不改变 hash。
+
+细节见 [执行层实证](docs/S3-EXECUTION.md)。
 
 ---
 

@@ -139,7 +139,11 @@ pub fn wac_to_manifest(
   for n in nodes {
     match n.operation {
       @verifier.Instantiate(pkg, ver, args) => {
-        let dep = match by_full.get(pkg) {
+        let key = match ver {
+          Some(v) => "\{pkg}@\{v}"
+          None => pkg
+        }
+        let dep = match by_full.get(key) {
           Some(d) => d
           None =>
             match by_full.get(short_name(pkg)) {
@@ -147,7 +151,6 @@ pub fn wac_to_manifest(
               None => raise UnknownDependency(pkg)
             }
         }
-        let _ = ver
         // `seen` guards against two instantiations of the same package
         // collapsing into one manifest component with different wiring.
         let name = short_name(pkg)

@@ -4,10 +4,11 @@ package "soehi/weft/cli"
 import {
   "soehi/weft/manifest",
   "soehi/weft/plan",
+  "soehi/weft/wac_adapter",
 }
 
 // Values
-pub fn cmd_convert(String, Array[(String, Bytes)]) -> CmdResult
+pub fn cmd_convert(String, Array[@wac_adapter.WacDep]) -> CmdResult
 
 pub fn cmd_emit_wac(String) -> CmdResult
 

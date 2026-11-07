@@ -10,13 +10,13 @@ pub(all) struct CmdResult {
 }
 
 ///|
-fn fail(msg : String) -> CmdResult {
-  { ok: false, text: msg }
+fn fail_command(msg : String) -> CmdResult {
+  { ok: false, text: msg, }
 }
 
 ///|
 fn succeed(text : String) -> CmdResult {
-  { ok: true, text }
+  { ok: true, text, }
 }
 
 ///|
@@ -44,22 +44,19 @@ pub fn load_plan_input(
         )
     }
   }
-  { manifest: m, ifaces }
+  { manifest: m, ifaces, }
 }
 
 ///|
 /// `plan`: parse, decode, plan, render JSON.
-pub fn cmd_plan(manifest_text : String, binaries : Map[String, Bytes]) -> CmdResult {
+pub fn cmd_plan(
+  manifest_text : String,
+  binaries : Map[String, Bytes],
+) -> CmdResult {
   let input = load_plan_input(manifest_text, binaries) catch {
-    e => {
-      return fail(e.to_string())
-    }
+    e => return fail_command(e.to_string())
   }
-  let p = @plan.plan(input) catch {
-    e => {
-      return fail(e.to_string())
-    }
-  }
+  let p = @plan.plan(input) catch { e => return fail_command(e.to_string()) }
   succeed(@plan.plan_json(p))
 }
 
@@ -67,9 +64,7 @@ pub fn cmd_plan(manifest_text : String, binaries : Map[String, Bytes]) -> CmdRes
 /// `emit-wac`: parse the manifest and render WAC (no binaries needed).
 pub fn cmd_emit_wac(manifest_text : String) -> CmdResult {
   let m = @manifest.parse(manifest_text) catch {
-    e => {
-      return fail(e.to_string())
-    }
+    e => return fail_command(e.to_string())
   }
   succeed(@wac.manifest_to_wac(m))
 }
@@ -77,18 +72,9 @@ pub fn cmd_emit_wac(manifest_text : String) -> CmdResult {
 ///|
 /// `convert`: verify a WAC file against supplied component binaries and emit a
 /// manifest JSON.
-pub fn cmd_convert(wac_text : String, deps : Array[(String, Bytes)]) -> CmdResult {
-  let wdeps : Array[@wac.WacDep] = []
-  for (name, bytes) in deps {
-    // The dep spec is `ns:name=path`; the path half is only used for the
-    // emitted manifest's `path` field. The caller passes name and bytes, and
-    // we synthesize a readable path from the name.
-    wdeps.push({ name, version: None, path: "\{name}.wasm", bytes })
-  }
-  let m = @wac.wac_to_manifest(wac_text, wdeps) catch {
-    e => {
-      return fail(e.to_string())
-    }
+pub fn cmd_convert(wac_text : String, deps : Array[@wac.WacDep]) -> CmdResult {
+  let m = @wac.wac_to_manifest(wac_text, deps) catch {
+    e => return fail_command(e.to_string())
   }
   succeed(manifest_json(m))
 }

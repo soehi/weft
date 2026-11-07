@@ -1,17 +1,14 @@
 // The only code in this repository that imports `wasmoon`.
 //
 // wasmoon's component runtime is `supported_targets = "+native"`, so this
-// package is native-only by construction. It consumes a plan (produced by the
-// portable planner) and carries it out.
+// package is native-only by construction. Execution is disabled until the E1
+// probe establishes how to install cross-instance imports.
 
 import {
   "soehi/weft/exec_plan" @exec,
-  "soehi/weft/manifest" @manifest,
-  "soehi/weft/plan" @plan,
-  "soehi/weft/ir" @ir,
-  "Milky2018/wasmoon/component" @component,
-  "moonbitlang/x/fs" @fs,
-  "moonbitlang/core/env" @env,
+  "soehi/weft/plan",
+  "Milky2018/wasmoon/component",
+  "moonbitlang/x/sys",
   "moonbitlang/core/string" @strparse,
 }
 

@@ -11,114 +11,109 @@ pub(all) enum Command {
   Convert(String, Array[(String, String)], String?)
   /// `emit-wac <manifest.json> [--out <file>]`
   EmitWac(String, String?)
-  /// `run <manifest.json>` — native only in substance.
+  /// `run <manifest.json>` — reserved until real wiring is supported.
   Run(String)
   /// Anything we could not interpret, with a message.
   Unknown(String)
 }
 
 ///|
-/// Parse argv (already stripped of the program name).
+/// Parse every argument once; malformed input must never fall through to I/O.
 pub fn parse_args(args : Array[String]) -> Command {
   if args.length() == 0 {
     return Help
   }
   let cmd = args[0]
-  let rest : Array[String] = []
+  if cmd == "help" || cmd == "--help" || cmd == "-h" {
+    return if args.length() == 1 {
+      Help
+    } else {
+      Unknown("help takes no arguments")
+    }
+  }
+  if cmd != "plan" && cmd != "emit-wac" && cmd != "convert" && cmd != "run" {
+    return Unknown("unknown command `\{cmd}`")
+  }
+  let mut input : String? = None
+  let mut out : String? = None
+  let deps : Array[(String, String)] = []
+  let seen : Map[String, Unit] = Map([])
   let mut i = 1
   while i < args.length() {
-    rest.push(args[i])
-    i = i + 1
-  }
-  match cmd {
-    "plan" => {
-      match positional(rest) {
-        Some(m) => Plan(m, option_value(rest, "--out"))
-        None => Unknown("plan needs a manifest path")
-      }
-    }
-    "convert" => {
-      match positional(rest) {
-        Some(w) => Convert(w, dep_pairs(rest), option_value(rest, "--out"))
-        None => Unknown("convert needs a WAC file path")
-      }
-    }
-    "emit-wac" => {
-      match positional(rest) {
-        Some(m) => EmitWac(m, option_value(rest, "--out"))
-        None => Unknown("emit-wac needs a manifest path")
-      }
-    }
-    "run" =>
-      match positional(rest) {
-        Some(m) => Run(m)
-        None => Unknown("run needs a manifest path")
-      }
-    "help" | "--help" | "-h" => Help
-    _ => Unknown("unknown command `\{cmd}`")
-  }
-}
-
-///|
-/// First non-flag, non-option-value argument.
-fn positional(args : Array[String]) -> String? {
-  let mut i = 0
-  while i < args.length() {
     let a = args[i]
-    if a == "--out" {
-      i = i + 2
-      continue
-    }
-    if a == "--dep" {
-      i = i + 2
-      continue
-    }
-    if !a.has_prefix("--") {
-      return Some(a)
-    }
-    i = i + 1
-  }
-  None
-}
-
-///|
-fn option_value(args : Array[String], name : String) -> String? {
-  let mut i = 0
-  while i < args.length() {
-    if args[i] == name && i + 1 < args.length() {
-      return Some(args[i + 1])
-    }
-    i = i + 1
-  }
-  None
-}
-
-///|
-/// Collect `--dep name=path` pairs.
-fn dep_pairs(args : Array[String]) -> Array[(String, String)] {
-  let out : Array[(String, String)] = []
-  let mut i = 0
-  while i < args.length() {
-    if args[i] == "--dep" && i + 1 < args.length() {
-      let spec = args[i + 1]
-      let mut eq = -1
-      let mut j = 0
-      for c in spec {
-        if c == '=' {
-          eq = j
-          break
+    if a == "--out" || a == "--dep" {
+      if (a == "--dep" && cmd != "convert") || (a == "--out" && cmd == "run") {
+        return Unknown("option `\{a}` is not supported by \{cmd}")
+      }
+      if i + 1 >= args.length() ||
+        args[i + 1].has_prefix("-") ||
+        args[i + 1] == "" {
+        return Unknown("\{a} needs a value")
+      }
+      let value = args[i + 1]
+      if a == "--out" {
+        if out is Some(_) {
+          return Unknown("duplicate --out")
         }
-        j = j + 1
-      }
-      if eq > 0 && eq + 1 < spec.length() {
-        out.push((spec[:eq].to_owned(), spec[eq + 1 :].to_owned()))
+        out = Some(value)
+      } else {
+        let parts = value.split("=").to_array()
+        if parts.length() < 2 || parts[0] == "" {
+          return Unknown("--dep expects <ns:name>[@version]=<path>")
+        }
+        let key = parts[0].to_owned()
+        let path = value[key.length() + 1:].to_owned()
+        let (name, version) = dependency_name(key)
+        let names = name.split(":").to_array()
+        if names.length() != 2 ||
+          names[0] == "" ||
+          names[1] == "" ||
+          path == "" ||
+          version == Some("") ||
+          key.split("@").count() > 2 ||
+          key.contains(" ") ||
+          key.contains("\n") {
+          return Unknown(
+            "invalid --dep `\{value}`; expected <ns:name>[@version]=<path>",
+          )
+        }
+        if seen.contains(key) {
+          return Unknown("duplicate dependency `\{key}`")
+        }
+        seen.set(key, ())
+        deps.push((key, path))
       }
       i = i + 2
+    } else if a.has_prefix("-") {
+      return Unknown("unknown option `\{a}`")
     } else {
+      if input is Some(_) {
+        return Unknown("unexpected positional argument `\{a}`")
+      }
+      input = Some(a)
       i = i + 1
     }
   }
-  out
+  let path = match input {
+    Some(p) => p
+    None => return Unknown("\{cmd} needs an input path")
+  }
+  match cmd {
+    "plan" => Plan(path, out)
+    "emit-wac" => EmitWac(path, out)
+    "convert" => Convert(path, deps, out)
+    _ => Run(path)
+  }
+}
+
+///|
+fn dependency_name(key : String) -> (String, String?) {
+  let parts = key.split("@").to_array()
+  if parts.length() == 1 {
+    (key, None)
+  } else {
+    (parts[0].to_owned(), Some(key[parts[0].length() + 1:].to_owned()))
+  }
 }
 
 ///|
@@ -133,13 +128,14 @@ pub let help_text : String =
   #|  weft emit-wac <manifest.json> [--out <file>]
   #|      Render the manifest as WAC, for composition with external tooling.
   #|
-  #|  weft convert <file.wac> --dep <ns:name>=<path> [--dep ...] [--out <file>]
+  #|  weft convert <file.wac> --dep <ns:name>[@version]=<path> [--dep ...] [--out <file>]
   #|      Convert a WAC composition into this tool's manifest format. Every
-  #|      instantiated package must be supplied with --dep.
+  #|      instantiated package must be supplied with --dep. Paths are relative
+  #|      to the invocation directory; emitted component paths are absolute.
+  #|      Default output is stdout; --out is relative to the invocation directory.
   #|
   #|  weft run <manifest.json>
-  #|      Execute a planned linear chain. Requires the native runtime adapter;
-  #|      on wasm-gc/js this prints a diagnostic instead.
+  #|      Unsupported on every backend until real cross-instance wiring is verified.
   #|
   #|Notes:
   #|  * Plans are byte-identical across native, wasm-gc and js.

@@ -23,9 +23,9 @@ jobs:
         run: moon update
       - name: Test portable packages
         # runtime_native is excluded on purpose: it is the only package that
-        # needs wasmoon, and it is covered by the job below.
+        # needs wasmoon, and its types are checked separately below.
         run: |
-          moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan \
+          moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli \
             --target ${{ matrix.target }}
 
   identical:
@@ -37,6 +37,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: moonbit-community/setup-moonbit@v1
       - run: moon update
+      - name: Verify gate failure propagation
+        run: node scripts/test-gate.mjs
       - name: Check all three backends
         run: bash scripts/check-backends.sh
 
@@ -44,7 +46,7 @@ jobs:
     # The execution adapter depends on wasmoon, whose C runtime needs a
     # C11-capable toolchain. Linux is the documented platform; Windows/MSVC
     # cannot build it (see docs/S3-EXECUTION.md).
-    name: runtime adapter (linux)
+    name: experimental adapter type check (linux)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -52,13 +54,3 @@ jobs:
       - run: moon update
       - name: Type-check the adapter
         run: moon check src/runtime_native --target native
-      - name: Generate fixtures
-        run: moon run src/tools/make_fixtures --target native -- examples
-      - name: Link the adapter (pulls in wasmoon's C runtime)
-        run: moon build src/runtime_native --target native
-      - name: Run the example chain
-        # The example components are stubs: `reader` returns whatever scalar is
-        # passed in, so the observable result is the input.
-        run: |
-          moon run src/runtime_native --target native -- \
-            examples/chain.json --call read --arg s32:41
