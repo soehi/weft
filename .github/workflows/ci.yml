@@ -11,21 +11,23 @@ jobs:
     # project's core claim: run the same tests three times, then compare the
     # plan each backend produces.
     name: portable (${{ matrix.target }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         target: [native, wasm-gc, js]
     steps:
       - uses: actions/checkout@v4
-      # setup-moonbit has no release tags; pin the verified action revision.
-      - uses: moonbit-community/setup-moonbit@04293a8a813bfd4b6c2fce22701b52ae1050d100
-        with:
-          version: latest
+      - name: Install checksum-locked MoonBit toolchain
+        run: python3 scripts/install-toolchain.py --destination "$RUNNER_TEMP/weft-toolchain"
       - name: Record toolchain version
         run: moon version --all
       - name: Resolve dependencies
         run: moon update
+      - name: Verify resolved release inputs
+        run: |
+          moon check src/api src/cli --target js
+          python3 scripts/check-release-inputs.py
       - name: Test portable packages
         # runtime_native is excluded on purpose: it is the only package that
         # needs wasmoon, and its types are checked separately below.
@@ -37,16 +39,18 @@ jobs:
     # Byte-for-byte comparison of the three backends' plans. Runs the same
     # script developers run locally, so CI and a laptop check the same thing.
     name: plans are byte-identical
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      # setup-moonbit has no release tags; pin the verified action revision.
-      - uses: moonbit-community/setup-moonbit@04293a8a813bfd4b6c2fce22701b52ae1050d100
-        with:
-          version: latest
+      - name: Install checksum-locked MoonBit toolchain
+        run: python3 scripts/install-toolchain.py --destination "$RUNNER_TEMP/weft-toolchain"
       - name: Record toolchain version
         run: moon version --all
       - run: moon update
+      - name: Verify resolved release inputs
+        run: |
+          moon check src/api src/cli --target js
+          python3 scripts/check-release-inputs.py
       - name: Validate versioned schemas and golden artifacts
         run: |
           python3 -m venv "$RUNNER_TEMP/weft-schema-env"
@@ -62,28 +66,33 @@ jobs:
     # C11-capable toolchain. Linux is the documented platform; Windows/MSVC
     # cannot build it (see docs/S3-EXECUTION.md).
     name: experimental adapter type check (linux)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      # setup-moonbit has no release tags; pin the verified action revision.
-      - uses: moonbit-community/setup-moonbit@04293a8a813bfd4b6c2fce22701b52ae1050d100
-        with:
-          version: latest
+      - name: Install checksum-locked MoonBit toolchain
+        run: python3 scripts/install-toolchain.py --destination "$RUNNER_TEMP/weft-toolchain"
       - name: Record toolchain version
         run: moon version --all
       - run: moon update
+      - name: Verify resolved release inputs
+        run: |
+          moon check src/api src/cli --target js
+          python3 scripts/check-release-inputs.py
       - name: Type-check the adapter
         run: moon check src/runtime_native --target native
 
   browser:
     name: local browser demo (Chromium)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: moonbit-community/setup-moonbit@04293a8a813bfd4b6c2fce22701b52ae1050d100
-        with:
-          version: latest
+      - name: Install checksum-locked MoonBit toolchain
+        run: python3 scripts/install-toolchain.py --destination "$RUNNER_TEMP/weft-toolchain"
       - run: moon update
+      - name: Verify resolved release inputs
+        run: |
+          moon check src/api src/cli --target js
+          python3 scripts/check-release-inputs.py
       - name: Build local browser artifact
         run: node scripts/build-demo.mjs
       - name: Check bridge parity and five examples
@@ -95,3 +104,40 @@ jobs:
           "$RUNNER_TEMP/weft-browser-env/bin/python" -m playwright install --with-deps chromium
       - name: Check actual browser and downloaded plan bytes
         run: '"$RUNNER_TEMP/weft-browser-env/bin/python" scripts/test-browser.py'
+
+  release-verification:
+    name: release bundle (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+      - name: Install locked toolchain in isolated directory
+        shell: bash
+        run: python scripts/install-toolchain.py --destination "$RUNNER_TEMP/weft-toolchain"
+      - name: Resolve and check dependencies
+        shell: bash
+        run: |
+          moon update
+          moon check src/api src/cli --target js
+          python scripts/check-release-inputs.py
+      - name: Build CLI bundle and checksums
+        shell: bash
+        run: python scripts/build-release.py
+      - name: Verify first use in a clean directory
+        shell: bash
+        run: |
+          for archive in _build/release/weft-*.zip; do
+            python scripts/test-release.py "$archive"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: weft-cli-${{ matrix.os }}
+          path: |
+            _build/release/weft-*.zip
+            _build/release/weft-*.zip.sha256
+          if-no-files-found: error

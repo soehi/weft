@@ -179,7 +179,7 @@ moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --t
 moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target js
 ```
 
-本轮实测：**130 个测试，三个后端各自全部通过**；各后端另外执行 31 项真实 CLI 检查。
+本轮实测：**131 个测试，三个后端各自全部通过**；各后端另外执行 33 项真实 CLI 检查。
 
 | 包 | 测试数 | 覆盖 |
 |---|---|---|
@@ -189,7 +189,7 @@ moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --t
 | `wac_adapter` | 18 | WAC→清单、Access→wire、缺依赖、往返、名称消毒 |
 | `exec_plan` | 5 | 两阶段顺序、轨迹确定性、终点调用、空计划 |
 | `api` | 7 | 内存输入、稳定诊断、缺字节、解码、类型/绑定与环 |
-| `cli` | 4 | 严格参数解析、版本与路径保留 |
+| `cli` | 5 | 严格参数解析、版本与路径保留 |
 
 **跨后端一致性**由两条机制保证：
 
@@ -252,10 +252,12 @@ Windows 的 `bash` 若指向未安装发行版的 WSL，可设置 `WEFT_TEST_BAS
 ## 许可证
 
 Apache-2.0。
-格式、Schema、Unicode 排序和从 0.1.0 迁移见 [FORMAT.md](docs/FORMAT.md)。新计划输出 0.2.0，开发模块尚未发布到 Mooncakes。
+格式、Schema、Unicode 排序和从 0.1.0 迁移见 [FORMAT.md](docs/FORMAT.md)。新计划输出 0.2.0，模块尚未发布到 Mooncakes。
 
 可嵌入入口为 `soehi/weft/api::compile`：输入清单字符串与组件名字节映射，返回规范计划或结构化诊断。
 无文件系统消费者与错误码契约见 [API.md](docs/API.md)，独立示例位于 [examples/consumer](examples/consumer/README.md)。
 
 浏览器演示：运行 `node scripts/build-demo.mjs`、`python scripts/serve-demo.py` 后打开本地 8000 端口。
 可选择本地清单和组件、查看依赖图与错误、下载与 CLI 相同的规范计划。附五类真实示例，详见 [demo 使用与验证](demo/README.md)。
+
+CLI/模块版本为 **0.3.0**，可运行 `weft --version` 查看；计划格式仍为 0.2.0。固定工具链、Actions 制品及干净目录首次使用见 [release/README.md](release/README.md)。

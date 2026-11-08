@@ -82,3 +82,12 @@ test "CLI and public API return identical canonical bytes and errors" {
   assert_eq(cmd_plan(text, Map([])).text, d.message)
   assert_false(cmd_plan(text, Map([])).ok)
 }
+
+///|
+test "CLI version is explicit and rejects extra arguments" {
+  for flag in ["--version", "version", "-V"] {
+    match parse_args([flag]) { Version => (); _ => fail("expected version") }
+    match parse_args([flag, "extra"]) { Unknown(_) => (); _ => fail("expected rejection") }
+  }
+  assert_eq(version_text, "weft 0.3.0 (plan 0.2.0)")
+}

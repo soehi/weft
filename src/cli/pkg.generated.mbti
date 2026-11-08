@@ -22,6 +22,8 @@ pub fn manifest_json(@manifest.Manifest) -> String
 
 pub fn parse_args(Array[String]) -> Command
 
+pub let version_text : String
+
 // Errors
 
 // Types and methods
@@ -32,6 +34,7 @@ pub(all) struct CmdResult {
 
 pub(all) enum Command {
   Help
+  Version
   Plan(String, String?)
   Convert(String, Array[(String, String)], String?)
   EmitWac(String, String?)

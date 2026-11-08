@@ -19,6 +19,7 @@ function cli(args, ok = true) {
   return r.stdout;
 }
 try {
+  assert.equal(cli(['--version']).trim(), 'weft 0.3.0 (plan 0.2.0)');
   mkdirSync(join(temp, 'components'));
   mkdirSync(join(temp, 'output files'));
   copyFileSync(join(root, 'examples', 'reader.wasm'), join(temp, 'components', 'custom reader.wasm'));
@@ -69,7 +70,7 @@ try {
   writeFileSync(join(temp, 'bom.json'), Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from('{"components":[]}')]));
   cli(['plan', 'bom.json'], false);
   const invalid = [
-    ['unknown'], ['unknown', 'plan', 'x'], ['plan'], ['plan', 'x', 'extra'],
+    ['--version', 'extra'], ['unknown'], ['unknown', 'plan', 'x'], ['plan'], ['plan', 'x', 'extra'],
     ['plan', 'x', '--unknown'], ['plan', 'x', '--out'], ['plan', 'x', '--out', '--out'],
     ['plan', 'x', '--out', 'a', '--out', 'b'], ['plan', 'x', '--dep', 'ns:p=x'],
     ['convert', 'source.wac', '--dep'], ['convert', 'source.wac', '--dep', 'broken'],

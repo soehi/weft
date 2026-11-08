@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "modules": [
+    {
+      "name": "Milky2018/aarch64_target",
+      "version": "0.18.0"
+    },
+    {
+      "name": "Milky2018/milkir",
+      "version": "0.18.0"
+    },
+    {
+      "name": "Milky2018/regalloc",
+      "version": "0.18.0"
+    },
+    {
+      "name": "Milky2018/vcode",
+      "version": "0.18.0"
+    },
+    {
+      "name": "Milky2018/vcode_regalloc",
+      "version": "0.18.0"
+    },
+    {
+      "name": "Milky2018/wasm_component",
+      "version": "0.18.0"
+    },
+    {
+      "name": "Milky2018/wasm_core",
+      "version": "0.18.0"
+    },
+    {
+      "name": "Milky2018/wasm_milkir",
+      "version": "0.18.0"
+    },
+    {
+      "name": "Milky2018/wasmoon",
+      "version": "0.18.0"
+    },
+    {
+      "name": "Milky2018/wasmoon_jit",
+      "version": "0.18.0"
+    },
+    {
+      "name": "Milky2018/wasmoon_runtime",
+      "version": "0.18.0"
+    },
+    {
+      "name": "Milky2018/x64_target",
+      "version": "0.18.0"
+    },
+    {
+      "name": "marianoguerra/uri",
+      "version": "0.1.2"
+    },
+    {
+      "name": "moonbitlang/async",
+      "version": "0.22.4"
+    },
+    {
+      "name": "moonbitlang/x",
+      "version": "0.5.5"
+    },
+    {
+      "name": "moonrockz/wac",
+      "version": "0.3.0"
+    },
+    {
+      "name": "moonrockz/wit",
+      "version": "0.3.0"
+    }
+  ]
+}

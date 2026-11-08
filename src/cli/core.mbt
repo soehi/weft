@@ -5,6 +5,7 @@
 /// Parsed command line.
 pub(all) enum Command {
   Help
+  Version
   /// `plan <manifest.json> [--out <file>]`
   Plan(String, String?)
   /// `convert <file.wac> --dep <name>=<path>... [--out <file>]`
@@ -24,6 +25,9 @@ pub fn parse_args(args : Array[String]) -> Command {
     return Help
   }
   let cmd = args[0]
+  if cmd == "--version" || cmd == "version" || cmd == "-V" {
+    return if args.length() == 1 { Version } else { Unknown("version takes no arguments") }
+  }
   if cmd == "help" || cmd == "--help" || cmd == "-h" {
     return if args.length() == 1 {
       Help
@@ -121,6 +125,8 @@ pub let help_text : String =
   #|weft — a backend-portable planner for WebAssembly Component deployment.
   #|
   #|Usage:
+  #|  weft --version
+  #|      Print the CLI and plan-format versions.
   #|  weft plan <manifest.json> [--out <file>]
   #|      Validate the manifest and its component binaries, then print the
   #|      deterministic instantiation plan as JSON.
@@ -145,3 +151,6 @@ pub let help_text : String =
   #|  * Every function import needs exactly one wire; implicit host imports,
   #|    interface instance imports and other non-function imports are rejected.
   #|
+
+///|
+pub let version_text : String = "weft 0.3.0 (plan 0.2.0)"

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "moon": "0.1.20261104",
+  "moonc": "v0.10.20+65efd5b93",
+  "moonrun": "0.1.20261104",
+  "core": "0.10.20+65efd5b93",
+  "archives": {
+    "linux-x86_64": {
+      "url": "https://cli.moonbitlang.com/binaries/latest/moonbit-linux-x86_64.tar.gz",
+      "file": "moonbit-linux-x86_64.tar.gz",
+      "sha256": "80d987523308fa490eba9f1baf98df996a5a7891e118357553b7c2608c0597c5"
+    },
+    "windows-x86_64": {
+      "url": "https://cli.moonbitlang.com/binaries/latest/moonbit-windows-x86_64.zip",
+      "file": "moonbit-windows-x86_64.zip",
+      "sha256": "bdff9a3b2d7c61a3adae2fe09221d3de63effc6cab28bfa0cbeb94fb0d529d79"
+    },
+    "core": {
+      "url": "https://cli.moonbitlang.com/cores/core-latest.tar.gz",
+      "file": "core-latest.tar.gz",
+      "sha256": "8ec2a2c01335501d703867bb4eef5f92d3cd7e1ae1ee5f7f14d54d16d2c7c2b5"
+    }
+  }
+}

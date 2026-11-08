@@ -10,6 +10,7 @@
 
 | 文件 | 内容 |
 |---|---|
+| [发布验证](../release/README.md) | M3 固定输入、CLI 包、校验与首次使用 |
 | [浏览器工作台](../demo/README.md) | M3 本地文件规划、五类案例与真实浏览器验证 |
 | [API.md](API.md) | M3 内存规划入口、结构化诊断与独立消费者 |
 | [FORMAT.md](FORMAT.md) | M2 版本、Schema、规范字节、hash 与 0.1→0.2 迁移 |
@@ -33,7 +34,7 @@
 bash scripts/check-backends.sh
 ```
 
-一条命令完成：三后端各跑 130 个测试 → 生成夹具 → 三后端各生成计划并跑 31 项 CLI 进程检查 → 逐字节比较。
+一条命令完成：三后端各跑 131 个测试 → 生成夹具 → 三后端各生成计划并跑 33 项 CLI 进程检查 → 逐字节比较。
 
 Windows 可运行 `pwsh -NoProfile -File scripts/check-backends.ps1`；两个入口调用同一检查程序，失败保留原始日志并返回非零。
 故意失败夹具：`node scripts/test-gate.mjs`（需要 Bash 与 pwsh）。

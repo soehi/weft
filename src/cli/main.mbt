@@ -76,6 +76,7 @@ fn read_component_binaries(
 fn run_command(cmd : Command) -> Unit {
   match cmd {
     Help => println(help_text)
+    Version => println(version_text)
     Unknown(msg) =>
       // `Unknown` is overloaded as a diagnostic holder.
       if msg.has_prefix("unknown command") {
