@@ -51,6 +51,11 @@ def main():
             else:
                 with tarfile.open(path) as archive_file:
                     archive_file.extractall(output, filter="data")
+        if os.name != "nt":
+            # Official archives do not consistently retain executable bits.
+            # Only programs inside this checksum-verified isolated bin are changed.
+            for program in (destination / "bin").iterdir():
+                if program.is_file(): program.chmod(0o755)
         binary = destination / "bin" / ("moon.exe" if os.name == "nt" else "moon")
         env = {**os.environ, "MOON_HOME": str(destination), "PATH": str(destination / "bin") + os.pathsep + os.environ["PATH"]}
         subprocess.run([str(binary), "bundle", "--all"], cwd=destination / "lib/core", env=env, check=True)
