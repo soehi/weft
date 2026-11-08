@@ -10,6 +10,7 @@
 
 | 文件 | 内容 |
 |---|---|
+| [浏览器工作台](../demo/README.md) | M3 本地文件规划、五类案例与真实浏览器验证 |
 | [API.md](API.md) | M3 内存规划入口、结构化诊断与独立消费者 |
 | [FORMAT.md](FORMAT.md) | M2 版本、Schema、规范字节、hash 与 0.1→0.2 迁移 |
 | [WAC-SUBSET.md](WAC-SUBSET.md) | M2 WAC 名称、排序、资源策略与往返支持范围 |

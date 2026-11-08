@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "components": [
+    {
+      "name": "source",
+      "path": "reader.wasm"
+    },
+    {
+      "name": "left",
+      "path": "filter.wasm"
+    },
+    {
+      "name": "right",
+      "path": "filter.wasm"
+    },
+    {
+      "name": "join",
+      "path": "join.wasm"
+    }
+  ],
+  "wires": [
+    {
+      "from": "source.read",
+      "to": "left.in"
+    },
+    {
+      "from": "source.read",
+      "to": "right.in"
+    },
+    {
+      "from": "left.out",
+      "to": "join.left"
+    },
+    {
+      "from": "right.out",
+      "to": "join.right"
+    }
+  ]
+}

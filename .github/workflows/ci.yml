@@ -74,3 +74,24 @@ jobs:
       - run: moon update
       - name: Type-check the adapter
         run: moon check src/runtime_native --target native
+
+  browser:
+    name: local browser demo (Chromium)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: moonbit-community/setup-moonbit@04293a8a813bfd4b6c2fce22701b52ae1050d100
+        with:
+          version: latest
+      - run: moon update
+      - name: Build local browser artifact
+        run: node scripts/build-demo.mjs
+      - name: Check bridge parity and five examples
+        run: node scripts/test-demo.mjs
+      - name: Install browser test dependencies
+        run: |
+          python3 -m venv "$RUNNER_TEMP/weft-browser-env"
+          "$RUNNER_TEMP/weft-browser-env/bin/python" -m pip install -r scripts/browser-requirements.txt
+          "$RUNNER_TEMP/weft-browser-env/bin/python" -m playwright install --with-deps chromium
+      - name: Check actual browser and downloaded plan bytes
+        run: '"$RUNNER_TEMP/weft-browser-env/bin/python" scripts/test-browser.py'

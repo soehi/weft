@@ -1,0 +1,31 @@
+{
+  "version": "0.1.0",
+  "components": [
+    {
+      "name": "reader",
+      "path": "reader.wasm"
+    },
+    {
+      "name": "filter",
+      "path": "filter.wasm"
+    },
+    {
+      "name": "sink",
+      "path": "sink.wasm"
+    }
+  ],
+  "wires": [
+    {
+      "from": "reader.read",
+      "to": "filter.in"
+    },
+    {
+      "from": "filter.out",
+      "to": "sink.in"
+    }
+  ],
+  "resources": {
+    "max_memory_pages": 256,
+    "quota": 1000000
+  }
+}

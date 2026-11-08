@@ -180,3 +180,9 @@ WAC 的发射顺序、名称与资源边界见 [WAC-SUBSET.md](docs/WAC-SUBSET.m
 `api → manifest / ir / plan` 提供内存编译入口和错误类型到结构化诊断的单向转换。
 `cli → api` 负责输入输出，api 不依赖 CLI、文件系统、环境或运行时。
 独立 workspace 消费者只 import api，三后端构建验证这条依赖边界，详情见 [API.md](docs/API.md)。
+
+## 浏览器适配
+
+`browser_bridge → api` 编译为 ESM，在模块 Worker 中运行。浏览器主线程只负责本地 File 读取、逻辑路径映射、
+图表展示和规范 JSON 下载；组件字节不发给服务端。图使用既有计划顺序，页面不实现第二套规划算法。
+静态构建与实际浏览器测试见 [demo/README.md](demo/README.md)。

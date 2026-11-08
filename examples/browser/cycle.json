@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "components": [
+    {
+      "name": "a",
+      "path": "filter.wasm"
+    },
+    {
+      "name": "b",
+      "path": "filter.wasm"
+    }
+  ],
+  "wires": [
+    {
+      "from": "a.out",
+      "to": "b.in"
+    },
+    {
+      "from": "b.out",
+      "to": "a.in"
+    }
+  ]
+}

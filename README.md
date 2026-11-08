@@ -256,3 +256,6 @@ Apache-2.0。
 
 可嵌入入口为 `soehi/weft/api::compile`：输入清单字符串与组件名字节映射，返回规范计划或结构化诊断。
 无文件系统消费者与错误码契约见 [API.md](docs/API.md)，独立示例位于 [examples/consumer](examples/consumer/README.md)。
+
+浏览器演示：运行 `node scripts/build-demo.mjs`、`python scripts/serve-demo.py` 后打开本地 8000 端口。
+可选择本地清单和组件、查看依赖图与错误、下载与 CLI 相同的规范计划。附五类真实示例，详见 [demo 使用与验证](demo/README.md)。

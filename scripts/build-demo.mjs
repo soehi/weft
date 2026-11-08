@@ -1,0 +1,13 @@
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, copyFileSync, readdirSync } from 'node:fs';
+import { dirname, resolve, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const run = (args) => { const r = spawnSync('moon', args, { cwd: root, stdio: 'inherit' }); if (r.error) throw r.error; if (r.status !== 0) process.exit(r.status || 1); };
+run(['run', 'src/tools/make_fixtures', '--target', 'native', '--', 'examples']);
+run(['build', 'src/browser_bridge', '--target', 'js', '--release']);
+copyFileSync(join(root, '_build/js/release/build/browser_bridge/browser_bridge.js'), join(root, 'demo/planner.mjs'));
+mkdirSync(join(root, 'demo/examples'), { recursive: true });
+for (const name of readdirSync(join(root, 'examples/browser')).filter(n => n.endsWith('.json'))) copyFileSync(join(root, 'examples/browser', name), join(root, 'demo/examples', name));
+for (const name of ['reader', 'filter', 'sink', 'join', 'wide-sink']) copyFileSync(join(root, 'examples', `${name}.wasm`), join(root, 'demo/examples', `${name}.wasm`));
+console.log('Demo ready: python scripts/serve-demo.py');

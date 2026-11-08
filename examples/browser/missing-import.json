@@ -1,0 +1,10 @@
+{
+  "version": "0.2.0",
+  "components": [
+    {
+      "name": "sink",
+      "path": "sink.wasm"
+    }
+  ],
+  "wires": []
+}
