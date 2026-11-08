@@ -238,3 +238,10 @@ M2 各项已完成；下一阶段为 M3.1 的可嵌入无文件系统 API 与结
 - 本轮不创建公开 tag/Release，不向 Mooncakes 发布，不宣称真实执行已验证。M3交付与E1执行支线的边界保持独立。
 
 M1–M3 的本轮规划交付已完成；执行能力若继续推进，下一步按 E1 做 Linux 两组件真实 wiring 探针。
+
+## 16. E1.1 / E1.2 探针（2026-11-08）
+
+- 根据固定 wasmoon@0.18.0 源码，高层运行时无法构造自定义 host installer；底层 ComponentLinker 可安装源导出。
+- 新增独立 native 探针：目标实例化前 add_import，验证 41 → +1 → ×2 = 84、断线失败、改接 +2 得 86。
+- 本机类型检查通过，Linux 实际运行交由 CI；通过前暂不勾选 E1.1 / E1.2。
+- 探针边界与复现命令见 [S3-EXECUTION.md](S3-EXECUTION.md)。CLI run 仍关闭，E1.3 / E1.4 尚未实施。

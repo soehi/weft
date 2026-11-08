@@ -65,7 +65,7 @@ jobs:
     # The execution adapter depends on wasmoon, whose C runtime needs a
     # C11-capable toolchain. Linux is the documented platform; Windows/MSVC
     # cannot build it (see docs/S3-EXECUTION.md).
-    name: experimental adapter type check (linux)
+    name: experimental native wiring probe (linux)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -80,6 +80,8 @@ jobs:
           python3 scripts/check-release-inputs.py
       - name: Type-check the adapter
         run: moon check src/runtime_native --target native
+      - name: Verify real cross-instance native wiring probe
+        run: moon test src/runtime_probe --target native
 
   browser:
     name: local browser demo (Chromium)
