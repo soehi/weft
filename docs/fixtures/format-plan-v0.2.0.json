@@ -1,0 +1,1 @@
+{"plan_version":"0.2.0","instances":[{"name":"🧵源\"\n\\","path":"reader.wasm","order":0,"incoming":[]},{"name":"🧵尾","path":"filter.wasm","order":1,"incoming":[0]}],"wires":[{"from":"🧵源\"\n\\.read","to":"🧵尾.in","from_signature":"(i32) -> (i32)","to_signature":"(i32) -> (i32)"}],"resources":{"max_memory_pages":0,"quota":2147483647},"plan_hash":"3ee4381082e6ce6a"}

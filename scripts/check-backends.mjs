@@ -21,13 +21,19 @@ try {
   for (const target of targets) {
     console.log(`== plan (${target}) ==`);
     run('moon', ['run', 'src/cli', '--target', target, '--', 'plan', 'examples/chain.json', '--out', join(out, `${target}.json`)]);
+    run('moon', ['run', 'src/cli', '--target', target, '--', 'plan', 'examples/format.json', '--out', join(out, `format-${target}.json`)]);
     run('node', ['scripts/test-cli.mjs', target]);
   }
   const golden = readFileSync(join(out, 'native.json'));
+  if (!golden.equals(readFileSync(join(root, 'docs', 'fixtures', 'plan-v0.2.0.json')))) throw new Error('v0.2.0 golden artifact differs');
   for (const target of targets.slice(1)) {
     if (!golden.equals(readFileSync(join(out, `${target}.json`)))) throw new Error(`plan differs: ${target}`);
   }
-  console.log('OK: all three backends produced byte-identical plans');
+  const formatGolden = readFileSync(join(root, 'docs', 'fixtures', 'format-plan-v0.2.0.json'));
+  for (const target of targets) {
+    if (!formatGolden.equals(readFileSync(join(out, `format-${target}.json`)))) throw new Error(`format golden differs: ${target}`);
+  }
+  console.log('OK: all three backends produced byte-identical plans, including Unicode/escaping/integer boundaries');
 } catch (e) {
   console.error(e.message);
   process.exitCode = e.status || 1;

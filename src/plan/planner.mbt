@@ -140,7 +140,7 @@ pub fn plan(input : Input) -> Plan raise PlanError {
     quota: input.manifest.resources.quota,
   }
   let probe : Plan = {
-    plan_version: "0.1.0",
+    plan_version: "0.2.0",
     instances,
     wires,
     resources,

@@ -47,6 +47,11 @@ jobs:
       - name: Record toolchain version
         run: moon version --all
       - run: moon update
+      - name: Validate versioned schemas and golden artifacts
+        run: |
+          python3 -m venv "$RUNNER_TEMP/weft-schema-env"
+          "$RUNNER_TEMP/weft-schema-env/bin/python" -m pip install -r scripts/schema-requirements.txt
+          "$RUNNER_TEMP/weft-schema-env/bin/python" scripts/check-schemas.py
       - name: Verify gate failure propagation
         run: node scripts/test-gate.mjs
       - name: Check all three backends

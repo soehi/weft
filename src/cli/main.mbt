@@ -34,7 +34,7 @@ fn die(msg : String) -> Unit {
 fn emit(text : String, out : String?) -> Unit {
   match out {
     Some(path) =>
-      @fs.write_string_to_file(path, text) catch {
+      @fs.write_bytes_to_file(path, @utf8.encode(text, bom=false)) catch {
         e => die("cannot write \{path}: " + msg_of(e))
       }
     None => println(text)
@@ -43,7 +43,7 @@ fn emit(text : String, out : String?) -> Unit {
 
 ///|
 fn read_text(path : String) -> String raise {
-  @fs.read_file_to_string(path) catch {
+  @utf8.decode(@fs.read_file_to_bytes(path), ignore_bom=false) catch {
     e => raise Failure("cannot read \{path}: " + msg_of(e))
   }
 }

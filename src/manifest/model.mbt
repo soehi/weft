@@ -50,6 +50,8 @@ pub(all) suberror ManifestError {
   InvalidNumber(String, String)
   NegativeNumber(String, String)
   UnsupportedManifestVersion(String)
+  UnknownField(String, String)
+  NumberOutOfRange(String, String)
 }
 
 ///|
@@ -78,7 +80,9 @@ pub fn ManifestError::to_string(self : ManifestError) -> String {
       "manifest: \{loc} field `\{field}` must be an integer"
     NegativeNumber(loc, field) =>
       "manifest: \{loc} field `\{field}` must not be negative"
+    UnknownField(loc, field) => "manifest: \{loc} has unknown field `\{field}`"
+    NumberOutOfRange(loc, field) => "manifest: \{loc} field `\{field}` exceeds 2147483647"
     UnsupportedManifestVersion(v) =>
-      "manifest: unsupported version `\{v}` (expected 0.1.x)"
+      "manifest: unsupported version `\{v}` (expected 0.1.0 or 0.2.0)"
   }
 }

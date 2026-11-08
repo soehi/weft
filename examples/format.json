@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "components": [
+    {
+      "name": "🧵源\"\n\\",
+      "path": "reader.wasm"
+    },
+    {
+      "name": "🧵尾",
+      "path": "filter.wasm"
+    }
+  ],
+  "wires": [
+    {
+      "from": "🧵源\"\n\\.read",
+      "to": "🧵尾.in"
+    }
+  ],
+  "resources": {
+    "max_memory_pages": 0,
+    "quota": 2147483647
+  }
+}

@@ -61,7 +61,7 @@ moon run src/cli --target js -- plan examples/chain.json
 输出：
 
 ```json
-{"plan_version":"0.1.0",
+{"plan_version":"0.2.0",
  "instances":[
    {"name":"reader","path":"reader.wasm","order":0,"incoming":[]},
    {"name":"filter","path":"filter.wasm","order":1,"incoming":[1]},
@@ -70,7 +70,7 @@ moon run src/cli --target js -- plan examples/chain.json
    {"from":"filter.out","to":"sink.in","from_signature":"(i32) -> (i32)","to_signature":"(i32) -> (i32)"},
    {"from":"reader.read","to":"filter.in","from_signature":"(i32) -> (i32)","to_signature":"(i32) -> (i32)"}],
  "resources":{"max_memory_pages":256,"quota":1000000},
- "plan_hash":"e96eb1e1a80fbdaa"}
+ "plan_hash":"1a3640bcc99318d5"}
 ```
 
 （上面为可读性做了换行；实际输出是一行，且该行的字节由 `src/plan/golden_wbtest.mbt` 逐字符断言。）
@@ -179,13 +179,13 @@ moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --t
 moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target js
 ```
 
-本轮实测：**113 个测试，三个后端各自全部通过**；各后端另外执行 28 项真实 CLI 检查。
+本轮实测：**122 个测试，三个后端各自全部通过**；各后端另外执行 31 项真实 CLI 检查。
 
 | 包 | 测试数 | 覆盖 |
 |---|---|---|
-| `manifest` | 19 | 合法/非法 JSON、缺字段、重复组件、端口路径、负数/小数配额、版本 |
+| `manifest` | 25 | 合法/非法 JSON、缺字段、重复组件、端口路径、负数/小数配额、版本 |
 | `ir` | 7 | 函数/接口导入导出、富类型、canonical 展开、排序、解码失败命名 |
-| `plan` | 61 | 线性链、菱形、宽扇出、成环（自环/多节点）、未知组件/端口、签名不匹配、接口路径、资源、hash 敏感性、21 节点扇入、黄金字节、语义结构匹配、相同 ABI 反例、未支持类型、重复绑定与 import 覆盖 |
+| `plan` | 64 | 线性链、菱形、宽扇出、成环（自环/多节点）、未知组件/端口、签名不匹配、接口路径、资源、hash 敏感性、21 节点扇入、黄金字节、语义结构匹配、相同 ABI 反例、未支持类型、重复绑定与 import 覆盖 |
 | `wac_adapter` | 18 | WAC→清单、Access→wire、缺依赖、往返、名称消毒 |
 | `exec_plan` | 5 | 两阶段顺序、轨迹确定性、终点调用、空计划 |
 | `cli` | 3 | 严格参数解析、版本与路径保留 |
@@ -251,3 +251,4 @@ Windows 的 `bash` 若指向未安装发行版的 WSL，可设置 `WEFT_TEST_BAS
 ## 许可证
 
 Apache-2.0。
+格式、Schema、Unicode 排序和从 0.1.0 迁移见 [FORMAT.md](docs/FORMAT.md)。新计划输出 0.2.0，开发模块尚未发布到 Mooncakes。

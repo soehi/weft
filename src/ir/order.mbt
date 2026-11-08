@@ -11,21 +11,14 @@
 /// Lexicographic comparison by Unicode codepoint, shorter prefix first.
 /// Returns a negative number if `a < b`, positive if `a > b`, 0 if equal.
 pub fn cmp_str(a : String, b : String) -> Int {
-  let la = a.char_length()
-  let lb = b.char_length()
-  let n = if la < lb {
-    la
-  } else {
-    lb
-  }
-  let mut i = 0
-  while i < n {
-    let ca = a.get_char(i).unwrap_or('\u{0}').to_int()
-    let cb = b.get_char(i).unwrap_or('\u{0}').to_int()
-    if ca != cb {
-      return ca - cb
+  let ai = a.iter()
+  let bi = b.iter()
+  while true {
+    match (ai.next(), bi.next()) {
+      (Some(x), Some(y)) => if x != y { return x.to_int() - y.to_int() }
+      (None, Some(_)) => return -1
+      (Some(_), None) => return 1
+      (None, None) => return 0
     }
-    i = i + 1
-  }
-  la - lb
+  } nobreak { 0 }
 }

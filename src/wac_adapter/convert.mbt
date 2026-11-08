@@ -203,7 +203,7 @@ pub fn wac_to_manifest(
     }
   }
   {
-    version: "0.1.0",
+    version: "0.2.0",
     components,
     wires,
     resources: { max_memory_pages: None, quota: None },

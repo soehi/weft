@@ -16,6 +16,8 @@ pub(all) suberror ManifestError {
   InvalidNumber(String, String)
   NegativeNumber(String, String)
   UnsupportedManifestVersion(String)
+  UnknownField(String, String)
+  NumberOutOfRange(String, String)
 }
 pub fn ManifestError::output(Self, &Logger) -> Unit
 pub fn ManifestError::to_string(Self) -> String

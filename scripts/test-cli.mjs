@@ -58,6 +58,16 @@ try {
   duplicate.wires.push(duplicate.wires[0]);
   writeFileSync(join(temp, 'duplicate.json'), JSON.stringify(duplicate));
   assert.match(cli(['plan', 'duplicate.json'], false), /duplicate binding/);
+  // Artifact contract: UTF-8, no BOM or trailing newline; stdout is a transport line.
+  cli(['plan', join(root, 'examples', 'chain.json'), '--out', 'current-plan.json']);
+  const artifactBytes = readFileSync(join(temp, 'current-plan.json'));
+  assert.ok(!artifactBytes.subarray(0, 3).equals(Buffer.from([0xef, 0xbb, 0xbf])));
+  assert.equal(artifactBytes.at(-1), 0x7d);
+  assert.equal(JSON.parse(artifactBytes).plan_version, '0.2.0');
+  writeFileSync(join(temp, 'bad-utf8.json'), Buffer.from([0x7b, 0xff, 0x7d]));
+  cli(['plan', 'bad-utf8.json'], false);
+  writeFileSync(join(temp, 'bom.json'), Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from('{"components":[]}')]));
+  cli(['plan', 'bom.json'], false);
   const invalid = [
     ['unknown'], ['unknown', 'plan', 'x'], ['plan'], ['plan', 'x', 'extra'],
     ['plan', 'x', '--unknown'], ['plan', 'x', '--out'], ['plan', 'x', '--out', '--out'],

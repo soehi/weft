@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "plan_version": {
+      "const": "0.2.0"
+    },
+    "instances": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^.]+$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "incoming": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            }
+          }
+        },
+        "required": [
+          "name",
+          "path",
+          "order",
+          "incoming"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "wires": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "minLength": 1
+          },
+          "to": {
+            "type": "string",
+            "minLength": 1
+          },
+          "from_signature": {
+            "type": "string",
+            "pattern": "^\\((?:(?:i32|i64|f32|f64)(?:, (?:i32|i64|f32|f64))*)?\\) -> \\((?:(?:i32|i64|f32|f64)(?:, (?:i32|i64|f32|f64))*)?\\)$"
+          },
+          "to_signature": {
+            "type": "string",
+            "pattern": "^\\((?:(?:i32|i64|f32|f64)(?:, (?:i32|i64|f32|f64))*)?\\) -> \\((?:(?:i32|i64|f32|f64)(?:, (?:i32|i64|f32|f64))*)?\\)$"
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "from_signature",
+          "to_signature"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "max_memory_pages": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "quota": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 2147483647
+        }
+      },
+      "required": [
+        "max_memory_pages",
+        "quota"
+      ],
+      "additionalProperties": false
+    },
+    "plan_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    }
+  },
+  "required": [
+    "plan_version",
+    "instances",
+    "wires",
+    "resources",
+    "plan_hash"
+  ],
+  "additionalProperties": false
+}

@@ -29,11 +29,11 @@ test "parse: minimal manifest" {
 }
 
 ///|
-test "parse: version defaults to 0.1.0 when absent" {
+test "parse: version defaults to 0.2.0 when absent" {
   let m = parse("{\"components\":[]}") catch {
     e => fail("unexpected: \{e.to_string()}")
   }
-  inspect(m.version, content="0.1.0")
+  inspect(m.version, content="0.2.0")
 }
 
 ///|
@@ -41,7 +41,7 @@ test "parse: unsupported version rejected" {
   debug_inspect(
     err_of("{\"version\":\"2.0.0\",\"components\":[]}"),
     content=(
-      #|Some("manifest: unsupported version `2.0.0` (expected 0.1.x)")
+      #|Some("manifest: unsupported version `2.0.0` (expected 0.1.0 or 0.2.0)")
     ),
   )
 }

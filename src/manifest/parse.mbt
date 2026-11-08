@@ -58,7 +58,12 @@ fn optional_nonneg_int(m : Map[String, @json.Json], field : String, loc : String
     None => None
     Some(j) =>
       match j {
-        Number(d, ..) => {
+        Number(d, repr~) => {
+          if repr is Some(raw) {
+            if raw.contains(".") || raw.contains("e") || raw.contains("E") { raise InvalidNumber(loc, field) }
+          }
+          if d < 0 { raise NegativeNumber(loc, field) }
+          if d > 2147483647.0 { raise NumberOutOfRange(loc, field) }
           let i = d.to_int()
           if d != i.to_double() {
             raise InvalidNumber(loc, field)
@@ -81,23 +86,11 @@ pub fn parse_port_ref(s : String) -> (String, String)? {
   // port is the remaining path (`f` or `iface.f`). Treating the trailing
   // segment as the port would make `reader:io/transform@1.0.0.transform`
   // ambiguous, so the component name simply may not contain dots.
-  let mut idx : Int = -1
-  let mut i = 0
-  for c in s {
-    if c == '.' && idx < 0 {
-      idx = i
-    }
-    i = i + 1
-  }
-  if idx <= 0 || idx >= s.length() - 1 {
-    return None
-  }
-  let comp = s[:idx].to_owned()
-  let port = s[idx + 1 :].to_owned()
-  // A port path must not itself start or end with a dot.
-  if port.get_char(0) == Some('.') || port.get_char(port.char_length() - 1) == Some('.') {
-    return None
-  }
+  let parts = s.split(".").to_array()
+  if parts.length() < 2 || parts[0] == "" { return None }
+  let comp = parts[0].to_owned()
+  let port = s[comp.length() + 1:].to_owned()
+  if port == "" || port.has_prefix(".") || port.has_suffix(".") || port.contains("..") { return None }
   Some((comp, port))
 }
 
@@ -105,6 +98,7 @@ pub fn parse_port_ref(s : String) -> (String, String)? {
 fn parse_wire(j : @json.Json, index : Int) -> WireDecl raise ManifestError {
   let loc = "wires[\{index}]"
   let m = expect_object(j, loc)
+  known_fields(m, ["from", "to"], loc)
   let from_s = required_string(m, "from", loc)
   let to_s = required_string(m, "to", loc)
   let (from_c, from_p) = match parse_port_ref(from_s) {
@@ -122,11 +116,14 @@ fn parse_wire(j : @json.Json, index : Int) -> WireDecl raise ManifestError {
 fn parse_component(j : @json.Json, index : Int) -> ComponentDecl raise ManifestError {
   let loc = "components[\{index}]"
   let m = expect_object(j, loc)
+  known_fields(m, ["name", "path"], loc)
   let name = required_string(m, "name", loc)
   let path = required_string(m, "path", loc)
   if name.is_empty() {
     raise MissingField(loc, "name")
   }
+  if name.contains(".") { raise WrongType(loc, "name", "a string without dots") }
+  if path == "" { raise MissingField(loc, "path") }
   { name, path }
 }
 
@@ -134,15 +131,16 @@ fn parse_component(j : @json.Json, index : Int) -> ComponentDecl raise ManifestE
 /// Parse a manifest string. Validation of *references* (does wire point at an
 /// existing component, is the graph acyclic) is deferred to the planner.
 pub fn parse(s : String) -> Manifest raise ManifestError {
-  let json = @json.parse(s, max_nesting_depth=64) catch {
+  let json = @json.parse(s, max_nesting_depth=64, reject_duplicate_keys=true, preserve_number_repr=true) catch {
     e => raise InvalidJson(e.to_string())
   }
   let root = expect_object(json, "manifest")
+  known_fields(root, ["version", "components", "wires", "resources"], "manifest")
   let version = match root.get("version") {
     Some(v) => expect_string(v, "manifest.version")
-    None => "0.1.0"
+    None => "0.2.0"
   }
-  if !version.has_prefix("0.1.") {
+  if version != "0.1.0" && version != "0.2.0" {
     raise UnsupportedManifestVersion(version)
   }
   let comps_json = expect_array(required(root, "components", "manifest"), "manifest.components")
@@ -174,6 +172,7 @@ pub fn parse(s : String) -> Manifest raise ManifestError {
     None => { max_memory_pages: None, quota: None }
     Some(r) => {
       let rm = expect_object(r, "manifest.resources")
+      known_fields(rm, ["max_memory_pages", "quota"], "manifest.resources")
       {
         max_memory_pages: optional_nonneg_int(rm, "max_memory_pages", "manifest.resources"),
         quota: optional_nonneg_int(rm, "quota", "manifest.resources"),
@@ -181,4 +180,19 @@ pub fn parse(s : String) -> Manifest raise ManifestError {
     }
   }
   { version, components, wires, resources }
+}
+///|
+fn known_fields(obj : Map[String, @json.Json], allowed : Array[String], loc : String) -> Unit raise ManifestError {
+  let unknown : Array[String] = []
+  for key, _ in obj { if !allowed.contains(key) { unknown.push(key) } }
+  unknown.sort_by(fn(a, b) {
+    let ai = a.iter(); let bi = b.iter()
+    while true { match (ai.next(), bi.next()) {
+      (Some(x), Some(y)) => if x != y { return x.to_int() - y.to_int() }
+      (None, Some(_)) => return -1
+      (Some(_), None) => return 1
+      (None, None) => return 0
+    } } nobreak { 0 }
+  })
+  if unknown.length() > 0 { raise UnknownField(loc, unknown[0]) }
 }

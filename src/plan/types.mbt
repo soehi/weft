@@ -27,14 +27,8 @@ pub fn resolve_port(
   }
   // Try the full path first: it may name an interface directly, or a plain func.
   // Paths are `iface.func` or `func`.
-  let mut dot = -1
-  let mut i = 0
-  for c in port_path {
-    if c == '.' && dot < 0 {
-      dot = i
-    }
-    i = i + 1
-  }
+  let segments = port_path.split(".").to_array()
+  let dot = if segments.length() < 2 { -1 } else { segments[0].length() }
   if dot < 0 {
     // Plain function name.
     for e in table {
