@@ -18,7 +18,12 @@ jobs:
         target: [native, wasm-gc, js]
     steps:
       - uses: actions/checkout@v4
-      - uses: moonbit-community/setup-moonbit@v1
+      # setup-moonbit has no release tags; pin the verified action revision.
+      - uses: moonbit-community/setup-moonbit@04293a8a813bfd4b6c2fce22701b52ae1050d100
+        with:
+          version: latest
+      - name: Record toolchain version
+        run: moon version --all
       - name: Resolve dependencies
         run: moon update
       - name: Test portable packages
@@ -35,7 +40,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: moonbit-community/setup-moonbit@v1
+      # setup-moonbit has no release tags; pin the verified action revision.
+      - uses: moonbit-community/setup-moonbit@04293a8a813bfd4b6c2fce22701b52ae1050d100
+        with:
+          version: latest
+      - name: Record toolchain version
+        run: moon version --all
       - run: moon update
       - name: Verify gate failure propagation
         run: node scripts/test-gate.mjs
@@ -50,7 +60,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: moonbit-community/setup-moonbit@v1
+      # setup-moonbit has no release tags; pin the verified action revision.
+      - uses: moonbit-community/setup-moonbit@04293a8a813bfd4b6c2fce22701b52ae1050d100
+        with:
+          version: latest
+      - name: Record toolchain version
+        run: moon version --all
       - run: moon update
       - name: Type-check the adapter
         run: moon check src/runtime_native --target native
