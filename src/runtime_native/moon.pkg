@@ -1,4 +1,4 @@
-// The only code in this repository that imports `wasmoon`.
+// Experimental adapter; the separate runtime_probe also imports wasmoon.
 //
 // wasmoon's component runtime is `supported_targets = "+native"`, so this
 // package is native-only by construction. Execution is disabled until the E1

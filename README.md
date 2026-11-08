@@ -87,7 +87,7 @@ moon run src/cli --target js -- plan examples/chain.json
 | `weft run <manifest>` | 预留命令，明确报未支持并退出 1 | 全部 |
 
 `run` 在所有后端均返回 `error: run is unsupported`，退出码为 1。
-真实跨实例 import 安装尚未验证；单独的 `src/runtime_native` 入口也已关闭执行。
+独立 Linux 探针已验证跨实例 import 安装；部署计划执行器尚未接入，`src/runtime_native` 入口仍关闭执行。
 查看规划结果使用 `plan`。
 
 `convert` 默认把清单打印到标准输出，`--out` 指定输出文件。`--dep` 的文件路径和
@@ -128,7 +128,8 @@ weft/
 │   ├── wac_adapter/   WAC ↔ 清单 双向转换
 │   ├── exec_plan/     计划 → 执行轨迹（纯逻辑，三后端可测）
 │   ├── cli/           CLI（三后端可编译）
-│   ├── runtime_native/  ★ native-only 执行适配（唯一 import wasmoon 的包）
+│   ├── runtime_native/  ★ native-only 实验执行适配（入口关闭）
+│   ├── runtime_probe/   Linux 两组件真实连线执行探针
 │   └── tools/         开发者工具（生成示例组件）
 ├── examples/
 ├── docs/
@@ -138,7 +139,7 @@ weft/
 硬性规则，可 grep 验证：
 
 - `manifest` / `ir` / `plan` / `wac_adapter` / `exec_plan` **不 import wasmoon**，只依赖 `wasm_component`、`wac`、`wit`、`core`。
-- 只有 `src/runtime_native` import wasmoon，且声明 `supported_targets = "native"`。
+- `src/runtime_native` 与独立测试包 `src/runtime_probe` import wasmoon，均声明 `supported_targets = "native"`。
 - `cli` 三后端都能 `moon build`。
 
 ### 解码路径
@@ -219,7 +220,7 @@ Windows 的 `bash` 若指向未安装发行版的 WSL，可设置 `WEFT_TEST_BAS
 
   本项目只能宣称"编排策略"，不能宣称"隔离保证"。
 - 实验执行器包含线性链与标量处理代码，但尚未实现真实跨实例连线，执行入口关闭。
-- 执行层只做类型检查；Windows/MSVC 的 C11 原子链接阻塞仍存在。Linux/macOS 上的执行闭环也未验证。见 `docs/S3-EXECUTION.md`。
+- Linux 独立探针已验证真实连线、断线和改接；部署计划执行器尚未接入。Windows/MSVC 的 C11 原子链接阻塞仍存在，macOS 未验证。见 `docs/S3-EXECUTION.md`。
 - 不做分布式、不做集群、不做网络传输——那是 wasmCloud 的领域。
 - 不做静态合成产物——那是 wasm-compose 的领域。
 - 不重写 WAC 语言——解析与验证全部走 `moonrockz/wac`。本适配器只把**已通过验证**的语义模型映射成清单，遇到 spread、嵌套 `new`、rename 等超出清单模型的结构会明确报 `Unsupported`，不静默近似。
@@ -230,8 +231,9 @@ Windows 的 `bash` 若指向未安装发行版的 WSL，可设置 `WEFT_TEST_BAS
 ## 执行层现状
 
 `src/runtime_native` 的类型检查通过，但当前 `Bind` 仅查找端口，没有把源 export 安装为目标 import。
-因此类型检查不构成执行验证，两个执行入口均返回未支持；CI 只报告适配器类型检查。
-下一步原生执行实验按 [E1 路线](docs/ROADMAP.md)推进。
+两个执行入口仍返回未支持。独立 `src/runtime_probe` 在 Linux CI 中通过三个真实执行断言：
+41 → 源 +1 → 消费者经 import 调用并 ×2 得到 84，断线实例化失败，改接 +2 得到 86。
+下一步按 [E1.3 路线](docs/ROADMAP.md)改造部署计划执行顺序及调用目标。
 
 `emit-wac` 与 `convert` 已验证库级往返及 CLI 文件往返，外部组合与运行尚未建立固定命令和结果断言，
 所以暂不宣称可执行产物闭环。示例组件仅用于规划检查，reader 返回常数 0，sink 没有可调用导出。

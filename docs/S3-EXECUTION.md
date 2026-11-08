@@ -5,7 +5,7 @@
 
 ## 当前状态
 
-- `src/runtime_native` 是同一模块内唯一依赖 wasmoon 的包，限定 native。
+- `src/runtime_native` 与独立测试包 `src/runtime_probe` 依赖 wasmoon，均限定 native。
 - `moon check src/runtime_native --target native` 只证明类型与上游 API 对齐。
 - `executor.mbt` 的 `Bind` 分支只调用端口查找，没有把源 export 安装为目标 import。
 - 先全部实例化再 Bind 的纯逻辑轨迹有 5 个跨后端测试，但不证明 import 能在实例化后安装。
@@ -52,5 +52,6 @@ moon test src/runtime_probe --target native
 ```
 
 三个断言分别检查输入 41 得到 84、遗漏 `add_import` 时目标实例化失败且错误包含 inc、
-改接另一个加二的源得到 86。Windows 本机仅完成类型检查；Linux 实际结果待本次 CI 验证。
+改接另一个加二的源得到 86。Windows 本机完成类型检查；提交 `c4fdbee` 的
+[Linux CI](https://github.com/soehi/weft/actions/runs/42469369648) 已实际运行，3 passed / 0 failed。
 探针直接调用 linker，不接受部署计划，尚未修改执行轨迹或恢复 CLI `run`。
