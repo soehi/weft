@@ -232,6 +232,9 @@ M2 各项已完成；下一阶段为 M3.1 的可嵌入无文件系统 API 与结
 - 新增17模块版本清单检查、隔离安装器、Linux/Windows native + Node CLI 包、BUILD.json、SHA256SUMS 与 zip 校验和。
 - 增加 Linux / Windows 两个 release-verification job，生成 Actions artifacts，并验证解包到带空格新目录后的版本、错误码和黄金计划。
 - 固定工具链0.10.20下，本机三后端各131个测试、各33项CLI检查、独立消费者及真实Chromium回归通过。
+- 修复官方 Linux 工具链归档缺少执行位，以及 Windows runner 临时目录别名导致的解包路径误报。
+  提交 `a58a980` 的 [CI](https://github.com/soehi/weft/actions/runs/42443518723) 八个 job 全部成功，
+  Windows / Linux 发布包均通过干净目录首次使用验证，并已上传同次运行的 Actions artifacts。
 - 本轮不创建公开 tag/Release，不向 Mooncakes 发布，不宣称真实执行已验证。M3交付与E1执行支线的边界保持独立。
 
 M1–M3 的本轮规划交付已完成；执行能力若继续推进，下一步按 E1 做 Linux 两组件真实 wiring 探针。
