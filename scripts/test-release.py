@@ -15,7 +15,9 @@ def main():
     archive = Path(sys.argv[1]).resolve()
     assert sha(archive) == archive.with_suffix(".zip.sha256").read_text(encoding="utf-8").split()[0]
     with tempfile.TemporaryDirectory(prefix="weft clean install ") as temporary:
-        clean = Path(temporary)
+        # Windows runner temp paths may use an 8.3 alias or a junction.
+        # Compare canonical paths on both sides of the containment checks.
+        clean = Path(temporary).resolve()
         with zipfile.ZipFile(archive) as reader:
             for entry in reader.infolist(): assert (clean / entry.filename).resolve().is_relative_to(clean)
             reader.extractall(clean)
