@@ -1,0 +1,4 @@
+import {
+  "soehi/weft/ir",
+  "soehi/weft/manifest",
+}

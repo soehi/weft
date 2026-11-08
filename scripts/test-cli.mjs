@@ -35,7 +35,18 @@ try {
   assert.deepEqual(stdout, m);
   cli(['convert', 'source.wac', '--dep', `ns:reader@1.0.0=${join(temp, 'components', 'custom reader.wasm')}`]);
   cli(['plan', join(root, 'examples', 'chain.json')]);
-  cli(['emit-wac', join(root, 'examples', 'chain.json'), '--out', 'output files/chain.wac']);
+  assert.match(cli(['emit-wac', join(root, 'examples', 'chain.json')], false), /cannot preserve resource limits/);
+  const plain = JSON.parse(readFileSync(join(root, 'examples', 'chain.json'), 'utf8'));
+  delete plain.resources;
+  plain.components.reverse();
+  writeFileSync(join(temp, 'plain.json'), JSON.stringify(plain));
+  cli(['emit-wac', 'plain.json', '--out', 'output files/chain.wac']);
+  cli(['convert', 'output files/chain.wac',
+    '--dep', `weft:reader=${join(root, 'examples', 'reader.wasm')}`,
+    '--dep', `weft:filter=${join(root, 'examples', 'filter.wasm')}`,
+    '--dep', `weft:sink=${join(root, 'examples', 'sink.wasm')}`,
+    '--out', 'output files/roundtrip.json']);
+  cli(['plan', 'output files/roundtrip.json']);
   // Complete-plan checks must fail at the actual CLI boundary as well.
   const chain = JSON.parse(readFileSync(join(root, 'examples', 'chain.json'), 'utf8'));
   for (const c of chain.components) c.path = join(root, 'examples', c.path);

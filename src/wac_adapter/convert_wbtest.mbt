@@ -126,18 +126,18 @@ test "emit-wac: renders wiring in instantiation order" {
   }
   let wac = manifest_to_wac(m)
   inspect(wac.has_prefix("package weft:generated;"), content="true")
-  inspect(wac.contains("let reader = new weft:reader {};"), content="true")
+  inspect(wac.contains("let c-reader = new weft:reader {};"), content="true")
   inspect(
-    wac.contains("let filter = new weft:filter { in: reader.read };"),
+    wac.contains("let c-filter = new weft:filter { \"in\": c-reader[\"read\"] };"),
     content="true",
   )
-  inspect(wac.contains("export reader as \"reader\";"), content="true")
+  inspect(wac.contains("export c-reader as \"reader\";"), content="true")
 }
 
 ///|
 test "emit-wac: instance names are sanitized" {
-  inspect(instance_name("a.b:c/d@1"), content="a_b_c_d_1")
-  inspect(instance_name("plain"), content="plain")
+  inspect(instance_name("a.b:c/d@1"), content="c-a.b:c/d@1")
+  inspect(instance_name("plain"), content="c-plain")
 }
 
 ///|

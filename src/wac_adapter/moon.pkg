@@ -6,6 +6,8 @@
 // Pure logic; all three backends.
 
 import {
+  "soehi/weft/graph",
+  "soehi/weft/ir",
   "moonrockz/wac/parser" @parser,
   "moonrockz/wac/verifier" @verifier,
   "soehi/weft/manifest" @manifest,

@@ -66,7 +66,8 @@ pub fn cmd_emit_wac(manifest_text : String) -> CmdResult {
   let m = @manifest.parse(manifest_text) catch {
     e => return fail_command(e.to_string())
   }
-  succeed(@wac.manifest_to_wac(m))
+  let text = @wac.manifest_to_wac(m) catch { e => return fail_command(e.to_string()) }
+  succeed(text)
 }
 
 ///|

@@ -87,7 +87,7 @@ cli  ──▶ plan ──▶ ir ──▶ manifest
 
 `src/plan` 的主要职责分布：
 
-- `graph.mbt`：从清单的 wires 建图。边是 `provider → consumer`，因为 provider 必须先实例化。邻接表排序去重。DFS 找环（显式栈，避免大图递归过深）。Kahn 拓扑排序，ready 集合按名字取最小。
+- `graph.mbt`：兼容包装，共用 `src/graph` 的图构建、环检测和拓扑排序；WAC 适配器直接依赖此纯逻辑包。图逻辑从清单的 wires 建图。边是 `provider → consumer`，因为 provider 必须先实例化。邻接表排序去重。DFS 找环（显式栈，避免大图递归过深）。Kahn 拓扑排序，ready 集合按名字取最小。
 - `bindings.mbt`：完整计划的唯一提供方与导入覆盖检查；整体实例和非函数导入暂时明确拒绝。
 - `semantic.mbt`：支持子集验证与严格的跨类型表结构比较。
 - `types.mbt`：端口路径解析（`f` 或 `iface.f`）+ canonical 展开 + 两端比较。比较给出**具体的差异**（"parameter 0: i32 vs i64"），不是布尔。
@@ -173,3 +173,4 @@ src/tools/          示例组件生成器
 examples/           清单与三个真实组件二进制
 docs/               S0 实证、S3 现状
 ```
+WAC 的发射顺序、名称与资源边界见 [WAC-SUBSET.md](docs/WAC-SUBSET.md)。

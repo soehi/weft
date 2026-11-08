@@ -1,9 +1,8 @@
 // Verified WAC composition -> our declarative manifest.
 //
-// Scope and honesty: this adapter recovers *the component set and the wiring
-// between them* from a WAC composition. It does not translate arbitrary WAC
-// expressions (spreads, nested `new`, renames, includes). Anything it cannot
-// map is rejected with a named diagnostic rather than silently approximated.
+// The supported, lossless subset is documented in docs/WAC-SUBSET.md.
+// Preserve instance export names and direct function arguments; reject shapes
+// the manifest cannot represent instead of silently dropping their semantics.
 
 ///|
 /// A component binary supplied alongside a WAC file, keyed by its WAC package
@@ -130,12 +129,27 @@ pub fn wac_to_manifest(
   // component; each argument whose value is an `Access(node, port)` becomes a
   // wire from that node's component to this one.
   let nodes = model.composition()
+  // Preserve exactly one whole-instance export per instantiation. Other output
+  // shapes and hidden instances have no faithful representation in a manifest.
+  let exported : Map[Int, String] = Map([])
+  let used_names : Map[String, Unit] = Map([])
+  for e in model.composition_exports() {
+    if e.value < 0 || e.value >= nodes.length() { raise Unsupported("invalid export node") }
+    match nodes[e.value].operation {
+      @verifier.Instantiate(_, _, _) => ()
+      _ => raise Unsupported("export `\{e.name}` is not a whole component instance")
+    }
+    require_name(e.name, "exported instance")
+    if exported.contains(e.value) { raise Unsupported("instance exported more than once") }
+    if used_names.contains(e.name) { raise DuplicateInstance(e.name) }
+    used_names.set(e.name, ())
+    exported.set(e.value, e.name)
+  }
   // Map composition node id -> component name, filled as we go. WAC orders
   // declarations so a referenced node always precedes its use.
   let node_name : Map[Int, String] = Map([])
   let components : Array[@manifest.ComponentDecl] = []
   let wires : Array[@manifest.WireDecl] = []
-  let seen : Map[String, Unit] = Map([])
   for n in nodes {
     match n.operation {
       @verifier.Instantiate(pkg, ver, args) => {
@@ -145,23 +159,21 @@ pub fn wac_to_manifest(
         }
         let dep = match by_full.get(key) {
           Some(d) => d
-          None =>
-            match by_full.get(short_name(pkg)) {
-              Some(d) => d
-              None => raise UnknownDependency(pkg)
-            }
+          None => raise UnknownDependency(key)
         }
-        // `seen` guards against two instantiations of the same package
-        // collapsing into one manifest component with different wiring.
-        let name = short_name(pkg)
-        let unique = match seen.get(name) {
-          Some(_) => "\{name}#\{n.id}"
-          None => name
+        let unique = match exported.get(n.id) {
+          Some(name) => name
+          None => raise Unsupported("instance from `\{pkg}` is not exported exactly once")
         }
-        seen.set(name, ())
+        let name = unique
         components.push({ name: unique, path: dep.path })
         node_name.set(n.id, unique)
         for a in args {
+          if a.value < 0 || a.value >= nodes.length() { raise Unsupported("invalid argument node") }
+          match nodes[a.value].kind {
+            @verifier.Function(_) => ()
+            _ => raise Unsupported("argument `\{a.name}` on `\{name}` is not a function")
+          }
           // The argument's value is usually an `Access(source_node, export)`
           // node, not the instantiation itself. Follow it back to the producing
           // instance before looking up the component name.
@@ -185,7 +197,9 @@ pub fn wac_to_manifest(
           })
         }
       }
-      _ => ()
+      @verifier.Import(name) => raise Unsupported("host import `\{name}` is not representable")
+      @verifier.Definition => raise Unsupported("local WAC definitions are not representable")
+      @verifier.Access(_, _) => ()
     }
   }
   {

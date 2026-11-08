@@ -110,6 +110,9 @@ $ weft plan missing.wasm.json
 error: cannot read component `reader` from /path/to/reader.wasm: No such file or directory
 ```
 
+`emit-wac` 按拓扑顺序发射；名称与端口采用明确的小写 kebab 子集，资源字段存在时拒绝转换。
+详见 [WAC 支持范围与迁移](docs/WAC-SUBSET.md)。
+
 组件路径相对于**清单文件所在目录**解析，因此 `weft plan examples/chain.json` 在任何工作目录下都成立。
 
 ---
@@ -176,14 +179,14 @@ moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --t
 moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target js
 ```
 
-本轮实测：**104 个测试，三个后端各自全部通过**；各后端另外执行 25 项真实 CLI 检查。
+本轮实测：**113 个测试，三个后端各自全部通过**；各后端另外执行 28 项真实 CLI 检查。
 
 | 包 | 测试数 | 覆盖 |
 |---|---|---|
 | `manifest` | 19 | 合法/非法 JSON、缺字段、重复组件、端口路径、负数/小数配额、版本 |
 | `ir` | 7 | 函数/接口导入导出、富类型、canonical 展开、排序、解码失败命名 |
 | `plan` | 61 | 线性链、菱形、宽扇出、成环（自环/多节点）、未知组件/端口、签名不匹配、接口路径、资源、hash 敏感性、21 节点扇入、黄金字节、语义结构匹配、相同 ABI 反例、未支持类型、重复绑定与 import 覆盖 |
-| `wac_adapter` | 9 | WAC→清单、Access→wire、缺依赖、往返、名称消毒 |
+| `wac_adapter` | 18 | WAC→清单、Access→wire、缺依赖、往返、名称消毒 |
 | `exec_plan` | 5 | 两阶段顺序、轨迹确定性、终点调用、空计划 |
 | `cli` | 3 | 严格参数解析、版本与路径保留 |
 

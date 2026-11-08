@@ -126,7 +126,8 @@ pub let help_text : String =
   #|      deterministic instantiation plan as JSON.
   #|
   #|  weft emit-wac <manifest.json> [--out <file>]
-  #|      Render the manifest as WAC, for composition with external tooling.
+  #|      Render a DAG as WAC; names/ports must be lowercase kebab names.
+  #|      Resource policies and interface paths cannot be preserved and are rejected.
   #|
   #|  weft convert <file.wac> --dep <ns:name>[@version]=<path> [--dep ...] [--out <file>]
   #|      Convert a WAC composition into this tool's manifest format. Every

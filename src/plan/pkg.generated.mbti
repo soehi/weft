@@ -2,14 +2,15 @@
 package "soehi/weft/plan"
 
 import {
+  "soehi/weft/graph",
   "soehi/weft/ir",
   "soehi/weft/manifest",
 }
 
 // Values
-pub fn build_graph(@manifest.Manifest) -> Graph raise PlanError
+pub fn build_graph(@manifest.Manifest) -> @graph.Graph raise PlanError
 
-pub fn check_acyclic(Graph) -> Unit raise PlanError
+pub fn check_acyclic(@graph.Graph) -> Unit raise PlanError
 
 pub fn check_wire_signatures(String, String, FlatSig, String, String, FlatSig) -> Unit raise PlanError
 
@@ -29,7 +30,7 @@ pub fn resolve_port(@ir.Iface, Side, String) -> @ir.FuncSig raise PlanError
 
 pub fn show_flat(Array[String]) -> String
 
-pub fn topo_order(Graph) -> Array[Int32]
+pub fn topo_order(@graph.Graph) -> Array[Int32]
 
 // Errors
 pub(all) suberror PlanError {
@@ -52,11 +53,6 @@ pub impl Show for PlanError
 pub(all) struct FlatSig {
   params : Array[String]
   results : Array[String]
-}
-
-pub(all) struct Graph {
-  nodes : Array[String]
-  edges : Array[Array[Int32]]
 }
 
 pub(all) struct Input {
@@ -101,5 +97,6 @@ pub(all) enum Side {
 }
 
 // Type aliases
+pub using @graph {type Graph}
 
 // Traits

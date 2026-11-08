@@ -6,6 +6,7 @@
 // claim and is asserted by tests.
 
 import {
+  "soehi/weft/graph",
   "moonbitlang/core/json" @json,
   "Milky2018/wasm_core/types" @core,
   "soehi/weft/ir",

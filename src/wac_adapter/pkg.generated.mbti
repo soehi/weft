@@ -8,7 +8,7 @@ import {
 // Values
 pub fn instance_name(String) -> String
 
-pub fn manifest_to_wac(@manifest.Manifest) -> String
+pub fn manifest_to_wac(@manifest.Manifest) -> String raise WacError
 
 pub fn short_name(String) -> String
 
