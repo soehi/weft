@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 def check_toolchain():
-    lock = json.loads((ROOT / "release/toolchain.lock.json").read_text())
+    lock = json.loads((ROOT / "release/toolchain.lock.json").read_text(encoding="utf-8"))
     text = subprocess.check_output(["moon", "version", "--all"], text=True, encoding="utf-8")
     for key in ["moon", "moonc", "moonrun"]:
         assert re.search(r"(?m)^" + key + r" " + re.escape(lock[key]) + r"(?: |$)", text), f"unexpected {key}; use the locked toolchain"
@@ -18,7 +18,7 @@ def check_toolchain():
     return text
 
 def check_dependencies():
-    lock = json.loads((ROOT / "release/dependencies.lock.json").read_text())["modules"]
+    lock = json.loads((ROOT / "release/dependencies.lock.json").read_text(encoding="utf-8"))["modules"]
     found = []
     for path in (ROOT / ".mooncakes").glob("*/*/moon.mod"):
         text = path.read_text(encoding="utf-8")

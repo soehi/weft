@@ -20,7 +20,7 @@ def main():
     parser.add_argument("--destination", required=True)
     parser.add_argument("--cache", default=str(ROOT / "_build/toolchain-downloads"))
     args = parser.parse_args()
-    lock = json.loads((ROOT / "release/toolchain.lock.json").read_text())
+    lock = json.loads((ROOT / "release/toolchain.lock.json").read_text(encoding="utf-8"))
     machine = platform.machine().lower()
     assert machine in ["amd64", "x86_64"], "locked installer currently supports x86_64 only"
     target = "windows-x86_64" if os.name == "nt" else "linux-x86_64"
@@ -29,7 +29,7 @@ def main():
     assert destination != Path.home().resolve(), "use an isolated destination"
     marker = destination / ".weft-toolchain.json"
     if destination.exists() and any(destination.iterdir()):
-        assert marker.exists() and json.loads(marker.read_text()) == lock, "nonempty destination is not this locked toolchain; choose a new directory"
+        assert marker.exists() and json.loads(marker.read_text(encoding="utf-8")) == lock, "nonempty destination is not this locked toolchain; choose a new directory"
     else:
         destination.mkdir(parents=True, exist_ok=True)
         cache.mkdir(parents=True, exist_ok=True)

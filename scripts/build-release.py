@@ -20,8 +20,8 @@ def sha(path):
 def main():
     checks["check_toolchain"]()
     checks["check_dependencies"]()
-    version = re.search(r'^version = "([^"]+)"', (ROOT / "moon.mod").read_text(), re.M)[1]
-    assert f"weft {version} (plan 0.2.0)" in (ROOT / "src/cli/core.mbt").read_text(), "CLI version differs from module"
+    version = re.search(r'^version = "([^"]+)"', (ROOT / "moon.mod").read_text(encoding="utf-8"), re.M)[1]
+    assert f"weft {version} (plan 0.2.0)" in (ROOT / "src/cli/core.mbt").read_text(encoding="utf-8"), "CLI version differs from module"
     assert not subprocess.check_output(["git", "diff", "HEAD", "--name-only"], cwd=ROOT).strip(), "commit tracked source changes before release verification"
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     for target in ["native", "js"]:
@@ -51,7 +51,7 @@ def main():
             for license_file in sorted(path.glob("LICENSE*")):
                 if license_file.is_file(): notices.append(license_file.read_text(encoding="utf-8", errors="replace"))
         (bundle / "THIRD-PARTY.txt").write_text("\n\n".join(notices), encoding="utf-8")
-        metadata = {"version":version,"plan_version":"0.2.0","commit":commit,"target":target,"toolchain":json.loads((ROOT / "release/toolchain.lock.json").read_text()),"dependencies":checks["check_dependencies"]()}
+        metadata = {"version":version,"plan_version":"0.2.0","commit":commit,"target":target,"toolchain":json.loads((ROOT / "release/toolchain.lock.json").read_text(encoding="utf-8")),"dependencies":checks["check_dependencies"]()}
         (bundle / "BUILD.json").write_text(json.dumps(metadata, indent=2)+"\n", encoding="utf-8")
         (bundle / "README.txt").write_text("weft "+version+"\nNative: "+native_name+" --version\nNode.js 24+: node weft.mjs --version\nPlan: node weft.mjs plan examples/chain.json --out plan.json\nVerify SHA256SUMS before use; BUILD.json records source and toolchain. No native execution adapter is included.\n", encoding="utf-8")
         sums = "".join(sha(f)+"  "+f.relative_to(bundle).as_posix()+"\n" for f in sorted(bundle.rglob("*")) if f.is_file())

@@ -13,20 +13,20 @@ def sha(path):
 
 def main():
     archive = Path(sys.argv[1]).resolve()
-    assert sha(archive) == archive.with_suffix(".zip.sha256").read_text().split()[0]
+    assert sha(archive) == archive.with_suffix(".zip.sha256").read_text(encoding="utf-8").split()[0]
     with tempfile.TemporaryDirectory(prefix="weft clean install ") as temporary:
         clean = Path(temporary)
         with zipfile.ZipFile(archive) as reader:
             for entry in reader.infolist(): assert (clean / entry.filename).resolve().is_relative_to(clean)
             reader.extractall(clean)
         root, = [path for path in clean.iterdir() if path.is_dir()]
-        for line in (root / "SHA256SUMS").read_text().splitlines():
+        for line in (root / "SHA256SUMS").read_text(encoding="utf-8").splitlines():
             expected, name = line.split("  ", 1)
             path = (root / name).resolve()
             assert path.is_relative_to(root) and sha(path) == expected, name
         binary = root / ("weft.exe" if os.name == "nt" else "weft")
         if os.name != "nt": binary.chmod(0o755)
-        meta = json.loads((root / "BUILD.json").read_text())
+        meta = json.loads((root / "BUILD.json").read_text(encoding="utf-8"))
         # Invocations only use the extracted CLI and Node; there is no moon.mod or dependency cache here.
         for command in [[str(binary)], ["node", str(root / "weft.mjs")]]:
             version = subprocess.check_output(command+["--version"], cwd=clean, text=True).strip()
