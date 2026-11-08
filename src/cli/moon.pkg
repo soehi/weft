@@ -1,5 +1,5 @@
 import {
-  "soehi/weft/ir",
+  "soehi/weft/api",
   "soehi/weft/manifest",
   "soehi/weft/plan",
   "soehi/weft/wac_adapter" @wac,

@@ -65,3 +65,20 @@ test "convert preserves explicit dependency metadata" {
   let m = @manifest.parse(r.text) catch { e => fail(e.to_string()) }
   assert_eq(m.components[0].path, "a directory/non-default.wasm")
 }
+
+///|
+test "CLI and public API return identical canonical bytes and errors" {
+  let text = "{\"components\":[{\"name\":\"x\",\"path\":\"logical\"}]}"
+  let bins = Map([("x", @text.parse_component_wat("(component)"))])
+  let api = match @api.compile(text, bins) {
+    Ok(o) => o
+    Err(d) => fail(d.message)
+  }
+  assert_eq(cmd_plan(text, bins).text, api.json)
+  let d = match @api.compile(text, Map([])) {
+    Err(d) => d
+    Ok(_) => fail("expected missing binary")
+  }
+  assert_eq(cmd_plan(text, Map([])).text, d.message)
+  assert_false(cmd_plan(text, Map([])).ok)
+}

@@ -179,7 +179,7 @@ moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --t
 moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target js
 ```
 
-本轮实测：**122 个测试，三个后端各自全部通过**；各后端另外执行 31 项真实 CLI 检查。
+本轮实测：**130 个测试，三个后端各自全部通过**；各后端另外执行 31 项真实 CLI 检查。
 
 | 包 | 测试数 | 覆盖 |
 |---|---|---|
@@ -188,7 +188,8 @@ moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --t
 | `plan` | 64 | 线性链、菱形、宽扇出、成环（自环/多节点）、未知组件/端口、签名不匹配、接口路径、资源、hash 敏感性、21 节点扇入、黄金字节、语义结构匹配、相同 ABI 反例、未支持类型、重复绑定与 import 覆盖 |
 | `wac_adapter` | 18 | WAC→清单、Access→wire、缺依赖、往返、名称消毒 |
 | `exec_plan` | 5 | 两阶段顺序、轨迹确定性、终点调用、空计划 |
-| `cli` | 3 | 严格参数解析、版本与路径保留 |
+| `api` | 7 | 内存输入、稳定诊断、缺字节、解码、类型/绑定与环 |
+| `cli` | 4 | 严格参数解析、版本与路径保留 |
 
 **跨后端一致性**由两条机制保证：
 
@@ -252,3 +253,6 @@ Windows 的 `bash` 若指向未安装发行版的 WSL，可设置 `WEFT_TEST_BAS
 
 Apache-2.0。
 格式、Schema、Unicode 排序和从 0.1.0 迁移见 [FORMAT.md](docs/FORMAT.md)。新计划输出 0.2.0，开发模块尚未发布到 Mooncakes。
+
+可嵌入入口为 `soehi/weft/api::compile`：输入清单字符串与组件名字节映射，返回规范计划或结构化诊断。
+无文件系统消费者与错误码契约见 [API.md](docs/API.md)，独立示例位于 [examples/consumer](examples/consumer/README.md)。

@@ -25,39 +25,22 @@ pub fn load_plan_input(
   manifest_text : String,
   binaries : Map[String, Bytes],
 ) -> @plan.Input raise @plan.PlanError {
-  let m = @manifest.parse(manifest_text) catch {
-    e => raise @plan.InvalidManifest(e.to_string())
+  match @api.load_input(manifest_text, binaries) {
+    Ok(input) => input
+    Err(d) => raise @plan.InvalidManifest(d.message)
   }
-  let ifaces : Map[String, @ir.Iface] = Map([])
-  for c in m.components {
-    match binaries.get(c.name) {
-      Some(bytes) =>
-        ifaces.set(
-          c.name,
-          @ir.decode_component(c.name, c.path, bytes) catch {
-            e => raise @plan.InvalidManifest(e.to_string())
-          },
-        )
-      None =>
-        raise @plan.InvalidManifest(
-          "no binary supplied for component `\{c.name}` (path \{c.path})",
-        )
-    }
-  }
-  { manifest: m, ifaces, }
 }
 
 ///|
-/// `plan`: parse, decode, plan, render JSON.
+/// The CLI shares the exact compiler and canonical emitter with embedders.
 pub fn cmd_plan(
   manifest_text : String,
   binaries : Map[String, Bytes],
 ) -> CmdResult {
-  let input = load_plan_input(manifest_text, binaries) catch {
-    e => return fail_command(e.to_string())
+  match @api.compile(manifest_text, binaries) {
+    Ok(output) => succeed(output.json)
+    Err(d) => fail_command(d.message)
   }
-  let p = @plan.plan(input) catch { e => return fail_command(e.to_string()) }
-  succeed(@plan.plan_json(p))
 }
 
 ///|
@@ -66,7 +49,9 @@ pub fn cmd_emit_wac(manifest_text : String) -> CmdResult {
   let m = @manifest.parse(manifest_text) catch {
     e => return fail_command(e.to_string())
   }
-  let text = @wac.manifest_to_wac(m) catch { e => return fail_command(e.to_string()) }
+  let text = @wac.manifest_to_wac(m) catch {
+    e => return fail_command(e.to_string())
+  }
   succeed(text)
 }
 

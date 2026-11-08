@@ -174,3 +174,9 @@ examples/           清单与三个真实组件二进制
 docs/               S0 实证、S3 现状
 ```
 WAC 的发射顺序、名称与资源边界见 [WAC-SUBSET.md](docs/WAC-SUBSET.md)。
+
+## 内存 API
+
+`api → manifest / ir / plan` 提供内存编译入口和错误类型到结构化诊断的单向转换。
+`cli → api` 负责输入输出，api 不依赖 CLI、文件系统、环境或运行时。
+独立 workspace 消费者只 import api，三后端构建验证这条依赖边界，详情见 [API.md](docs/API.md)。

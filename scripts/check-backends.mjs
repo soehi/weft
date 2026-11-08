@@ -15,7 +15,7 @@ try {
   const targets = ['native', 'wasm-gc', 'js'];
   for (const target of targets) {
     console.log(`== test (${target}) ==`);
-    run('moon', ['test', 'src/manifest', 'src/ir', 'src/plan', 'src/wac_adapter', 'src/exec_plan', 'src/cli', '--target', target]);
+    run('moon', ['test', 'src/manifest', 'src/ir', 'src/plan', 'src/wac_adapter', 'src/exec_plan', 'src/api', 'src/cli', '--target', target]);
   }
   run('moon', ['run', 'src/tools/make_fixtures', '--target', 'native', '--', 'examples']);
   for (const target of targets) {
@@ -33,6 +33,7 @@ try {
   for (const target of targets) {
     if (!formatGolden.equals(readFileSync(join(out, `format-${target}.json`)))) throw new Error(`format golden differs: ${target}`);
   }
+  run('node', ['scripts/test-consumer.mjs']);
   console.log('OK: all three backends produced byte-identical plans, including Unicode/escaping/integer boundaries');
 } catch (e) {
   console.error(e.message);

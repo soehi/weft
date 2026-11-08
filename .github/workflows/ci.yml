@@ -30,7 +30,7 @@ jobs:
         # runtime_native is excluded on purpose: it is the only package that
         # needs wasmoon, and its types are checked separately below.
         run: |
-          moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli \
+          moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/api src/cli \
             --target ${{ matrix.target }}
 
   identical:

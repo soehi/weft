@@ -10,6 +10,7 @@
 
 | 文件 | 内容 |
 |---|---|
+| [API.md](API.md) | M3 内存规划入口、结构化诊断与独立消费者 |
 | [FORMAT.md](FORMAT.md) | M2 版本、Schema、规范字节、hash 与 0.1→0.2 迁移 |
 | [WAC-SUBSET.md](WAC-SUBSET.md) | M2 WAC 名称、排序、资源策略与往返支持范围 |
 | [BINDING-RULES.md](BINDING-RULES.md) | M2 完整计划、唯一提供方、import 覆盖与接口实例边界 |
@@ -31,7 +32,9 @@
 bash scripts/check-backends.sh
 ```
 
-一条命令完成：三后端各跑 122 个测试 → 生成夹具 → 三后端各生成计划并跑 31 项 CLI 进程检查 → 逐字节比较。
+一条命令完成：三后端各跑 130 个测试 → 生成夹具 → 三后端各生成计划并跑 31 项 CLI 进程检查 → 逐字节比较。
 
 Windows 可运行 `pwsh -NoProfile -File scripts/check-backends.ps1`；两个入口调用同一检查程序，失败保留原始日志并返回非零。
 故意失败夹具：`node scripts/test-gate.mjs`（需要 Bash 与 pwsh）。
+
+门禁另验证 examples/consumer 独立模块在三个后端的 API 消费。

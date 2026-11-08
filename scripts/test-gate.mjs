@@ -13,7 +13,7 @@ try {
     copyFileSync(join(root, 'scripts', file), join(temp, 'scripts', file));
   }
   writeFileSync(join(temp, 'moon.mod'), 'name = "test/gate"\nsource = "src"\n');
-  for (const pkg of ['manifest', 'ir', 'plan', 'wac_adapter', 'exec_plan', 'cli']) {
+  for (const pkg of ['manifest', 'ir', 'plan', 'wac_adapter', 'exec_plan', 'api', 'cli']) {
     mkdirSync(join(temp, 'src', pkg), { recursive: true });
     writeFileSync(join(temp, 'src', pkg, 'moon.pkg'), '');
   }

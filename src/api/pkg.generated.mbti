@@ -1,0 +1,45 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "soehi/weft/api"
+
+import {
+  "moonbitlang/core/debug",
+  "soehi/weft/plan",
+}
+
+// Values
+pub fn compile(String, Map[String, Bytes]) -> Result[Output, Diagnostic]
+
+pub fn load_input(String, Map[String, Bytes]) -> Result[@plan.Input, Diagnostic]
+
+// Errors
+
+// Types and methods
+pub(all) struct Diagnostic {
+  code : String
+  stage : String
+  message : String
+  location : Location
+  related : Array[Location]
+  detail : String?
+} derive(Eq, @debug.Debug)
+pub fn Diagnostic::equal(Self, Self) -> Bool
+pub fn Diagnostic::not_equal(Self, Self) -> Bool
+pub fn Diagnostic::to_repr(Self) -> @debug.Repr
+
+pub(all) struct Location {
+  component : String?
+  port : String?
+  field : String?
+} derive(Eq, @debug.Debug)
+pub fn Location::equal(Self, Self) -> Bool
+pub fn Location::not_equal(Self, Self) -> Bool
+pub fn Location::to_repr(Self) -> @debug.Repr
+
+pub(all) struct Output {
+  plan : @plan.Plan
+  json : String
+}
+
+// Type aliases
+
+// Traits
