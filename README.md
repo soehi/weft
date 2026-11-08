@@ -153,9 +153,10 @@ weft/
 1. **解析组件**：`sniff_binary_kind` → 语义解码 → 校验。失败时报**哪个组件、什么错误**。
 2. **提取接口**：world 的 imports/exports，含接口内函数与完整类型表。
 3. **连线类型检查**：先拒绝未支持的函数和值类型语义，再按双方各自的类型表检查严格结构相等，最后用上游 canonical ABI 展开作补充检查。`bool` 和 `u32` 即使同为 i32 也不兼容；规则见 [支持矩阵](docs/TYPE-SUPPORT.md)。
-4. **依赖图 + 环检测**：DFS，报出环上的组件序列。
-5. **拓扑排序**：Kahn，同层按组件名字典序 tie-break（自有 `cmp_str`，不依赖库的 `compare`）。
-6. **输出计划**：JSON，含实例化顺序、连线绑定、资源策略元数据、`plan_hash`（对规范化后的计划体做 FNV-1a 64）。
+4. **绑定覆盖**：拒绝重复 wire、未绑定 import 和当前无法表达的实例/非函数 import。允许同一 export 连接不同函数 import。
+5. **依赖图 + 环检测**：DFS，报出环上的组件序列。
+6. **拓扑排序**：Kahn，同层按组件名字典序 tie-break（自有 `cmp_str`，不依赖库的 `compare`）。
+7. **输出计划**：JSON，含实例化顺序、连线绑定、资源策略元数据、`plan_hash`（对规范化后的计划体做 FNV-1a 64）。
 
 ### 确定性从哪来
 
@@ -175,13 +176,13 @@ moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --t
 moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target js
 ```
 
-本轮实测：**95 个测试，三个后端各自全部通过**；各后端另外执行 23 项真实 CLI 检查。
+本轮实测：**104 个测试，三个后端各自全部通过**；各后端另外执行 25 项真实 CLI 检查。
 
 | 包 | 测试数 | 覆盖 |
 |---|---|---|
 | `manifest` | 19 | 合法/非法 JSON、缺字段、重复组件、端口路径、负数/小数配额、版本 |
 | `ir` | 7 | 函数/接口导入导出、富类型、canonical 展开、排序、解码失败命名 |
-| `plan` | 52 | 线性链、菱形、宽扇出、成环（自环/多节点）、未知组件/端口、签名不匹配、接口路径、资源、hash 敏感性、21 节点扇入、黄金字节、语义结构匹配、相同 ABI 反例、未支持类型 |
+| `plan` | 61 | 线性链、菱形、宽扇出、成环（自环/多节点）、未知组件/端口、签名不匹配、接口路径、资源、hash 敏感性、21 节点扇入、黄金字节、语义结构匹配、相同 ABI 反例、未支持类型、重复绑定与 import 覆盖 |
 | `wac_adapter` | 9 | WAC→清单、Access→wire、缺依赖、往返、名称消毒 |
 | `exec_plan` | 5 | 两阶段顺序、轨迹确定性、终点调用、空计划 |
 | `cli` | 3 | 严格参数解析、版本与路径保留 |
@@ -207,7 +208,7 @@ Windows 的 `bash` 若指向未安装发行版的 WSL，可设置 `WEFT_TEST_BAS
 
 ## 范围与限制（诚实边界）
 
-- 规划器对函数级 wire 执行严格语义结构匹配与 ABI 检查；async、resource、own/borrow、future/stream、error-context、fixed-list/map 明确报 `Unsupported`。不做 subtyping 或接口实例整体兼容性证明，导入覆盖规则仍待 M2.3。详见 [支持矩阵及迁移说明](docs/TYPE-SUPPORT.md)。
+- 规划器对函数级 wire 执行严格语义结构匹配与 ABI 检查；async、resource、own/borrow、future/stream、error-context、fixed-list/map 明确报 `Unsupported`。不做 subtyping 或接口实例整体兼容性证明，完整计划要求每个函数 import 恰有一条提供方 wire；导入接口实例与非函数 import 暂时拒绝，详见 [绑定规则](docs/BINDING-RULES.md)。详见 [支持矩阵及迁移说明](docs/TYPE-SUPPORT.md)。
 - **不宣称安全隔离 / 沙箱保证**。隔离语义来自 wasmoon，而 wasmoon 上游自述：
 
   > "This project is primarily developed with AI assistance and has not been thoroughly audited. **Do not use in production or security-sensitive environments.**"

@@ -88,6 +88,7 @@ cli  ──▶ plan ──▶ ir ──▶ manifest
 `src/plan` 的主要职责分布：
 
 - `graph.mbt`：从清单的 wires 建图。边是 `provider → consumer`，因为 provider 必须先实例化。邻接表排序去重。DFS 找环（显式栈，避免大图递归过深）。Kahn 拓扑排序，ready 集合按名字取最小。
+- `bindings.mbt`：完整计划的唯一提供方与导入覆盖检查；整体实例和非函数导入暂时明确拒绝。
 - `semantic.mbt`：支持子集验证与严格的跨类型表结构比较。
 - `types.mbt`：端口路径解析（`f` 或 `iface.f`）+ canonical 展开 + 两端比较。比较给出**具体的差异**（"parameter 0: i32 vs i64"），不是布尔。
 - `emit.mbt`：手写 JSON 拼装。键顺序、数组顺序、数字格式全部显式，不用反射。`plan_body` 是去掉 hash 字段的版本，hash 就覆盖它。

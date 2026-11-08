@@ -268,13 +268,13 @@ test "plan: result arity mismatch" {
 
 ///|
 test "plan: interface path wire resolves nested function" {
-  // a exports an interface `io` containing `transform`; b imports the same.
+  // Exported interface functions may provide a plain function import.
   let a = iface_export_comp("io", "transform")
-  let b = iface_import_comp("io", "transform")
+  let b = s32_comp([], ["in"])
   let m = manifest_of(
     (
       #|{"components":[{"name":"a","path":"a"},{"name":"b","path":"b"}],
-      #| "wires":[{"from":"a.io.transform","to":"b.io.transform"}]}
+      #| "wires":[{"from":"a.io.transform","to":"b.in"}]}
     ),
   )
   let input = input_of(m, [("a", a), ("b", b)]) catch {
@@ -414,7 +414,7 @@ test "plan: hash changes when resources change" {
 test "plan: hash changes when wiring changes" {
   let a = s32_comp(["out"], [])
   let b = s32_comp([], ["in"])
-  let c = s32_comp([], ["in"])
+  let c = s32_comp(["out"], [])
   let m1 = manifest_of(
     (
       #|{"components":[{"name":"a","path":"a"},{"name":"b","path":"b"},{"name":"c","path":"c"}],
@@ -424,7 +424,7 @@ test "plan: hash changes when wiring changes" {
   let m2 = manifest_of(
     (
       #|{"components":[{"name":"a","path":"a"},{"name":"b","path":"b"},{"name":"c","path":"c"}],
-      #| "wires":[{"from":"a.out","to":"c.in"}]}
+      #| "wires":[{"from":"c.out","to":"b.in"}]}
     ),
   )
   let pairs = [("a", a), ("b", b), ("c", c)]

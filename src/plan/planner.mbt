@@ -106,6 +106,7 @@ pub fn plan(input : Input) -> Plan raise PlanError {
     wires.push(plan_wire(input, w))
   }
   sort_wires(wires)
+  check_bindings(input, wires)
   // Incoming wires per component, as indices into the sorted wire list.
   let incoming : Map[String, Array[Int32]] = Map([])
   for i in 0..<wires.length() {

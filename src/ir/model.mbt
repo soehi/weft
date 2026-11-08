@@ -131,6 +131,8 @@ pub(all) struct Iface {
   exports : Array[PortEntry]
   /// Imports, sorted by name for determinism.
   imports : Array[PortEntry]
+  /// Import names that function wires cannot express; never silently dropped.
+  unwireable_imports : Array[String]
   /// Type table backing every `ValTy::Index` in this interface.
   types : Array[TypeDef?]
 }

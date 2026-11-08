@@ -63,6 +63,10 @@ pub(all) suberror PlanError {
   SignatureMismatch(String, String, String, String, String)
   /// Connected function or value semantics are outside the supported subset.
   Unsupported(String, String, String)
+  /// Destination import has more than one wire, including repeated wires.
+  DuplicateBinding(String, String, String, String)
+  /// A complete deployment plan must cover every function import.
+  UnboundImport(String, String)
   /// A type could not be flattened to core value types.
   Unflattenable(String, String)
   /// The same binary was supplied twice under one name; internal consistency.
@@ -94,6 +98,9 @@ pub fn PlanError::to_string(self : PlanError) -> String {
       "plan: signature mismatch on wire \{fc}.\{fp} -> \{tc}.\{tp}: \{detail}"
     Unsupported(comp, port, detail) =>
       "plan: unsupported `\{comp}.\{port}`: \{detail}"
+    DuplicateBinding(comp, port, first, second) =>
+      "plan: duplicate binding for `\{comp}.\{port}`: \{first} and \{second}"
+    UnboundImport(comp, port) => "plan: unbound import `\{comp}.\{port}`"
     Unflattenable(comp, port) =>
       "plan: `\{comp}.\{port}` cannot be flattened by the canonical ABI"
     InvalidManifest(msg) => "plan: \{msg}"

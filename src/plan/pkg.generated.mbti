@@ -39,6 +39,8 @@ pub(all) suberror PlanError {
   Cycle(Array[String])
   SignatureMismatch(String, String, String, String, String)
   Unsupported(String, String, String)
+  DuplicateBinding(String, String, String, String)
+  UnboundImport(String, String)
   Unflattenable(String, String)
   InvalidManifest(String)
 }

@@ -265,13 +265,14 @@ pub fn decode_component(
   let w = pkg.world()
   let exports : Array[PortEntry] = []
   let imports : Array[PortEntry] = []
+  let unwireable_imports : Array[String] = []
   if w >= 0 && w < arena.length() {
     match arena[w].kind {
       World(_, _, ins, outs) => {
         for e in ins {
           match arena_port(e.kind, arena) {
             Some(p) => imports.push({ name: e.name, port: p })
-            None => ()
+            None => unwireable_imports.push(e.name)
           }
         }
         for e in outs {
@@ -290,7 +291,8 @@ pub fn decode_component(
   sort_entries(imports)
   sort_iface_funcs(exports)
   sort_iface_funcs(imports)
-  { name, path, exports, imports, types }
+  unwireable_imports.sort_by(cmp_str)
+  { name, path, exports, imports, unwireable_imports, types }
 }
 
 // --- IR -> model conversion, for canonical ABI reuse -----------------------

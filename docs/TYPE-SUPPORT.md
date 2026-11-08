@@ -23,7 +23,7 @@
 
 先检查两端函数及所有可达值类型是否支持，再做结构检查，最后以现有上游
 `canonical_flat_types` 校验 ABI。错误点名组件、端口及参数 / 结果 / 字段 / case 路径。
-未连接的函数暂不纳入 wire 检查；导入覆盖和接口实例规则另见 M2.3。
+未连接的函数暂不纳入 wire 检查；完整计划必须覆盖普通函数 import；接口实例与非函数 import 暂时拒绝，详见 [绑定规则](BINDING-RULES.md)。
 
 WAC 依赖固定为 `moonrockz/wac@0.3.0`。其结构比较器 `Check::compatible`
 位于内部 `compatibility.mbt`，不在公开接口中；本实现遵循此处明确的严格子集，

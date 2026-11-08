@@ -10,6 +10,7 @@
 
 | 文件 | 内容 |
 |---|---|
+| [BINDING-RULES.md](BINDING-RULES.md) | M2 完整计划、唯一提供方、import 覆盖与接口实例边界 |
 | [TYPE-SUPPORT.md](TYPE-SUPPORT.md) | M2 函数与值类型支持矩阵、结构规则和兼容性收紧说明 |
 | [S0-FINDINGS.md](S0-FINDINGS.md) | 三后端门禁的六次探针：`wasm_component` / `wac` 的真实 API、`Export.desc` 为 `None` 的坑、为什么改用语义模型、canonical 展开如何复用 |
 | [S3-EXECUTION.md](S3-EXECUTION.md) | 执行层做到哪一步、Windows/MSVC 的 C11 原子阻塞、尝试过的全部绕过手段及结果、Linux 上的复现步骤 |
@@ -28,7 +29,7 @@
 bash scripts/check-backends.sh
 ```
 
-一条命令完成：三后端各跑 95 个测试 → 生成夹具 → 三后端各生成计划并跑 23 项 CLI 进程检查 → 逐字节比较。
+一条命令完成：三后端各跑 104 个测试 → 生成夹具 → 三后端各生成计划并跑 25 项 CLI 进程检查 → 逐字节比较。
 
 Windows 可运行 `pwsh -NoProfile -File scripts/check-backends.ps1`；两个入口调用同一检查程序，失败保留原始日志并返回非零。
 故意失败夹具：`node scripts/test-gate.mjs`（需要 Bash 与 pwsh）。

@@ -141,4 +141,6 @@ pub let help_text : String =
   #|  * Plans are byte-identical across native, wasm-gc and js.
   #|  * Wires require matching synchronous component-value types and canonical ABI.
   #|    Async, resources and other unsupported value semantics are rejected.
+  #|  * Every function import needs exactly one wire; implicit host imports,
+  #|    interface instance imports and other non-function imports are rejected.
   #|

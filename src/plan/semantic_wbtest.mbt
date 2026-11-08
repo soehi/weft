@@ -20,6 +20,7 @@ fn typed_input(
     path: "s",
     exports: [{ name: "out", port: @ir.Func(a), }],
     imports: [],
+    unwireable_imports: [],
     types: at,
   }
   let sink : @ir.Iface = {
@@ -27,6 +28,7 @@ fn typed_input(
     path: "t",
     exports: [],
     imports: [{ name: "in", port: @ir.Func(b), }],
+    unwireable_imports: [],
     types: bt,
   }
   { manifest: m, ifaces: Map([("source", source), ("sink", sink)]), }
@@ -386,8 +388,8 @@ test "semantics: decoded aggregates resolve their own type tables" {
   let from_sig = resolve_port(input.ifaces["a"], ExportSide, "out")
   let to_sig = resolve_port(input.ifaces["b"], ImportSide, "in")
   assert_true(from_sig.params[0].ty != to_sig.params[0].ty)
-  let p = plan(input)
-  assert_eq(p.wires.length(), 1)
+  let w = plan_wire(input, input.manifest.wires[0])
+  assert_eq(w.from_port, "out")
 }
 
 ///|

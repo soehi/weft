@@ -51,6 +51,7 @@ pub(all) struct Iface {
   path : String
   exports : Array[PortEntry]
   imports : Array[PortEntry]
+  unwireable_imports : Array[String]
   types : Array[TypeDef?]
 }
 

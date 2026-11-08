@@ -36,6 +36,17 @@ try {
   cli(['convert', 'source.wac', '--dep', `ns:reader@1.0.0=${join(temp, 'components', 'custom reader.wasm')}`]);
   cli(['plan', join(root, 'examples', 'chain.json')]);
   cli(['emit-wac', join(root, 'examples', 'chain.json'), '--out', 'output files/chain.wac']);
+  // Complete-plan checks must fail at the actual CLI boundary as well.
+  const chain = JSON.parse(readFileSync(join(root, 'examples', 'chain.json'), 'utf8'));
+  for (const c of chain.components) c.path = join(root, 'examples', c.path);
+  const incomplete = structuredClone(chain);
+  incomplete.wires = incomplete.wires.filter(w => w.to !== 'sink.in');
+  writeFileSync(join(temp, 'unbound.json'), JSON.stringify(incomplete));
+  assert.match(cli(['plan', 'unbound.json'], false), /unbound import `sink.in`/);
+  const duplicate = structuredClone(chain);
+  duplicate.wires.push(duplicate.wires[0]);
+  writeFileSync(join(temp, 'duplicate.json'), JSON.stringify(duplicate));
+  assert.match(cli(['plan', 'duplicate.json'], false), /duplicate binding/);
   const invalid = [
     ['unknown'], ['unknown', 'plan', 'x'], ['plan'], ['plan', 'x', 'extra'],
     ['plan', 'x', '--unknown'], ['plan', 'x', '--out'], ['plan', 'x', '--out', '--out'],

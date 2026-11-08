@@ -1,7 +1,7 @@
 // Additional adversarial and edge-case coverage.
 
 ///|
-test "plan: duplicate wires collapse into one incoming index each" {
+test "plan: repeated identical wires are rejected" {
   let a = s32_comp(["out"], [])
   let b = s32_comp([], ["in"])
   let m = manifest_of(
@@ -13,13 +13,7 @@ test "plan: duplicate wires collapse into one incoming index each" {
   let input = input_of(m, [("a", a), ("b", b)]) catch {
     e => fail(e.to_string())
   }
-  let p = plan(input) catch {
-    e => fail(e.to_string())
-  }
-  // Two wires are emitted (we do not silently dedupe distinct manifest entries),
-  // and both are attached to the consumer.
-  inspect(p.wires.length(), content="2")
-  inspect(p.instances[1].incoming.length(), content="2")
+  inspect(plan_err(input), content="plan: duplicate binding for `b.in`: a.out and a.out")
 }
 
 ///|
