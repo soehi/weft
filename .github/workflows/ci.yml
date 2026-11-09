@@ -81,7 +81,7 @@ jobs:
       - name: Type-check the adapter
         run: moon check src/runtime_native --target native
       - name: Verify real cross-instance native wiring probe
-        run: moon test src/runtime_probe --target native
+        run: moon test src/runtime_probe src/runtime_native --target native
 
   browser:
     name: local browser demo (Chromium)

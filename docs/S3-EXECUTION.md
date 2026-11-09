@@ -7,8 +7,8 @@
 
 - `src/runtime_native` 与独立测试包 `src/runtime_probe` 依赖 wasmoon，均限定 native。
 - `moon check src/runtime_native --target native` 只证明类型与上游 API 对齐。
-- `executor.mbt` 的 `Bind` 分支只调用端口查找，没有把源 export 安装为目标 import。
-- 先全部实例化再 Bind 的纯逻辑轨迹有 5 个跨后端测试，但不证明 import 能在实例化后安装。
+- `executor.mbt` 已改用底层 ComponentLinker，按目标安装源 export 后实例化；本轮 Linux 集成验证待 CI。
+- 纯逻辑轨迹改为逐目标 Bind → Instantiate，5 个测试在三个后端通过，调用目标必须显式指定。
 - 示例 reader 返回常数 0；sink 只有 import，没有 CI 之前试图调用的 `read` 导出。
 - `weft run` 在所有后端明确报未支持并退出 1；独立适配器入口也关闭执行。
 - CI 保留实验适配器类型检查，并增加独立 `runtime_probe` 的真实执行断言；该探针不调用旧执行器。
@@ -55,3 +55,16 @@ moon test src/runtime_probe --target native
 改接另一个加二的源得到 86。Windows 本机完成类型检查；提交 `c4fdbee` 的
 [Linux CI](https://github.com/soehi/weft/actions/runs/42469369648) 已实际运行，3 passed / 0 failed。
 探针直接调用 linker，不接受部署计划，尚未修改执行轨迹或恢复 CLI `run`。
+
+## E1.3 执行器集成（2026-11-09）
+
+实验包新增 `execute(manifest, binaries, target, port, args)`：首先调用 api.compile，
+按组件名索引字节（同路径实例也能使用不同字节），拒绝不完整清单，再逐目标准备全部 import 后实例化。
+同名 import 每次由当前目标的完整 wires 覆盖，旧 linker 映射不能替代缺失 wire。
+源和目标共享同一 linker/store；关闭时统一释放。
+
+`execute_chain` 与隐式最后实例调用已移除，纯轨迹辅助函数改为 append_call 的显式目标。
+这是尚未发布实验 API 的不兼容调整，计划 JSON 及已发布规划接口未变。
+参数仅接受标量，bool 严格 true/false，char 严格单个 Unicode 标量；无符号数按完整位宽解析/显示。
+资源限制请求明确拒绝。新增实际执行器集成测试，Linux 结果待 CI。
+本轮保持独立命令及通用 CLI run 的非零退出行为；公开命令的参数协议与文件 I/O 接入留待后续。

@@ -1,13 +1,13 @@
 // Execution trace: the pure, backend-portable half of the runtime adapter.
 //
 // Given a Plan, compute the exact ordered sequence an executor must perform:
-// instantiate each component in order, then bind each wire's source export to
-// the consumer's import. No wasmoon, no filesystem. Runs on all three backends
+// prepare each consumer's imports from live source exports, then instantiate. No wasmoon, no filesystem. Runs on all three backends
 // so the sequencing logic is testable without a native runtime.
 
 import {
-  "soehi/weft/plan" @plan,
+  "soehi/weft/plan",
 }
+
 import {
   "soehi/weft/ir",
   "soehi/weft/manifest",

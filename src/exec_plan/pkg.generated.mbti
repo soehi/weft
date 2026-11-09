@@ -6,7 +6,7 @@ import {
 }
 
 // Values
-pub fn append_terminal_call(Array[Step], @plan.Plan, String) -> Unit
+pub fn append_call(Array[Step], String, String) -> Unit
 
 pub fn render(Array[Step]) -> String
 

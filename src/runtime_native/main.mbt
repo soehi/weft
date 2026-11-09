@@ -4,7 +4,7 @@
 ///|
 fn main {
   println(
-    "error: execution is unsupported: real cross-instance wiring has not been verified. Use `weft plan`.",
+    "error: execution is unsupported: the experimental executor is not exposed through this command. Use `weft plan`.",
   )
   @sys.exit(1)
 }

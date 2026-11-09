@@ -87,7 +87,7 @@ moon run src/cli --target js -- plan examples/chain.json
 | `weft run <manifest>` | 预留命令，明确报未支持并退出 1 | 全部 |
 
 `run` 在所有后端均返回 `error: run is unsupported`，退出码为 1。
-独立 Linux 探针已验证跨实例 import 安装；部署计划执行器尚未接入，`src/runtime_native` 入口仍关闭执行。
+独立 Linux 探针已验证跨实例 import 安装；实验执行器已接入，公开命令尚未接入，`src/runtime_native` 入口仍关闭执行。
 查看规划结果使用 `plan`。
 
 `convert` 默认把清单打印到标准输出，`--out` 指定输出文件。`--dep` 的文件路径和
@@ -220,7 +220,7 @@ Windows 的 `bash` 若指向未安装发行版的 WSL，可设置 `WEFT_TEST_BAS
 
   本项目只能宣称"编排策略"，不能宣称"隔离保证"。
 - 实验执行器包含线性链与标量处理代码，但尚未实现真实跨实例连线，执行入口关闭。
-- Linux 独立探针已验证真实连线、断线和改接；部署计划执行器尚未接入。Windows/MSVC 的 C11 原子链接阻塞仍存在，macOS 未验证。见 `docs/S3-EXECUTION.md`。
+- Linux 独立探针已验证真实连线、断线和改接；实验执行器已接入，公开命令尚未接入。Windows/MSVC 的 C11 原子链接阻塞仍存在，macOS 未验证。见 `docs/S3-EXECUTION.md`。
 - 不做分布式、不做集群、不做网络传输——那是 wasmCloud 的领域。
 - 不做静态合成产物——那是 wasm-compose 的领域。
 - 不重写 WAC 语言——解析与验证全部走 `moonrockz/wac`。本适配器只把**已通过验证**的语义模型映射成清单，遇到 spread、嵌套 `new`、rename 等超出清单模型的结构会明确报 `Unsupported`，不静默近似。
@@ -230,7 +230,7 @@ Windows 的 `bash` 若指向未安装发行版的 WSL，可设置 `WEFT_TEST_BAS
 
 ## 执行层现状
 
-`src/runtime_native` 的类型检查通过，但当前 `Bind` 仅查找端口，没有把源 export 安装为目标 import。
+`src/runtime_native` 已改为安装导入后实例化，并显式指定调用组件与导出。实际执行器的 Linux 集成验证正在推进。
 两个执行入口仍返回未支持。独立 `src/runtime_probe` 在 Linux CI 中通过三个真实执行断言：
 41 → 源 +1 → 消费者经 import 调用并 ×2 得到 84，断线实例化失败，改接 +2 得到 86。
 下一步按 [E1.3 路线](docs/ROADMAP.md)改造部署计划执行顺序及调用目标。

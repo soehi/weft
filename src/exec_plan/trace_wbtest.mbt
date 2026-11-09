@@ -60,51 +60,40 @@ fn chain_plan() -> @plan.Plan raise {
   decode("sink", s32_comp([], ["in"])) catch {
     e => raise Failure(e.to_string())
   }
-  @plan.plan({ manifest: m, ifaces }) catch {
+  @plan.plan({ manifest: m, ifaces, }) catch {
     e => raise Failure(e.to_string())
   }
 }
 
 ///|
-test "trace: instantiations then binds" {
-  let p = chain_plan() catch {
-    e => fail(e.to_string())
-  }
-  let steps = trace(p)
-  inspect(steps.length(), content="5")
-  inspect(steps[0].to_string(), content="instantiate reader <- reader.wasm")
-  inspect(steps[1].to_string(), content="instantiate filter <- filter.wasm")
-  inspect(steps[2].to_string(), content="instantiate sink <- sink.wasm")
-  // Wires are sorted by from_component, so filter.out comes first.
-  inspect(steps[3].to_string(), content="bind filter.out -> sink.in")
-  inspect(steps[4].to_string(), content="bind reader.read -> filter.in")
+test "trace: bind source exports before each consumer instantiation" {
+  let steps = trace(chain_plan())
+  inspect(
+    render(steps),
+    content="instantiate reader <- reader.wasm\nbind reader.read -> filter.in\ninstantiate filter <- filter.wasm\nbind filter.out -> sink.in\ninstantiate sink <- sink.wasm",
+  )
 }
 
 ///|
-test "trace: every instantiation precedes every bind" {
-  let p = chain_plan() catch {
-    e => fail(e.to_string())
-  }
-  let steps = trace(p)
-  let mut seen_bind = false
-  for s in steps {
-    match s {
-      Instantiate(_, _) =>
-        if seen_bind {
-          fail("instantiation after a bind")
-        }
-      Bind(_, _, _, _) => seen_bind = true
+test "trace: every bind has a live source and an uninstantiated target" {
+  let live : Map[String, Bool] = Map([])
+  for step in trace(chain_plan()) {
+    match step {
+      Instantiate(name, _) => live.set(name, true)
+      Bind(source, _, target, _) => {
+        assert_true(live.contains(source))
+        assert_false(live.contains(target))
+      }
       Call(_, _) => ()
     }
   }
-  inspect(seen_bind, content="true")
 }
 
 ///|
+
+///|
 test "trace: render is line oriented and deterministic" {
-  let p = chain_plan() catch {
-    e => fail(e.to_string())
-  }
+  let p = chain_plan() catch { e => fail(e.to_string()) }
   let a = render(trace(p))
   let b = render(trace(p))
   inspect(a, content=b)
@@ -112,16 +101,11 @@ test "trace: render is line oriented and deterministic" {
 }
 
 ///|
-test "trace: terminal call targets the last instance" {
-  let p = chain_plan() catch {
-    e => fail(e.to_string())
-  }
+test "trace: call targets an explicitly selected instance" {
+  let p = chain_plan() catch { e => fail(e.to_string()) }
   let steps = trace(p)
-  append_terminal_call(steps, p, "in")
-  inspect(
-    steps[steps.length() - 1].to_string(),
-    content="call sink.in",
-  )
+  append_call(steps, "reader", "read")
+  inspect(steps[steps.length() - 1].to_string(), content="call reader.read")
 }
 
 ///|
@@ -129,7 +113,7 @@ test "trace: empty plan yields no steps" {
   let m = @manifest.parse("{\"components\":[],\"wires\":[]}") catch {
     e => fail(e.to_string())
   }
-  let p = @plan.plan({ manifest: m, ifaces: Map([]) }) catch {
+  let p = @plan.plan({ manifest: m, ifaces: Map([]), }) catch {
     e => fail(e.to_string())
   }
   inspect(trace(p).length(), content="0")

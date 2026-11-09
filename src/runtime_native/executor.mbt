@@ -1,142 +1,114 @@
-// Carry out an execution trace with wasmoon.
-//
-// Scope, deliberately narrow: linear chains of component-model functions whose
-// parameters and results are component-model *scalar* values (ints, floats,
-// bool, char). No resources, no async, no streams/futures, no interface
-// wiring beyond a single named port. Anything outside that is reported, not
-// approximated.
-//
-// This file exists to prove the plan is executable. It is not a general
-// component runner; `wasmoon` already is one.
+// Experimental native execution from validated manifests. CLI entry stays disabled.
 
 ///|
 pub(all) suberror ExecError {
-  /// A step referenced an instance that was never instantiated.
-  MissingInstance(String)
-  /// The component binary could not be read.
-  BinaryMissing(String)
-  /// wasmoon rejected the component.
+  Invalid(String)
   Runtime(String)
-  /// A value coming back was not a scalar we can pass on.
   UnsupportedValue(String)
-}
-
-///|
-pub extend ExecError with Show::{output}
-
-///|
-pub impl Show for ExecError with fn output(self, logger) {
-  logger.write_string(self.to_string())
 }
 
 ///|
 pub fn ExecError::to_string(self : ExecError) -> String {
   match self {
-    MissingInstance(name) => "exec: no instance named `\{name}`"
-    BinaryMissing(path) => "exec: cannot read component `\{path}`"
-    Runtime(msg) => "exec: \{msg}"
-    UnsupportedValue(kind) => "exec: only component-model scalars are supported, got \{kind}"
+    Invalid(s) => "exec input: \{s}"
+    Runtime(s) => "exec runtime: \{s}"
+    UnsupportedValue(s) => "exec unsupported: \{s}"
   }
 }
 
 ///|
-/// Run a linear chain and return the terminal call's result as a display
-/// string.
-///
-/// `binaries` maps a component's manifest `path` to its bytes; `call_port` is
-/// the port on the final instance to invoke; `args` are the scalar arguments.
-pub fn execute_chain(
-  p : @plan.Plan,
+/// Binaries are indexed by component name, exactly as api.compile requires.
+/// Target must be explicit. Only scalar call values are accepted.
+pub fn execute(
+  manifest : String,
   binaries : Map[String, Bytes],
-  call_port : String,
-  args : Array[@component.ComponentValue],
+  target : String,
+  port : String,
+  args : Array[@linker.ComponentValue],
 ) -> String raise ExecError {
-  let runtime = @component.ComponentRuntime::ComponentRuntime() catch {
-    e => raise Runtime(@component.ComponentRuntimeError::to_string(e))
+  let output = match @api.compile(manifest, binaries) {
+    Ok(output) => output
+    Err(diagnostic) => raise Invalid(diagnostic.message)
   }
-  defer runtime.close()
-  let instances : Map[String, @component.ComponentInstance] = Map([])
-  let steps = @exec.trace(p)
-  // Two phases, matching `@exec.trace`'s guarantee: instantiate everything,
-  // then bind. Instantiation must happen first because a bind resolves an
-  // export on a live instance.
-  for step in steps {
-    match step {
-      @exec.Instantiate(handle, path) => {
-        let bytes = match binaries.get(path) {
-          Some(b) => b
-          None => raise BinaryMissing(path)
-        }
-        let inst = runtime.instantiate(path, bytes) catch {
-          e => raise Runtime(@component.ComponentRuntimeError::to_string(e))
-        }
-        instances.set(handle, inst)
-      }
-      _ => ()
-    }
+  let p = output.plan
+  if p.resources.max_memory_pages != None || p.resources.quota != None {
+    raise Invalid("execution resource limits are unsupported")
   }
-  for step in steps {
+  if !p.instances.any(i => i.name == target) || port == "" {
+    raise Invalid(
+      "explicit call target must name an existing component and export",
+    )
+  }
+  for value in args {
+    let _ = show_value(value)
+  }
+  let linker = @linker.ComponentLinker::with_core_execution_engine(
+    @native.open_native_component_session(),
+  ) catch {
+    e => raise Runtime(e.to_string())
+  }
+  defer linker.close()
+  let instances : Map[String, @linker.ComponentInstance] = Map([])
+  // Each consumer gets all its validated imports explicitly overwritten before
+  // instantiation. Earlier imports with the same name cannot supply a missing wire:
+  // api.compile has already rejected every unbound function import.
+  for step in @exec.trace(p) {
     match step {
-      @exec.Bind(from_handle, from_port, to_handle, to_port) => {
-        // Resolve the source export so a wiring mistake fails with the port
-        // name rather than an opaque runtime error.
-        let src = match instances.get(from_handle) {
-          Some(i) => i
-          None => raise MissingInstance(from_handle)
+      @exec.Bind(source, from_port, consumer, to_port) => {
+        let src = match instances.get(source) {
+          Some(src) => src
+          None => raise Invalid("source not instantiated: \{source}")
         }
-        let _ = src.bind(from_port) catch {
-          e => raise Runtime("cannot bind \{from_handle}.\{from_port}: \{@component.ComponentRuntimeError::to_string(e)}")
+        let exported = match src.get_export(from_port) {
+          Some(exported) => exported
+          None => raise Invalid("missing export: \{source}.\{from_port}")
         }
-        // wasmoon wires imports from host installers at instantiation time, so
-        // cross-instance wiring is expressed by the component's own imports.
-        // We still verify the consumer side exists, which catches a plan whose
-        // target component does not actually declare that import.
-        let dst = match instances.get(to_handle) {
-          Some(i) => i
-          None => raise MissingInstance(to_handle)
-        }
-        let _ = dst.bind(to_port) catch {
-          e => raise Runtime("cannot bind \{to_handle}.\{to_port}: \{@component.ComponentRuntimeError::to_string(e)}")
+        linker.add_import(to_port, exported) catch {
+          e =>
+            raise Runtime(
+              "\{source}.\{from_port} -> \{consumer}.\{to_port}: \{e}",
+            )
         }
       }
-      _ => ()
+      @exec.Instantiate(name, _) => {
+        let bytes = binaries.get(name).unwrap()
+        let validated = linker.validate_input(bytes) catch {
+          e => raise Invalid(e.to_string())
+        }
+        let inst = linker.instantiate(name, validated) catch {
+          e => raise Runtime("\{name}: \{e}")
+        }
+        instances.set(name, inst)
+      }
+      @exec.Call(_, _) => ()
     }
   }
-  let last = p.instances[p.instances.length() - 1]
-  let inst = match instances.get(last.name) {
-    Some(i) => i
-    None => raise MissingInstance(last.name)
-  }
-  let f = inst.bind(call_port) catch {
-    e => raise Runtime("cannot bind \{last.name}.\{call_port}: \{@component.ComponentRuntimeError::to_string(e)}")
-  }
-  let results = f.call(args) catch {
-    e => raise Runtime(@component.ComponentRuntimeError::to_string(e))
-  }
+  let results = instances.get(target).unwrap().call_exported_func(port, args) catch {
+      e => raise Runtime("\{target}.\{port}: \{e}")
+    }
   let parts : Array[String] = []
-  for v in results {
-    parts.push(show_value(v))
+  for result in results {
+    parts.push(show_value(result))
   }
   parts.join(", ")
 }
 
 ///|
 /// Render one component-model value. Only scalars are in scope here.
-fn show_value(v : @component.ComponentValue) -> String raise ExecError {
+fn show_value(v : @linker.ComponentValue) -> String raise ExecError {
   match v {
-    @component.Bool(b) => b.to_string()
-    @component.S8(n) => n.to_string()
-    @component.U8(n) => n.to_string()
-    @component.S16(n) => n.to_string()
-    @component.U16(n) => n.to_string()
-    @component.S32(n) => n.to_string()
-    @component.U32(n) => n.to_string()
-    @component.S64(n) => n.to_string()
-    @component.U64(n) => n.to_string()
-    @component.F32(f) => f.to_string()
-    @component.F64(d) => d.to_string()
-    @component.Char(c) => c.to_string()
-    @component.String(s) => s
+    @linker.Bool(b) => b.to_string()
+    @linker.S8(n) => n.to_string()
+    @linker.U8(n) => n.to_string()
+    @linker.S16(n) => n.to_string()
+    @linker.U16(n) => n.to_string()
+    @linker.S32(n) => n.to_string()
+    @linker.U32(n) => n.reinterpret_as_uint().to_string()
+    @linker.S64(n) => n.to_string()
+    @linker.U64(n) => n.reinterpret_as_uint64().to_string()
+    @linker.F32(f) => f.to_string()
+    @linker.F64(d) => d.to_string()
+    @linker.Char(c) => c.to_string()
     _ => raise UnsupportedValue("non-scalar component value")
   }
 }
@@ -144,40 +116,58 @@ fn show_value(v : @component.ComponentValue) -> String raise ExecError {
 ///|
 /// Parse a CLI argument into a component value of the requested scalar kind.
 /// `kind` is one of `s32`, `u32`, `s64`, `u64`, `f32`, `f64`, `bool`, `char`.
-pub fn parse_arg(kind : String, text : String) -> @component.ComponentValue raise ExecError {
+pub fn parse_arg(
+  kind : String,
+  text : String,
+) -> @linker.ComponentValue raise ExecError {
   match kind {
     "s32" =>
-      @component.S32(@strparse.parse_int(text) catch {
-        _ => raise UnsupportedValue("s32 from `\{text}`")
-      })
+      @linker.S32(
+        @strparse.parse_int(text) catch {
+          _ => raise UnsupportedValue("s32 from `\{text}`")
+        },
+      )
     "u32" =>
-      @component.U32(@strparse.parse_uint(text) catch {
-        _ => raise UnsupportedValue("u32 from `\{text}`")
-      })
+      @linker.U32(
+        @strparse.parse_uint(text).reinterpret_as_int() catch {
+          _ => raise UnsupportedValue("u32 from `\{text}`")
+        },
+      )
     "s64" =>
-      @component.S64(@strparse.parse_int64(text) catch {
-        _ => raise UnsupportedValue("s64 from `\{text}`")
-      })
+      @linker.S64(
+        @strparse.parse_int64(text) catch {
+          _ => raise UnsupportedValue("s64 from `\{text}`")
+        },
+      )
     "u64" =>
-      @component.U64(@strparse.parse_uint64(text) catch {
-        _ => raise UnsupportedValue("u64 from `\{text}`")
-      })
+      @linker.U64(
+        @strparse.parse_uint64(text).reinterpret_as_int64() catch {
+          _ => raise UnsupportedValue("u64 from `\{text}`")
+        },
+      )
     "f64" =>
-      @component.F64(@strparse.parse_double(text) catch {
-        _ => raise UnsupportedValue("f64 from `\{text}`")
-      })
+      @linker.F64(
+        @strparse.parse_double(text) catch {
+          _ => raise UnsupportedValue("f64 from `\{text}`")
+        },
+      )
     "f32" =>
-      @component.F32(
+      @linker.F32(
         Float::from_double(
           @strparse.parse_double(text) catch {
             _ => raise UnsupportedValue("f32 from `\{text}`")
           },
         ),
       )
-    "bool" => @component.Bool(text == "true")
+    "bool" => @linker.Bool(text == "true")
     "char" =>
       match text.get_char(0) {
-        Some(c) => @component.Char(c)
+        Some(c) => {
+          if text.iter().count() != 1 {
+            raise UnsupportedValue("char requires one Unicode scalar")
+          }
+          @linker.Char(c)
+        }
         None => raise UnsupportedValue("char from `\{text}`")
       }
     _ => raise UnsupportedValue("unknown argument kind `\{kind}`")

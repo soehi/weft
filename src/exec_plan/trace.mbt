@@ -34,27 +34,30 @@ pub fn Step::to_string(self : Step) -> String {
 }
 
 ///|
-/// Build the ordered step list: all instantiations (plan order), then all binds
-/// (plan's sorted wire order). This is deliberately two phases rather than
-/// interleaved, because a bind can only succeed once both endpoints exist.
+/// Build each target's imports from live source exports before instantiation.
 pub fn trace(p : @plan.Plan) -> Array[Step] {
   let steps : Array[Step] = []
   for inst in p.instances {
+    for w in p.wires {
+      if w.to_component == inst.name {
+        steps.push(
+          Bind(w.from_component, w.from_port, w.to_component, w.to_port),
+        )
+      }
+    }
     steps.push(Instantiate(inst.name, inst.path))
-  }
-  for w in p.wires {
-    steps.push(Bind(w.from_component, w.from_port, w.to_component, w.to_port))
   }
   steps
 }
 
 ///|
-/// Append a call step for the terminal component of a linear chain: the last
-/// instance in plan order, on its first exported port. Used by the demo entry
-/// point; a general executor would take the call target from the user.
-pub fn append_terminal_call(steps : Array[Step], p : @plan.Plan, port : String) -> Unit {
-  let last = p.instances[p.instances.length() - 1]
-  steps.push(Call(last.name, port))
+/// Append an explicit call target, independent of topological tie ordering.
+pub fn append_call(
+  steps : Array[Step],
+  component : String,
+  port : String,
+) -> Unit {
+  steps.push(Call(component, port))
 }
 
 ///|
