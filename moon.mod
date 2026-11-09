@@ -4,6 +4,10 @@ version = "0.3.0"
 
 license = "Apache-2.0"
 
+readme = "README.md"
+
+repository = "https://github.com/soehi/weft"
+
 description = "A backend-portable planner for WebAssembly Component deployment on edge devices, in MoonBit"
 
 keywords = [ "wasm", "component-model", "wit", "orchestration", "edge" ]

@@ -37,7 +37,7 @@ def main():
         native_name = "weft.exe" if os.name == "nt" else "weft"
         shutil.copy2(ROOT / "_build/native/release/build/cli/cli.exe", bundle / native_name)
         shutil.copy2(ROOT / "_build/js/release/build/cli/cli.js", bundle / "weft.mjs")
-        for file in ["LICENSE", "release/toolchain.lock.json", "release/dependencies.lock.json"]:
+        for file in ["LICENSE", "release/toolchain.lock.json", "release/dependencies.lock.json", "release/CANDIDATE.md", "release/THIRD-PARTY.md"]:
             shutil.copy2(ROOT / file, bundle / Path(file).name)
         shutil.copytree(ROOT / "examples/browser", bundle / "examples/browser", ignore=shutil.ignore_patterns("README.md"))
         for file in ["chain.json", "format.json", "reader.wasm", "filter.wasm", "sink.wasm", "join.wasm", "wide-sink.wasm"]:
@@ -48,7 +48,7 @@ def main():
         for module in checks["check_dependencies"]():
             path = ROOT / ".mooncakes" / module["name"]
             notices.append(module["name"] + "@" + module["version"])
-            for license_file in sorted(path.glob("LICENSE*")):
+            for license_file in sorted([*path.glob("LICENSE*"), *path.glob("NOTICE*")]):
                 if license_file.is_file(): notices.append(license_file.read_text(encoding="utf-8", errors="replace"))
         (bundle / "THIRD-PARTY.txt").write_text("\n\n".join(notices), encoding="utf-8")
         metadata = {"version":version,"plan_version":"0.2.0","commit":commit,"target":target,"toolchain":json.loads((ROOT / "release/toolchain.lock.json").read_text(encoding="utf-8")),"dependencies":checks["check_dependencies"]()}

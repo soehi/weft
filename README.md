@@ -8,6 +8,61 @@
 
 ---
 
+## 安装与验收入口
+
+当前候选：模块/CLI **0.3.0**，计划格式 **0.2.0**。正式注册表安装尚待 M5 发布与独立复验，
+目前请使用源码或已通过 CI 的预构建包；发布状态见 [候选验收记录](release/CANDIDATE.md)。
+
+| 使用方式 | 入口与状态 |
+|---|---|
+| 源码构建 | 下方快速开始，固定工具链安装见 [构建说明](release/README.md) |
+| Windows/Linux 预构建规划 CLI | [Actions](https://github.com/soehi/weft/actions) 成功运行内的 weft-cli 制品；下载解包与校验见 [构建说明](release/README.md)，正式 Release 待 M6 |
+| Mooncakes 库 | 待发布验证；预期 `moon add soehi/weft@0.3.0`，暂不作为已验证安装方式 |
+| 本地库消费者 | [examples/consumer](examples/consumer/README.md)，通过本地workspace引入，不能替代注册表安装验证 |
+| 浏览器本地演示 | [demo](demo/README.md)，用户组件留在本机内存 |
+| Linux 可选执行 | [执行说明](docs/S3-EXECUTION.md)，独立实验命令；通用 weft run 仍未支持 |
+
+从新源码目录开始（Python 3.12+、Node 24系列；native构建需要平台C工具链）：
+
+```bash
+git clone https://github.com/soehi/weft.git
+cd weft
+python scripts/install-toolchain.py --destination _build/toolchains/pinned
+```
+
+Linux shell 的后续配置（当前锁文件支持Linux x86_64）：
+
+```bash
+export MOON_HOME="$PWD/_build/toolchains/pinned"
+export PATH="$MOON_HOME/bin:$PATH"
+moon update
+moon check src/api src/cli --target js
+python3 scripts/check-release-inputs.py
+```
+
+Windows PowerShell 改用：
+
+```powershell
+$env:MOON_HOME = Join-Path (Get-Location) '_build/toolchains/pinned'
+$env:PATH = (Join-Path $env:MOON_HOME 'bin') + ';' + $env:PATH
+moon update
+moon check src/api src/cli --target js
+python scripts/check-release-inputs.py
+```
+
+然后运行已提交的真实组件示例，无需先生成夹具：
+
+```bash
+moon run src/cli --target js -- plan examples/chain.json --out plan.json
+# 类型错误，应失败并指出source.read/sink.in的签名不匹配
+moon run src/cli --target js -- plan examples/browser/type-mismatch.json
+# 浏览器：打开 http://127.0.0.1:8000，选择成功链或类型错误示例
+node scripts/build-demo.mjs
+python scripts/serve-demo.py
+```
+
+---
+
 ## 为什么有它
 
 生态里已有的工具各占一块：
@@ -21,7 +76,7 @@
 | `moonkoog` | LLM Agent 编排 | 完全不碰 LLM/Agent |
 | `golemcloud/golem_sdk` | 云端 durable agent 平台 | 不做云端平台 |
 
-留下的位置是：**单进程、无外部依赖、可嵌入任何宿主的编排计划编译器**。
+留下的位置是：**单进程、可嵌入宿主的编排计划编译器**。
 
 价值不在"运行时编排很新"——wasmCloud 已经做了。价值在：**同一份编排逻辑能编译到 native/wasm-gc/js 并在三处行为一致**。`wasm-compose` 的 CLI 是 Rust 原生二进制，`wasmCloud` 需要集群，都做不到在浏览器标签页里对一份清单做静态校验。
 

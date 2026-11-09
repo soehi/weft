@@ -1,0 +1,14 @@
+_build/
+.mooncakes/
+docs/*.local.md
+
+demo/planner.mjs
+demo/examples/
+
+__pycache__/
+
+# Repository evidence and submission material are not library package inputs.
+docs/benchmarks/
+项目申报书.md
+!/.moonignore
+docs/SUBMISSION.md

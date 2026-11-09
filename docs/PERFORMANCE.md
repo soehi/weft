@@ -39,7 +39,7 @@ CI 的 `planner scale baseline (linux)` job 同样采样3次，并上传 `planne
 | 1000 | fanout | 334.2 | 466.7 | 504.6 |
 | 1000 | fanin | 319.2 | 437.2 | 484.3 |
 
-环境与原始采样见 [windows-2026-11-09.json](benchmarks/windows-2026-11-09.json)。
+环境与原始采样见 [windows-2026-11-09.json](https://github.com/soehi/weft/blob/main/docs/benchmarks/windows-2026-11-09.json)。
 上述数据包含各运行时不同的启动开销，不能直接解释为规划算法本身的后端加速比。
 没有单独剖析解码、语义校验和排序，当前不据此更换 ready 队列或引入缓存。
 
@@ -131,7 +131,7 @@ Graph调用者仍须遵守已公开的nodes按字典序排序契约。
 | js | 17.33 | 0.05 | 496.0 | 484.1 |
 
 18场景优化前后计划SHA全部相同。原始扇出样本与环境见
-[heap-comparison-windows-2026-11-09.json](benchmarks/heap-comparison-windows-2026-11-09.json)。
+[heap-comparison-windows-2026-11-09.json](https://github.com/soehi/weft/blob/main/docs/benchmarks/heap-comparison-windows-2026-11-09.json)。
 开发轮次的HEAD记录为基线提交，实际被测算法由graph_source_sha256区分，测量脚本与阶段工具SHA一致。
 本机native扇出CLI约344.5→232.5ms，但其他后端整条CLI变化较小；不能把单项排序加速倍数作为CLI加速倍数。
 非目标场景仍有JIT/GC/系统负载波动，本轮不宣称全面性能提升或设置绝对性能门槛。

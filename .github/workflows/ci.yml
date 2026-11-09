@@ -162,7 +162,9 @@ jobs:
           python scripts/check-release-inputs.py
       - name: Build CLI bundle and checksums
         shell: bash
-        run: python scripts/build-release.py
+        run: |
+          python scripts/check-package.py
+          python scripts/build-release.py
       - name: Verify first use in a clean directory
         shell: bash
         run: |
@@ -175,4 +177,5 @@ jobs:
           path: |
             _build/release/weft-*.zip
             _build/release/weft-*.zip.sha256
+            _build/release/candidate.json
           if-no-files-found: error
