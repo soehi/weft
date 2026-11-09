@@ -1,0 +1,21 @@
+import {
+  "soehi/weft/manifest",
+  "soehi/weft/ir",
+  "soehi/weft/plan",
+  "moonbitlang/core/env",
+  "moonbitlang/core/bench",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/core/string" @strparse,
+  "moonbitlang/x/fs",
+  "moonbitlang/x/path",
+  "moonbitlang/x/sys",
+}
+
+pkgtype(kind: "executable")
+
+options(
+  targets: {
+    "argv_js.mbt": [ "js" ],
+    "argv_other.mbt": [ "native", "wasm-gc" ],
+  },
+)

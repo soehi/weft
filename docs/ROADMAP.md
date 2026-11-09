@@ -269,3 +269,9 @@ M1–M3 的本轮规划交付已完成；执行能力若继续推进，下一步
 - 检查完整wire集、拓扑关系、三后端字节和输入排列确定性；输出环境、脚本SHA、提交、原始采样与制品SHA。
 - Windows 已提交版本的原始采样已留档；提交 `adef706` 的 [Linux CI](https://github.com/soehi/weft/actions/runs/42548406515) 九个job全部成功，基准报告已上传。复现方法、两端数据和测量边界见 [PERFORMANCE.md](PERFORMANCE.md)。
 - 暂不修改排序算法，不把整体CLI耗时归因于未经单独测量的热点。
+
+## 20. 阶段性能测量（2026-11-09）
+
+- 新增独立 profile_planner：在内存中分别测量清单解析、组件解码、规划和JSON序列化，另测重叠的图阶段探针。
+- 三后端各场景均预热一次、连续采样三次；输出必须与实际CLI逐字节一致，报告升级为schema_version 2。
+- 不改生产规划API和算法；本机初测通过，Linux阶段CI待验证。测量范围与不可相减的边界见 PERFORMANCE.md。
