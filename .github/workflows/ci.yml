@@ -6,6 +6,27 @@ on:
   pull_request:
 
 jobs:
+  benchmark:
+    name: planner scale baseline (linux)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install checksum-locked MoonBit toolchain
+        run: python3 scripts/install-toolchain.py --destination "$RUNNER_TEMP/weft-toolchain"
+      - run: moon update
+      - name: Resolve and verify inputs
+        run: |
+          moon check src/api src/cli --target js
+          python3 scripts/check-release-inputs.py
+      - name: Measure six graph cases across three backends
+        run: node scripts/benchmark-planner.mjs 3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: planner-scale-baseline
+          path: _build/benchmarks/latest.json
+          if-no-files-found: error
+
   portable:
     # The planner must behave identically on every backend. This is the
     # project's core claim: run the same tests three times, then compare the

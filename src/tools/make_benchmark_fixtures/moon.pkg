@@ -1,0 +1,8 @@
+import {
+  "Milky2018/wasm_component/text",
+  "moonbitlang/core/env",
+  "moonbitlang/x/fs",
+  "moonbitlang/x/sys",
+}
+
+pkgtype(kind: "executable")
