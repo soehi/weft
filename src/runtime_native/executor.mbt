@@ -8,6 +8,11 @@ pub(all) suberror ExecError {
 }
 
 ///|
+pub impl Show for ExecError with fn output(self, logger) {
+  logger.write_string(self.to_string())
+}
+
+///|
 pub fn ExecError::to_string(self : ExecError) -> String {
   match self {
     Invalid(s) => "exec input: \{s}"
@@ -159,7 +164,12 @@ pub fn parse_arg(
           },
         ),
       )
-    "bool" => @linker.Bool(text == "true")
+    "bool" =>
+      match text {
+        "true" => @linker.Bool(true)
+        "false" => @linker.Bool(false)
+        _ => raise UnsupportedValue("bool requires true or false")
+      }
     "char" =>
       match text.get_char(0) {
         Some(c) => {

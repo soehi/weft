@@ -108,7 +108,10 @@ test "unsigned values retain full width during parse and render" {
 test "executor rejects requested limits before execution" {
   let m = "{\"resources\":{\"quota\":1}," + manifest(wires).substring(start=1)
   try execute(m, inputs(1), "consumer", "run", [@linker.U32(41)]) catch {
-    error => assert_true(error.to_string().contains("resource limits"))
+    error =>
+      if !error.to_string().contains("resource limits") {
+        fail(error.to_string())
+      }
   } noraise {
     _ => fail("unsupported quota accepted")
   }
