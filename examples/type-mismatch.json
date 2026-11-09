@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "components": [
+    {
+      "name": "source",
+      "path": "reader.wasm"
+    },
+    {
+      "name": "sink",
+      "path": "wide-sink.wasm"
+    }
+  ],
+  "wires": [
+    {
+      "from": "source.read",
+      "to": "sink.in"
+    }
+  ]
+}

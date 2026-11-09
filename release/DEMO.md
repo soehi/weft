@@ -7,7 +7,7 @@
    `weft 0.3.0 (plan 0.2.0)`。预构建包则运行 `node weft.mjs --version` 或原生 weft(.exe)。
 2. **成功计划（约1分钟）**：运行 `moon run src/cli --target js -- plan examples/chain.json --out plan.json`。
    结果按 reader/filter/sink 实例化，hash为 `1a3640bcc99318d5`，完整字节等于docs/fixtures/plan-v0.2.0.json。
-3. **错误诊断（约1分钟）**：分别对examples/browser/cycle.json和type-mismatch.json运行plan。
+3. **错误诊断（约1分钟）**：分别对examples/cycle.json和type-mismatch.json运行plan。
    两条命令都应失败（退出1），分别说明依赖环、source.read/sink.in类型不匹配，不产生成功计划。
 4. **跨后端核对（约1分钟，首次构建另计）**：对同一chain.json用native/wasm-gc/js分别 `--out plan-<target>.json`。
    三份文件字节相同；自动核对可运行 `node scripts/check-backends.mjs`，该完整门禁耗时另计。

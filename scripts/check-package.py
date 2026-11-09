@@ -1,13 +1,15 @@
 """Inspect the actual Mooncakes archive, excluding caches and machine-specific evidence."""
 import hashlib
 import json
+import re
 import subprocess
 import zipfile
 from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 subprocess.run(["moon", "package"], cwd=ROOT, check=True)
-archive = ROOT / "_build/publish/soehi-weft-0.3.0.zip"
+version = re.search(r'^version = "([^"]+)"', (ROOT/"moon.mod").read_text(encoding="utf-8"), re.M)[1]
+archive = ROOT / f"_build/publish/soehi-weft-{version}.zip"
 with zipfile.ZipFile(archive) as reader:
     names = reader.namelist()
     required = ["moon.mod", ".moonignore", "README.md", "LICENSE", "src/api/compile.mbt", "src/api/pkg.generated.mbti", "release/CANDIDATE.md", "release/THIRD-PARTY.md", "examples/chain.json", "examples/reader.wasm", "docs/API.md"]
@@ -22,7 +24,7 @@ with zipfile.ZipFile(archive) as reader:
             text = reader.read(name).decode("utf-8")
             assert str(ROOT) not in text and "C:\\Users\\ASUS" not in text, name
 report = {"source_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
-          "module_version":"0.3.0", "plan_version":"0.2.0", "files":names,
+          "module_version":version, "plan_version":"0.2.0", "files":names,
           "archive_sha256":hashlib.sha256(archive.read_bytes()).hexdigest(),
           "toolchain":json.loads((ROOT/"release/toolchain.lock.json").read_text(encoding="utf-8")),
           "dependencies":json.loads((ROOT/"release/dependencies.lock.json").read_text(encoding="utf-8"))}

@@ -1,2 +1,2 @@
 name = "example/weft-consumer"
-import { "soehi/weft@0.3.0" }
+import { "soehi/weft@0.3.1" }

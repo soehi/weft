@@ -8,6 +8,8 @@ import {createHash} from 'node:crypto';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 mkdirSync(join(root,'_build/release'),{recursive:true});
 const work=mkdtempSync(join(root,'_build','registry consumer '));
+const version=process.argv[2]??'0.3.0';
+assert(/^0\.3\.[01]$/.test(version),'unsupported acceptance version');
 const env={...process.env,MOON_REGISTRY_API:'1'};
 function run(args) {
   const r=spawnSync('moon',args,{cwd:work,env,encoding:'utf8',timeout:180000,maxBuffer:4*1024*1024});
@@ -16,7 +18,7 @@ function run(args) {
   return r.stdout;
 }
 try {
-  writeFileSync(join(work,'moon.mod'),'name = "acceptance/registry_consumer"\nimport { "soehi/weft@0.3.0" }\n');
+  writeFileSync(join(work,'moon.mod'),`name = "acceptance/registry_consumer"\nimport { "soehi/weft@${version}" }\n`);
   writeFileSync(join(work,'moon.pkg'),'import { "soehi/weft/api" }\npkgtype(kind: "executable")\n');
   const blobs=['reader','filter','sink','wide-sink'].map((name,i)=>`let b${i} : Bytes = [${[...readFileSync(join(root,'examples',name+'.wasm'))].join(',')}]`).join('\n');
   const manifest=readFileSync(join(root,'examples/chain.json'),'utf8');
@@ -45,8 +47,8 @@ println(success)
   assert(realpathSync(dependency).startsWith(realpathSync(work)), 'dependency must resolve inside fresh registry cache');
   const module=readFileSync(join(dependency,'moon.mod'),'utf8');
   assert.match(module,/name = "soehi\/weft"/);
-  assert.match(module,/version = "0.3.0"/);
-  writeFileSync(join(root,'_build/release/registry-install.json'),JSON.stringify({module:'soehi/weft',version:'0.3.0',source:'public registry, HTTP metadata, no workspace/path override',results},null,2)+'\n');
+  assert(module.includes(`version = "${version}"`));
+  writeFileSync(join(root,'_build/release/registry-install.json'),JSON.stringify({module:'soehi/weft',version,source:'public registry, HTTP metadata, no workspace/path override',results},null,2)+'\n');
 } finally {
   assert(dirname(work)===join(root,'_build'));
   rmSync(work,{recursive:true,force:true});

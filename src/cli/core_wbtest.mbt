@@ -89,5 +89,5 @@ test "CLI version is explicit and rejects extra arguments" {
     match parse_args([flag]) { Version => (); _ => fail("expected version") }
     match parse_args([flag, "extra"]) { Unknown(_) => (); _ => fail("expected rejection") }
   }
-  assert_eq(version_text, "weft 0.3.0 (plan 0.2.0)")
+  assert_eq(version_text, "weft 0.3.1 (plan 0.2.0)")
 }

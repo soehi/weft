@@ -40,7 +40,7 @@ def main():
         for file in ["LICENSE", "release/toolchain.lock.json", "release/dependencies.lock.json", "release/CANDIDATE.md", "release/THIRD-PARTY.md"]:
             shutil.copy2(ROOT / file, bundle / Path(file).name)
         shutil.copytree(ROOT / "examples/browser", bundle / "examples/browser", ignore=shutil.ignore_patterns("README.md"))
-        for file in ["chain.json", "format.json", "reader.wasm", "filter.wasm", "sink.wasm", "join.wasm", "wide-sink.wasm"]:
+        for file in ["chain.json", "format.json", "type-mismatch.json", "cycle.json", "reader.wasm", "filter.wasm", "sink.wasm", "join.wasm", "wide-sink.wasm"]:
             shutil.copy2(ROOT / "examples" / file, bundle / "examples" / file)
             if file.endswith(".wasm"): shutil.copy2(ROOT / "examples" / file, bundle / "examples/browser" / file)
         (bundle / "golden.json").write_bytes((ROOT / "docs/fixtures/plan-v0.2.0.json").read_bytes())

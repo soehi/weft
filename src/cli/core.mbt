@@ -153,4 +153,4 @@ pub let help_text : String =
   #|
 
 ///|
-pub let version_text : String = "weft 0.3.0 (plan 0.2.0)"
+pub let version_text : String = "weft 0.3.1 (plan 0.2.0)"

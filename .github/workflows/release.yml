@@ -1,7 +1,7 @@
 name: Release
 on:
   push:
-    tags: [v0.3.0]
+    tags: [v0.3.1]
 permissions:
   contents: read
 jobs:
@@ -51,9 +51,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mapfile -t assets < <(rg --files artifacts | sort)
+          shopt -s globstar nullglob
+          assets=(artifacts/**/*.zip artifacts/**/*.zip.sha256)
           test "${#assets[@]}" -eq 4
-          gh release create "$GITHUB_REF_NAME" "${assets[@]}" --verify-tag --title "weft 0.3.0" --notes-file release/NOTES-v0.3.0.md
+          gh release create "$GITHUB_REF_NAME" "${assets[@]}" --verify-tag --title "weft 0.3.1" --notes-file release/NOTES-v0.3.1.md
   downloaded:
     name: Release download first use (${{ matrix.platform }})
     needs: publish
@@ -74,6 +75,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_PLATFORM: ${{ matrix.platform }}
         run: |
-          gh release download "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --pattern "weft-0.3.0-$RELEASE_PLATFORM-x86_64.zip*" --dir "$RUNNER_TEMP/weft-download"
-          python scripts/test-release.py "$RUNNER_TEMP/weft-download/weft-0.3.0-$RELEASE_PLATFORM-x86_64.zip"
-          python scripts/check-release-source.py "$RUNNER_TEMP/weft-download/weft-0.3.0-$RELEASE_PLATFORM-x86_64.zip" "$GITHUB_SHA"
+          gh release download "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --pattern "weft-0.3.1-$RELEASE_PLATFORM-x86_64.zip*" --dir "$RUNNER_TEMP/weft-download"
+          python scripts/test-release.py "$RUNNER_TEMP/weft-download/weft-0.3.1-$RELEASE_PLATFORM-x86_64.zip"
+          python scripts/check-release-source.py "$RUNNER_TEMP/weft-download/weft-0.3.1-$RELEASE_PLATFORM-x86_64.zip" "$(git rev-parse HEAD)" 0.3.1

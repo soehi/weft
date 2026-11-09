@@ -42,3 +42,11 @@ moon.mod声明README与仓库；根LICENSE为Apache-2.0。`.moonignore`复制必
 - 新目录HTTP注册表消费者无moon.work/path override，三后端合法链黄金字节一致；缺字节及类型错误诊断通过。
 - 发布源码的README是预发布候选快照，当前安装状态以仓库本记录和注册表查询为准；未修改已发布版本。
 - 后续tag/Release提交包含验收记录与工作流，规划API、版本及格式保持同一候选行为；CLI源码SHA以tag及BUILD.json为准。
+
+## 0.3.1补丁候选
+
+v0.3.0标签的双平台构建均通过，但Release发布步骤因runner缺少rg而失败，未创建正式Release。
+最终源码步骤抽检发现错误示例的相对Wasm文件缺失，新增examples/type-mismatch.json与cycle.json置于真实Wasm相邻目录，
+使README命令确实到达类型/成环诊断。按ROADMAP M5.4发布后修正使用补丁版本，保留已发布0.3.0及失败标签，不重写。
+当前模块/CLI候选0.3.1，计划格式仍0.2.0，第三方版本不变；规划CLI检查增至35项。
+正式下载目标改为v0.3.1，资产枚举使用bash内建glob，不依赖runner上的rg。

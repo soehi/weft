@@ -19,7 +19,9 @@ function cli(args, ok = true) {
   return r.stdout;
 }
 try {
-  assert.equal(cli(['--version']).trim(), 'weft 0.3.0 (plan 0.2.0)');
+  assert.equal(cli(['--version']).trim(), 'weft 0.3.1 (plan 0.2.0)');
+  assert.match(cli(['plan',join(root,'examples/type-mismatch.json')],false), /signature mismatch/);
+  assert.match(cli(['plan',join(root,'examples/cycle.json')],false), /cycle/);
   mkdirSync(join(temp, 'components'));
   mkdirSync(join(temp, 'output files'));
   copyFileSync(join(root, 'examples', 'reader.wasm'), join(temp, 'components', 'custom reader.wasm'));

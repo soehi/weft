@@ -10,7 +10,7 @@
 
 ## 安装与验收入口
 
-当前候选：模块/CLI **0.3.0**，计划格式 **0.2.0**。注册表0.3.0已发布并经独立消费者三后端复验。
+当前补丁候选：模块/CLI **0.3.1**，计划格式 **0.2.0**。注册表0.3.0已发布并经独立消费者三后端复验。
 源码与预构建包同样可用；发布状态见 [候选验收记录](release/CANDIDATE.md)。
 
 | 使用方式 | 入口与状态 |
@@ -55,7 +55,7 @@ python scripts/check-release-inputs.py
 ```bash
 moon run src/cli --target js -- plan examples/chain.json --out plan.json
 # 类型错误，应失败并指出source.read/sink.in的签名不匹配
-moon run src/cli --target js -- plan examples/browser/type-mismatch.json
+moon run src/cli --target js -- plan examples/type-mismatch.json
 # 浏览器：打开 http://127.0.0.1:8000，选择成功链或类型错误示例
 node scripts/build-demo.mjs
 python scripts/serve-demo.py
@@ -235,7 +235,7 @@ moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --t
 moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target js
 ```
 
-本轮实测：**139 个测试，三个后端各自全部通过**；各后端另外执行 33 项真实 CLI 检查。
+本轮实测：**139 个测试，三个后端各自全部通过**；各后端另外执行 35 项真实 CLI 检查。
 
 | 包 | 测试数 | 覆盖 |
 |---|---|---|
@@ -324,4 +324,4 @@ Apache-2.0。
 浏览器演示：运行 `node scripts/build-demo.mjs`、`python scripts/serve-demo.py` 后打开本地 8000 端口。
 可选择本地清单和组件、查看依赖图与错误、下载与 CLI 相同的规范计划。附五类真实示例，详见 [demo 使用与验证](demo/README.md)。
 
-CLI/模块版本为 **0.3.0**，可运行 `weft --version` 查看；计划格式仍为 0.2.0。固定工具链、Actions 制品及干净目录首次使用见 [release/README.md](release/README.md)。
+CLI/模块版本为 **0.3.1**，可运行 `weft --version` 查看；计划格式仍为 0.2.0。固定工具链、Actions 制品及干净目录首次使用见 [release/README.md](release/README.md)。
