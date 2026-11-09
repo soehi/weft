@@ -8,7 +8,7 @@ import {createHash} from 'node:crypto';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 mkdirSync(join(root,'_build/release'),{recursive:true});
 const work=mkdtempSync(join(root,'_build','registry consumer '));
-const version=process.argv[2]??'0.3.0';
+const version=process.argv[2]??'0.3.1';
 assert(/^0\.3\.[01]$/.test(version),'unsupported acceptance version');
 const env={...process.env,MOON_REGISTRY_API:'1'};
 function run(args) {

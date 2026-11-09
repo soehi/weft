@@ -1,3 +1,16 @@
+# 发布验收记录
+
+当前正式交付：0.3.1，计划格式0.2.0。M4–M6已完成。
+- 源码tag：v0.3.1，commit 08306e9a0ed4ce40984461ac2502c38caa863292。
+- 候选完整CI：https://github.com/soehi/weft/actions/runs/42613835620 （9项成功）。
+- 正式Release及双平台下载复验：https://github.com/soehi/weft/actions/runs/42614477838 （5项成功）。
+- 稳定下载：https://github.com/soehi/weft/releases/tag/v0.3.1 。
+- Mooncakes 0.3.1包checksum：d134f7b2877e1a14dba5a27ef4a23beb13f427799dbc3188ac8f503c6b5dd629。
+- 注册表独立消费者三后端通过；本机匿名下载Windows包的原生/Node首次使用与4项错误诊断通过。
+- 后续证据补记提交不改变已发布包；制品源码以tag及BUILD.json为准。
+
+以下保留候选与0.3.0历史记录，当前状态以上述0.3.1验收为准。
+
 # 0.3.0 候选验收记录
 
 状态：M4候选提交d6ebb0b九项CI通过；Mooncakes 0.3.0已发布并完成独立安装，正式GitHub Release准备中。

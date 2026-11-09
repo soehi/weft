@@ -1,8 +1,8 @@
-# v0.3.0 构建与首次使用验证
+# v0.3.1 构建与首次使用验证
 
-模块/CLI 版本为 0.3.0，计划格式仍为 0.2.0。CI 生成 Windows x86_64 与 Linux x86_64 CLI 验证包，
+模块/CLI 版本为 0.3.1，计划格式仍为 0.2.0。CI 生成 Windows x86_64 与 Linux x86_64 CLI 验证包，
 每包附同一版本 Node CLI；不包含 wasmoon 执行适配器，也不会将 run 开放为已验证能力。
-本轮通过 Actions artifact 交付构建结果，未自动创建 GitHub Release、tag 或发布 Mooncakes。
+正式下载入口：[v0.3.1 Release](https://github.com/soehi/weft/releases/tag/v0.3.1)。Mooncakes 0.3.1已发布并经独立消费者复验；Actions artifacts仍作为过程证据保留。
 
 ## 固定输入
 
@@ -37,8 +37,8 @@ Linux 使用同一 Python 安装命令，随后 export MOON_HOME 为该目录并
 
 ```bash
 python scripts/build-release.py
-python scripts/test-release.py _build/release/weft-0.3.0-windows-x86_64.zip
-# Linux 的文件名为 weft-0.3.0-linux-x86_64.zip
+python scripts/test-release.py _build/release/weft-0.3.1-windows-x86_64.zip
+# Linux 的文件名为 weft-0.3.1-linux-x86_64.zip
 ```
 
 包内包含原生 weft(.exe)、可用 `node weft.mjs` 运行的 CLI、示例、许可证与第三方说明、
@@ -60,7 +60,7 @@ node weft.mjs --version
 node weft.mjs plan examples/chain.json --out plan-node.json
 ```
 
-Windows 将 ./weft 替换为 ./weft.exe。输出应为 weft 0.3.0 (plan 0.2.0)，两份计划均等于包内 golden.json。
+Windows 将 ./weft 替换为 ./weft.exe。输出应为 weft 0.3.1 (plan 0.2.0)，两份计划均等于包内 golden.json。
 Linux native 包在 Ubuntu 24.04 同系列环境验证，仍依赖系统 ABI/标准共享库，不是所有发行版通用的静态二进制。
 
 测试脚本会在带空格的全新临时目录校验/解包制品，从包目录之外同时调用原生与 Node CLI，

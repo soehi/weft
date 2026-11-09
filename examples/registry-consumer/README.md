@@ -18,4 +18,4 @@ node scripts/test-registry-consumer.mjs
 ```
 
 该验收脚本使用固定工具链的HTTP注册表模式（MOON_REGISTRY_API=1），避免索引更新延迟；
-自动创建独立消费者并从注册表解析0.3.0，不引入本地workspace或path override。
+自动创建独立消费者并从注册表解析0.3.1，不引入本地workspace或path override。

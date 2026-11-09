@@ -1,10 +1,10 @@
 # 5–10分钟验收演示
 
-先按README配置固定工具链并运行moon update。当前预构建入口为Actions制品，正式Release入口在M6完成后回写。
+先按README配置固定工具链并运行moon update。正式预构建入口为 https://github.com/soehi/weft/releases/tag/v0.3.1 ，已完成双平台下载首次使用验证。
 演示操作均在仓库根目录；规划与浏览器不依赖Linux执行器。
 
 1. **版本与安装（约1分钟）**：运行 `moon run src/cli --target js -- --version`，应输出
-   `weft 0.3.0 (plan 0.2.0)`。预构建包则运行 `node weft.mjs --version` 或原生 weft(.exe)。
+   `weft 0.3.1 (plan 0.2.0)`。预构建包则运行 `node weft.mjs --version` 或原生 weft(.exe)。
 2. **成功计划（约1分钟）**：运行 `moon run src/cli --target js -- plan examples/chain.json --out plan.json`。
    结果按 reader/filter/sink 实例化，hash为 `1a3640bcc99318d5`，完整字节等于docs/fixtures/plan-v0.2.0.json。
 3. **错误诊断（约1分钟）**：分别对examples/cycle.json和type-mismatch.json运行plan。

@@ -10,14 +10,14 @@
 
 ## 安装与验收入口
 
-当前补丁候选：模块/CLI **0.3.1**，计划格式 **0.2.0**。注册表0.3.0已发布并经独立消费者三后端复验。
+当前正式交付：模块/CLI **0.3.1**，计划格式 **0.2.0**。注册表0.3.1已发布并经独立消费者三后端复验。
 源码与预构建包同样可用；发布状态见 [候选验收记录](release/CANDIDATE.md)。
 
 | 使用方式 | 入口与状态 |
 |---|---|
 | 源码构建 | 下方快速开始，固定工具链安装见 [构建说明](release/README.md) |
-| Windows/Linux 预构建规划 CLI | [Actions](https://github.com/soehi/weft/actions) 成功运行内的 weft-cli 制品；下载解包与校验见 [构建说明](release/README.md)，正式 Release 待 M6 |
-| Mooncakes 库 | 已发布 [soehi/weft@0.3.0](https://mooncakes.io/docs/soehi/weft)，依赖固定为0.3.0；[独立注册表消费者](examples/registry-consumer/README.md)已复验 |
+| Windows/Linux 预构建规划 CLI | [v0.3.1正式Release](https://github.com/soehi/weft/releases/tag/v0.3.1)，Windows/Linux包及SHA-256均已下载复验；见[构建说明](release/README.md) |
+| Mooncakes 库 | 已发布 [soehi/weft@0.3.1](https://mooncakes.io/docs/soehi/weft)，依赖固定为0.3.1；[独立注册表消费者](examples/registry-consumer/README.md)已复验 |
 | 本地库消费者 | [examples/consumer](examples/consumer/README.md)，通过本地workspace引入，不能替代注册表安装验证 |
 | 浏览器本地演示 | [demo](demo/README.md)，用户组件留在本机内存 |
 | Linux 可选执行 | [执行说明](docs/S3-EXECUTION.md)，独立实验命令；通用 weft run 仍未支持 |
