@@ -89,6 +89,8 @@ jobs:
         run: node scripts/test-gate.mjs
       - name: Check all three backends
         run: bash scripts/check-backends.sh
+      - name: Verify published registry-only API consumer
+        run: node scripts/test-registry-consumer.mjs
 
   runtime-native:
     # The execution adapter depends on wasmoon, whose C runtime needs a

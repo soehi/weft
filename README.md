@@ -10,14 +10,14 @@
 
 ## 安装与验收入口
 
-当前候选：模块/CLI **0.3.0**，计划格式 **0.2.0**。正式注册表安装尚待 M5 发布与独立复验，
-目前请使用源码或已通过 CI 的预构建包；发布状态见 [候选验收记录](release/CANDIDATE.md)。
+当前候选：模块/CLI **0.3.0**，计划格式 **0.2.0**。注册表0.3.0已发布并经独立消费者三后端复验。
+源码与预构建包同样可用；发布状态见 [候选验收记录](release/CANDIDATE.md)。
 
 | 使用方式 | 入口与状态 |
 |---|---|
 | 源码构建 | 下方快速开始，固定工具链安装见 [构建说明](release/README.md) |
 | Windows/Linux 预构建规划 CLI | [Actions](https://github.com/soehi/weft/actions) 成功运行内的 weft-cli 制品；下载解包与校验见 [构建说明](release/README.md)，正式 Release 待 M6 |
-| Mooncakes 库 | 待发布验证；预期 `moon add soehi/weft@0.3.0`，暂不作为已验证安装方式 |
+| Mooncakes 库 | 已发布 [soehi/weft@0.3.0](https://mooncakes.io/docs/soehi/weft)，依赖固定为0.3.0；[独立注册表消费者](examples/registry-consumer/README.md)已复验 |
 | 本地库消费者 | [examples/consumer](examples/consumer/README.md)，通过本地workspace引入，不能替代注册表安装验证 |
 | 浏览器本地演示 | [demo](demo/README.md)，用户组件留在本机内存 |
 | Linux 可选执行 | [执行说明](docs/S3-EXECUTION.md)，独立实验命令；通用 weft run 仍未支持 |
@@ -316,7 +316,7 @@ moon run src/runtime_native --target native -- run examples/execution/chain.json
 ## 许可证
 
 Apache-2.0。
-格式、Schema、Unicode 排序和从 0.1.0 迁移见 [FORMAT.md](docs/FORMAT.md)。新计划输出 0.2.0，模块尚未发布到 Mooncakes。
+格式、Schema、Unicode 排序和从 0.1.0 迁移见 [FORMAT.md](docs/FORMAT.md)。新计划输出 0.2.0，模块已发布到 Mooncakes，独立安装验证见examples/registry-consumer。
 
 可嵌入入口为 `soehi/weft/api::compile`：输入清单字符串与组件名字节映射，返回规范计划或结构化诊断。
 无文件系统消费者与错误码契约见 [API.md](docs/API.md)，独立示例位于 [examples/consumer](examples/consumer/README.md)。

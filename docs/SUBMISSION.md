@@ -128,13 +128,15 @@ M1–M3、E1及三轮性能优化已完成，接下来按 docs/ROADMAP.md 第24�
 
 | 阶段 | 交付内容 | 当前状态 |
 |---|---|---|
-| M4 候选冻结 | 最终源码SHA、材料、README、发布元数据、打包与许可证核对 | 本轮进行中；最终提交须重跑完整CI |
-| M5 Mooncakes闭环 | soehi/weft@0.3.0注册表发布，无本地workspace的独立消费者三后端复验 | 尚未完成；不可用本地包预检替代注册表验证 |
+| M4 候选冻结 | 最终源码SHA、材料、README、发布元数据、打包与许可证核对 | 候选d6ebb0b九项CI成功；最终tag工作流继续核对源码SHA |
+| M5 Mooncakes闭环 | soehi/weft@0.3.0注册表发布，无本地workspace的独立消费者三后端复验 | 0.3.0已发布，独立注册表消费者三后端合法计划和两项错误诊断通过 |
 | M6 正式制品与复演 | tag/GitHub Release、SHA-256、5–10分钟演示、干净目录下载抽检 | 尚未完成；当前Actions artifacts只是过程制品 |
 
-2026-11-09重新查询 `moon view soehi/weft@0.3.0 --json` 返回404；用户原有MoonBit环境可查询到已登录的soehi账号。
-这不是发布失败声明，目标版本尚未发布。后续以注册表实际可查询及独立安装通过为成功，发布记录回写release/CANDIDATE.md。
-CI安装Action问题已在早期修复，不再作为当前阻塞。正式交付前停止新增功能，优先保持格式与公共API稳定。
+2026-11-09发布前精确版本查询返回404，随后从候选d6ebb0b实际发布0.3.0，服务器返回200 OK，
+moon view可查询目标版本。注册表独立消费者不引用本地moon.work/path override，三后端计划与黄金文件一致，
+缺组件字节及类型错误诊断通过。包checksum与发布源码记于release/CANDIDATE.md。
+M6的正式tag/Release及下载抽检正在推进，最终制品源码SHA以v0.3.0 tag及包内BUILD.json为准，
+原注册表包保持不可变。CI安装Action问题已在早期修复，不再作为当前阻塞；发布阶段保持格式与公共API稳定。
 
 ## 移植或参考说明
 

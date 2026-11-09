@@ -1,0 +1,79 @@
+name: Release
+on:
+  push:
+    tags: [v0.3.0]
+permissions:
+  contents: read
+jobs:
+  build:
+    name: release build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+      - name: Install fixed toolchain
+        shell: bash
+        run: python scripts/install-toolchain.py --destination "$RUNNER_TEMP/weft-toolchain"
+      - name: Build and verify tag artifacts
+        shell: bash
+        run: |
+          moon update
+          moon check src/api src/cli --target js
+          python scripts/check-release-inputs.py
+          python scripts/check-package.py
+          python scripts/build-release.py
+          for archive in _build/release/weft-*.zip; do python scripts/test-release.py "$archive"; done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-assets-${{ runner.os }}
+          path: |
+            _build/release/weft-*.zip
+            _build/release/weft-*.zip.sha256
+          if-no-files-found: error
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-assets-*
+          path: artifacts
+          merge-multiple: true
+      - name: Publish verified stable downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mapfile -t assets < <(rg --files artifacts | sort)
+          test "${#assets[@]}" -eq 4
+          gh release create "$GITHUB_REF_NAME" "${assets[@]}" --verify-tag --title "weft 0.3.0" --notes-file release/NOTES-v0.3.0.md
+  downloaded:
+    name: Release download first use (${{ matrix.platform }})
+    needs: publish
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            platform: linux
+          - os: windows-2025
+            platform: windows
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download from actual Release and verify first use
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_PLATFORM: ${{ matrix.platform }}
+        run: |
+          gh release download "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --pattern "weft-0.3.0-$RELEASE_PLATFORM-x86_64.zip*" --dir "$RUNNER_TEMP/weft-download"
+          python scripts/test-release.py "$RUNNER_TEMP/weft-download/weft-0.3.0-$RELEASE_PLATFORM-x86_64.zip"
+          python scripts/check-release-source.py "$RUNNER_TEMP/weft-download/weft-0.3.0-$RELEASE_PLATFORM-x86_64.zip" "$GITHUB_SHA"

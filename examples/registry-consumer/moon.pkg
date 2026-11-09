@@ -1,0 +1,2 @@
+import { "soehi/weft/api" }
+pkgtype(kind: "executable")
