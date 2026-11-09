@@ -25,51 +25,87 @@ pub fn resolve_port(
     ExportSide => iface.exports
     ImportSide => iface.imports
   }
-  // Try the full path first: it may name an interface directly, or a plain func.
-  // Paths are `iface.func` or `func`.
-  let segments = port_path.split(".").to_array()
-  let dot = if segments.length() < 2 { -1 } else { segments[0].length() }
-  if dot < 0 {
-    // Plain function name.
-    for e in table {
-      if @ir.cmp_str(e.name, port_path) == 0 {
-        match e.port {
-          @ir.Func(sig) => return sig
-          @ir.Interface(_, _) =>
-            raise PortKindMismatch(
-              iface.name,
-              port_path,
-              "an interface, not a function",
-            )
-        }
+  resolve_port_using(iface.name, port_path, fn(name) {
+    for entry in table {
+      if @ir.cmp_str(entry.name, name) == 0 {
+        return Some(entry.port)
       }
     }
-    raise UnknownPort(iface.name, port_path)
-  }
-  let iface_name = port_path[:dot].to_owned()
-  let func_name = port_path[dot + 1:].to_owned()
-  for e in table {
-    if @ir.cmp_str(e.name, iface_name) == 0 {
-      match e.port {
-        @ir.Interface(_, funcs) => {
-          for f in funcs {
-            if @ir.cmp_str(f.name, func_name) == 0 {
-              return f
-            }
-          }
-          raise UnknownPort(iface.name, "\{iface_name}.\{func_name}")
-        }
-        @ir.Func(_) =>
-          raise PortKindMismatch(
-            iface.name,
-            iface_name,
-            "a function, not an interface",
-          )
-      }
-    }
-  }
-  raise UnknownPort(iface.name, iface_name)
+    None
+  })
 }
+
+///|
+fn resolve_port_using(
+  component : String,
+  port_path : String,
+  lookup : (String) -> @ir.Port?,
+) -> @ir.FuncSig raise PlanError {
+  let segments = port_path.split(".").to_array()
+  if segments.length() < 2 {
+    match lookup(port_path) {
+      Some(@ir.Func(sig)) => return sig
+      Some(@ir.Interface(_, _)) =>
+        raise PortKindMismatch(
+          component, port_path, "an interface, not a function",
+        )
+      None => raise UnknownPort(component, port_path)
+    }
+  }
+  let dot = segments[0].length()
+  let name = port_path[:dot].to_owned()
+  let function = port_path[dot + 1:].to_owned()
+  match lookup(name) {
+    Some(@ir.Interface(_, funcs)) => {
+      for f in funcs {
+        if @ir.cmp_str(f.name, function) == 0 {
+          return f
+        }
+      }
+      raise UnknownPort(component, "\{name}.\{function}")
+    }
+    Some(@ir.Func(_)) =>
+      raise PortKindMismatch(component, name, "a function, not an interface")
+    None => raise UnknownPort(component, name)
+  }
+}
+
+///|
+// Index only wide tables, lazily and within a single plan invocation. Small
+// tables retain the linear resolver, avoiding per-instance map allocations.
+fn resolve_indexed_port(
+  iface : @ir.Iface,
+  handle : String,
+  side : Side,
+  port : String,
+  cache : Map[(String, Bool), Map[String, @ir.Port]],
+) -> @ir.FuncSig raise PlanError {
+  let table = match side {
+    ExportSide => iface.exports
+    ImportSide => iface.imports
+  }
+  if table.length() < 16 {
+    return resolve_port(iface, side, port)
+  }
+  let key = (handle, side is ImportSide)
+  let index = match cache.get(key) {
+    Some(index) => index
+    None => {
+      let index : Map[String, @ir.Port] = Map([])
+      // Public IR may contain duplicates: linear lookup chooses the first.
+      for entry in table {
+        if !index.contains(entry.name) {
+          index.set(entry.name, entry.port)
+        }
+      }
+      cache.set(key, index)
+      index
+    }
+  }
+  resolve_port_using(iface.name, port, name => index.get(name))
+}
+
+///|
 
 ///|
 /// Core value type name, e.g. `i32`. Used for plan output.

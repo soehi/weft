@@ -180,7 +180,7 @@ moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --t
 moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target js
 ```
 
-本轮实测：**136 个测试，三个后端各自全部通过**；各后端另外执行 33 项真实 CLI 检查。
+本轮实测：**139 个测试，三个后端各自全部通过**；各后端另外执行 33 项真实 CLI 检查。
 
 | 包 | 测试数 | 覆盖 |
 |---|---|---|

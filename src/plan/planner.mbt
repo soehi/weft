@@ -31,11 +31,24 @@ fn lookup_iface(input : Input, name : String) -> @ir.Iface raise PlanError {
 fn plan_wire(
   input : Input,
   w : @manifest.WireDecl,
+  port_cache : Map[(String, Bool), Map[String, @ir.Port]],
 ) -> PlannedWire raise PlanError {
   let from_iface = lookup_iface(input, w.from_component)
   let to_iface = lookup_iface(input, w.to_component)
-  let from_sig = resolve_port(from_iface, ExportSide, w.from_port)
-  let to_sig = resolve_port(to_iface, ImportSide, w.to_port)
+  let from_sig = resolve_indexed_port(
+    from_iface,
+    w.from_component,
+    ExportSide,
+    w.from_port,
+    port_cache,
+  )
+  let to_sig = resolve_indexed_port(
+    to_iface,
+    w.to_component,
+    ImportSide,
+    w.to_port,
+    port_cache,
+  )
   check_wire_value_types(
     from_iface,
     w.from_port,
@@ -101,9 +114,10 @@ pub fn plan(input : Input) -> Plan raise PlanError {
   let order = topo_order(g)
   // Wires: resolve all first, so a port error is reported before any ordering
   // result could be mistaken for the cause.
+  let port_cache : Map[(String, Bool), Map[String, @ir.Port]] = Map([])
   let wires : Array[PlannedWire] = []
   for w in input.manifest.wires {
-    wires.push(plan_wire(input, w))
+    wires.push(plan_wire(input, w, port_cache))
   }
   sort_wires(wires)
   check_bindings(input, wires)

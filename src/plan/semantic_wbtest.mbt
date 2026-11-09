@@ -388,7 +388,7 @@ test "semantics: decoded aggregates resolve their own type tables" {
   let from_sig = resolve_port(input.ifaces["a"], ExportSide, "out")
   let to_sig = resolve_port(input.ifaces["b"], ImportSide, "in")
   assert_true(from_sig.params[0].ty != to_sig.params[0].ty)
-  let w = plan_wire(input, input.manifest.wires[0])
+  let w = plan_wire(input, input.manifest.wires[0], Map([]))
   assert_eq(w.from_port, "out")
 }
 
