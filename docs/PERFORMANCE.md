@@ -152,3 +152,25 @@ Graph调用者仍须遵守已公开的nodes按字典序排序契约。
 
 原始采样见同次 `planner-scale-baseline` artifact。这轮共享runner解码耗时也有波动，不与早前Linux轮次直接作整条CLI加速比。
 下一项仍为扇入非图路径的端口解析、类型展开及绑定覆盖检查；优先保留现有诊断优先级与公共IR行为。
+
+## 扇入绑定覆盖优化（2026-11-09）
+
+继续定位非图路径，使用 [MoonBit white-box benchmark](https://docs.moonbitlang.com/en/latest/language/benchmarks.html)
+直接比较生产 check_bindings 与测试中保留的旧扫描参考实现。夹具为合法的source→sink多import计划，
+不计组件解码/端口类型解析；100与1,000个import分别测量，使用b.keep保留结果，count=3，由框架自动校准批次。
+
+```bash
+moon bench src/plan --target native --debug
+# 也可替换为 wasm-gc / js
+```
+
+旧实现为每个已排序名称重复遍历import表，并线性检查不可连线名称。新实现构造带原始序号的端口描述符，
+一次按名称/序号排序后顺序检查，避免平方次扫描；相同名称的不可连线项优先，重复import保留原始先后。
+覆盖检查复杂度由宽表上的O(I²)扫描改为O(I log I)排序加遍历，不改变重复提供方的优先诊断。
+
+先在旧实现固化千import完整/漏绑、重复端口、函数/实例混合、不可连线名称等对照用例，再改生产实现。
+不通过Map覆盖重复端口，不扩大公共IR可接受范围。原生产规划API与计划格式不变。
+
+初测千import native直接检查约5.1→2.9ms，改善的是绑定覆盖子步骤，不能解释成整条CLI提速；
+端口解析及类型展开仍可能占据其余开销。最终本机回归、18场景字节和Linux CI结果待验收。
+CI在规模基准后顺序运行三后端的直接benchmark，文本结果随planner-scale-baseline制品上传。

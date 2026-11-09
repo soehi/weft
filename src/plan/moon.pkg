@@ -7,11 +7,13 @@
 
 import {
   "soehi/weft/graph",
-  "moonbitlang/core/json" @json,
+  "moonbitlang/core/json",
   "Milky2018/wasm_core/types" @core,
   "soehi/weft/ir",
   "soehi/weft/manifest",
 }
+
 import {
   "Milky2018/wasm_component/text",
+  "moonbitlang/core/bench",
 } for "wbtest"

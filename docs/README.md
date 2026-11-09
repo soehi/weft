@@ -35,7 +35,7 @@
 bash scripts/check-backends.sh
 ```
 
-一条命令完成：三后端各跑 134 个测试 → 生成夹具 → 三后端各生成计划并跑 33 项 CLI 进程检查 → 逐字节比较。
+一条命令完成：三后端各跑 136 个测试 → 生成夹具 → 三后端各生成计划并跑 33 项 CLI 进程检查 → 逐字节比较。
 
 Windows 可运行 `pwsh -NoProfile -File scripts/check-backends.ps1`；两个入口调用同一检查程序，失败保留原始日志并返回非零。
 故意失败夹具：`node scripts/test-gate.mjs`（需要 Bash 与 pwsh）。

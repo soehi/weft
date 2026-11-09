@@ -28,6 +28,7 @@ const report = {
   benchmark_script_sha256:createHash('sha256').update(readFileSync(fileURLToPath(import.meta.url))).digest('hex'),
   profile_source_sha256:createHash('sha256').update(readFileSync(join(root,'src/tools/profile_planner/main.mbt'))).digest('hex'),
   graph_source_sha256:createHash('sha256').update(readFileSync(join(root,'src/graph/graph.mbt'))).digest('hex'),
+  binding_source_sha256:createHash('sha256').update(readFileSync(join(root,'src/plan/bindings.mbt'))).digest('hex'),
   build_profile:'debug',
   environment:{os:os.platform(), release:os.release(), arch:os.arch(), cpu:os.cpus()[0]?.model, node:process.version},
   toolchain:run('moon',['version','--all']).stdout.trim(),

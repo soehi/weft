@@ -21,36 +21,44 @@ fn check_bindings(
   components.sort_by(fn(a, b) { @ir.cmp_str(a.name, b.name) })
   for c in components {
     let iface = lookup_iface(input, c.name)
-    // Merge all imports for deterministic name ordering, including previously
-    // unrepresentable type/value/module/component imports.
-    let names = iface.unwireable_imports.copy()
-    for entry in iface.imports {
-      names.push(entry.name)
+    // Sort descriptors once instead of rescanning the entire import table for
+    // every name. Ordinals preserve duplicate-entry order in public IR; placing
+    // unwireable descriptors first preserves their same-name error precedence.
+    let entries : Array[(String, Int32, @ir.Port?)] = []
+    for name in iface.unwireable_imports {
+      entries.push((name, entries.length(), None))
     }
-    names.sort_by(@ir.cmp_str)
-    for name in names {
-      if iface.unwireable_imports.contains(name) {
-        raise Unsupported(
-          c.name,
-          name,
-          "non-function import cannot be bound by function wires",
-        )
+    for entry in iface.imports {
+      entries.push((entry.name, entries.length(), Some(entry.port)))
+    }
+    entries.sort_by(fn(a, b) {
+      let (an, ai, _) = a
+      let (bn, bi, _) = b
+      let order = @ir.cmp_str(an, bn)
+      if order == 0 {
+        ai - bi
+      } else {
+        order
       }
-      for entry in iface.imports {
-        if entry.name == name {
-          match entry.port {
-            @ir.Func(_) =>
-              if !providers.contains((c.name, name)) {
-                raise UnboundImport(c.name, name)
-              }
-            @ir.Interface(_, _) =>
-              raise Unsupported(
-                c.name,
-                name,
-                "interface instance imports require whole-instance binding",
-              )
+    })
+    for (name, _, port) in entries {
+      match port {
+        None =>
+          raise Unsupported(
+            c.name,
+            name,
+            "non-function import cannot be bound by function wires",
+          )
+        Some(@ir.Func(_)) =>
+          if !providers.contains((c.name, name)) {
+            raise UnboundImport(c.name, name)
           }
-        }
+        Some(@ir.Interface(_, _)) =>
+          raise Unsupported(
+            c.name,
+            name,
+            "interface instance imports require whole-instance binding",
+          )
       }
     }
   }

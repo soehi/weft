@@ -21,10 +21,18 @@ jobs:
           python3 scripts/check-release-inputs.py
       - name: Measure six graph cases across three backends
         run: node scripts/benchmark-planner.mjs 3
+      - name: Compare binding coverage against scan reference
+        run: |
+          set -o pipefail
+          for target in native wasm-gc js; do
+            moon bench src/plan --target "$target" --debug | tee "_build/benchmarks/binding-bench-$target.txt"
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: planner-scale-baseline
-          path: _build/benchmarks/latest.json
+          path: |
+            _build/benchmarks/latest.json
+            _build/benchmarks/binding-bench-*.txt
           if-no-files-found: error
 
   portable:
