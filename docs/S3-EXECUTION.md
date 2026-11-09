@@ -1,13 +1,13 @@
 # S3 执行适配：现状与实证
 
-更新：2026-11-07（M1 能力纠偏）。2026-11-05 的类型检查和 MSVC 阻塞仍成立，
+更新：2026-11-09（E1 执行器集成）。2026-11-05 的类型检查和 MSVC 阻塞仍成立，
 但此前将端口查找称作绑定、将 WAC 往返称作执行闭环的结论已撤回。
 
 ## 当前状态
 
 - `src/runtime_native` 与独立测试包 `src/runtime_probe` 依赖 wasmoon，均限定 native。
 - `moon check src/runtime_native --target native` 只证明类型与上游 API 对齐。
-- `executor.mbt` 已改用底层 ComponentLinker，按目标安装源 export 后实例化；本轮 Linux 集成验证待 CI。
+- `executor.mbt` 已改用底层 ComponentLinker，按目标安装源 export 后实例化；Linux 集成验证已通过。
 - 纯逻辑轨迹改为逐目标 Bind → Instantiate，5 个测试在三个后端通过，调用目标必须显式指定。
 - 示例 reader 返回常数 0；sink 只有 import，没有 CI 之前试图调用的 `read` 导出。
 - `weft run` 在所有后端明确报未支持并退出 1；独立适配器入口也关闭执行。
@@ -66,5 +66,6 @@ moon test src/runtime_probe --target native
 `execute_chain` 与隐式最后实例调用已移除，纯轨迹辅助函数改为 append_call 的显式目标。
 这是尚未发布实验 API 的不兼容调整，计划 JSON 及已发布规划接口未变。
 参数仅接受标量，bool 严格 true/false，char 严格单个 Unicode 标量；无符号数按完整位宽解析/显示。
-资源限制请求明确拒绝。新增实际执行器集成测试，Linux 结果待 CI。
+资源限制请求明确拒绝。新增实际执行器集成测试；提交 `ac63c82` 的 [Linux CI](https://github.com/soehi/weft/actions/runs/42543565157)
+实际执行器 5 测试与原有 3 探针均通过。
 本轮保持独立命令及通用 CLI run 的非零退出行为；公开命令的参数协议与文件 I/O 接入留待后续。
