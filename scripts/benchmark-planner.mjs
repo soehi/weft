@@ -27,6 +27,7 @@ const report = {
   commit:run('git',['rev-parse','HEAD']).stdout.trim(),
   benchmark_script_sha256:createHash('sha256').update(readFileSync(fileURLToPath(import.meta.url))).digest('hex'),
   profile_source_sha256:createHash('sha256').update(readFileSync(join(root,'src/tools/profile_planner/main.mbt'))).digest('hex'),
+  graph_source_sha256:createHash('sha256').update(readFileSync(join(root,'src/graph/graph.mbt'))).digest('hex'),
   build_profile:'debug',
   environment:{os:os.platform(), release:os.release(), arch:os.arch(), cpu:os.cpus()[0]?.model, node:process.version},
   toolchain:run('moon',['version','--all']).stdout.trim(),
@@ -83,7 +84,7 @@ try {
       const phaseSamples = phase.stdout.trim().split(/\r?\n/).map(line=>JSON.parse(line));
       assert.equal(phaseSamples.length,repeats);
       const phaseMedians = {};
-      for (const key of ['parse_ms','decode_ms','plan_ms','json_ms','graph_probe_ms']) {
+      for (const key of ['parse_ms','decode_ms','plan_ms','json_ms','graph_probe_ms','graph_build_ms','cycle_check_ms','topo_ms']) {
         const values=phaseSamples.map(sample=>sample[key]);
         assert(values.every(value=>Number.isFinite(value)&&value>=0), `invalid phase timer ${key}`);
         phaseMedians[key]=values.sort((a,b)=>a-b)[Math.floor(repeats/2)];
@@ -91,6 +92,7 @@ try {
       assert(readFileSync(destination).equals(golden), `profile differs from CLI ${shape}/${size}/${target}`);
       Object.assign(report.cases.at(-1),{phase_samples_ms:phaseSamples,phase_medians_ms:phaseMedians});
       console.log(`phases ${shape} ${size} ${target}: decode ${phaseMedians.decode_ms.toFixed(1)}, plan ${phaseMedians.plan_ms.toFixed(1)}, graph probe ${phaseMedians.graph_probe_ms.toFixed(1)} ms`);
+      console.log(`graph ${shape} ${size} ${target}: build ${phaseMedians.graph_build_ms.toFixed(2)}, cycle ${phaseMedians.cycle_check_ms.toFixed(2)}, topo ${phaseMedians.topo_ms.toFixed(2)} ms`);
       writeFileSync(manifest,JSON.stringify({components:[...components].reverse(),wires:[...wires].reverse()}));
       cli(target,manifest,destination);
       assert(readFileSync(destination).equals(golden), `permutation mismatch ${shape}/${size}/${target}`);

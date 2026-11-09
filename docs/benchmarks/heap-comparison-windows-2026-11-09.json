@@ -1,0 +1,382 @@
+{
+  "description": "Consecutive Windows development measurements, same harness, debug profile. HEAD is the base revision; graph_source_sha256 identifies changed production source. Three samples per case; no concurrent test/build workload in retained runs.",
+  "before": {
+    "schema_version": 2,
+    "timestamp": "2026-11-09T02:20:50.971Z",
+    "commit": "b0711f3687c9fa8d4a6991d7ff2ed233fa90246d",
+    "benchmark_script_sha256": "7e863b98b7b276bc43f82fa291fb309a29a7898b318e3f191b8fbbeb76bd3e51",
+    "profile_source_sha256": "1b1cb43a05e8f55494c37b71f910ede6dd74361458fad4b2d54ff057ab0b016e",
+    "graph_source_sha256": "85e36eab46862d268e0879428b10a4f51a2bba330e8f5e7bbaa0db37c0b01449",
+    "build_profile": "debug",
+    "environment": {
+      "os": "win32",
+      "release": "10.0.26100",
+      "arch": "x64",
+      "cpu": "Intel(R) Core(TM) i7-14650HX",
+      "node": "v24.15.0"
+    },
+    "toolchain": "moon 0.1.20261104 (940aa18 2026-11-04) D:\\Code\\息壤杯\\moonbit\\weft\\_build\\toolchains\\locked-windows-v2\\bin\\moon.exe\nmoonc v0.10.20+65efd5b93 (2026-11-05) D:\\Code\\息壤杯\\moonbit\\weft\\_build\\toolchains\\locked-windows-v2\\bin\\moonc.exe\nmoonrun 0.1.20261104 (940aa18 2026-11-04) D:\\Code\\息壤杯\\moonbit\\weft\\_build\\toolchains\\locked-windows-v2\\bin\\moonrun.exe\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+    "repeats": 3,
+    "metric": "fresh process CLI wall milliseconds, including startup, file I/O, decode, plan and output; build/generation excluded",
+    "fanout_1000_cases": [
+      {
+        "shape": "fanout",
+        "size": 1000,
+        "target": "native",
+        "median_ms": 344.5041000000019,
+        "min_ms": 327.119999999999,
+        "samples_ms": [
+          344.5041000000019,
+          373.1720000000023,
+          327.119999999999
+        ],
+        "plan_bytes": 172801,
+        "sha256": "0d18223218799546ff57113721a0a16abf3efbf3f3e938b4a09fc72977a27a71",
+        "phase_samples_ms": [
+          {
+            "parse_ms": 6.3077000000000005,
+            "decode_ms": 117.119,
+            "plan_ms": 126.5492,
+            "json_ms": 7.023899999999999,
+            "graph_probe_ms": 97.7516,
+            "graph_build_ms": 4.3317,
+            "cycle_check_ms": 0.0846,
+            "topo_ms": 93.335
+          },
+          {
+            "parse_ms": 5.6814,
+            "decode_ms": 110.42929999999998,
+            "plan_ms": 127.2275,
+            "json_ms": 7.1765,
+            "graph_probe_ms": 97.7246,
+            "graph_build_ms": 4.5492,
+            "cycle_check_ms": 0.0831,
+            "topo_ms": 93.09209999999999
+          },
+          {
+            "parse_ms": 5.8850999999999996,
+            "decode_ms": 110.917,
+            "plan_ms": 128.0983,
+            "json_ms": 8.206299999999999,
+            "graph_probe_ms": 97.9532,
+            "graph_build_ms": 4.2668,
+            "cycle_check_ms": 0.0752,
+            "topo_ms": 93.611
+          }
+        ],
+        "phase_medians_ms": {
+          "parse_ms": 5.8850999999999996,
+          "decode_ms": 110.917,
+          "plan_ms": 127.2275,
+          "json_ms": 7.1765,
+          "graph_probe_ms": 97.7516,
+          "graph_build_ms": 4.3317,
+          "cycle_check_ms": 0.0831,
+          "topo_ms": 93.335
+        }
+      },
+      {
+        "shape": "fanout",
+        "size": 1000,
+        "target": "wasm-gc",
+        "median_ms": 459.4344000000019,
+        "min_ms": 455.064699999999,
+        "samples_ms": [
+          459.4344000000019,
+          474.16300000000047,
+          455.064699999999
+        ],
+        "plan_bytes": 172801,
+        "sha256": "0d18223218799546ff57113721a0a16abf3efbf3f3e938b4a09fc72977a27a71",
+        "phase_samples_ms": [
+          {
+            "parse_ms": 3.2971,
+            "decode_ms": 56.243900000000004,
+            "plan_ms": 20.1013,
+            "json_ms": 2.8925,
+            "graph_probe_ms": 11.1144,
+            "graph_build_ms": 0.9137000000000001,
+            "cycle_check_ms": 0.0868,
+            "topo_ms": 10.1111
+          },
+          {
+            "parse_ms": 2.8979,
+            "decode_ms": 43.6469,
+            "plan_ms": 19.679299999999998,
+            "json_ms": 2.6731,
+            "graph_probe_ms": 10.847700000000001,
+            "graph_build_ms": 0.8845,
+            "cycle_check_ms": 0.0299,
+            "topo_ms": 9.931
+          },
+          {
+            "parse_ms": 2.7875,
+            "decode_ms": 37.955799999999996,
+            "plan_ms": 19.0033,
+            "json_ms": 2.2639,
+            "graph_probe_ms": 10.847900000000001,
+            "graph_build_ms": 1.2271999999999998,
+            "cycle_check_ms": 0.027,
+            "topo_ms": 9.5918
+          }
+        ],
+        "phase_medians_ms": {
+          "parse_ms": 2.8979,
+          "decode_ms": 43.6469,
+          "plan_ms": 19.679299999999998,
+          "json_ms": 2.6731,
+          "graph_probe_ms": 10.847900000000001,
+          "graph_build_ms": 0.9137000000000001,
+          "cycle_check_ms": 0.0299,
+          "topo_ms": 9.931
+        }
+      },
+      {
+        "shape": "fanout",
+        "size": 1000,
+        "target": "js",
+        "median_ms": 496.0037999999986,
+        "min_ms": 495.40599999999904,
+        "samples_ms": [
+          495.40599999999904,
+          500.4480000000003,
+          496.0037999999986
+        ],
+        "plan_bytes": 172801,
+        "sha256": "0d18223218799546ff57113721a0a16abf3efbf3f3e938b4a09fc72977a27a71",
+        "phase_samples_ms": [
+          {
+            "parse_ms": 3.0622999999999934,
+            "decode_ms": 83.62910000000005,
+            "plan_ms": 33.81979999999999,
+            "json_ms": 0.9294999999999618,
+            "graph_probe_ms": 20.76070000000004,
+            "graph_build_ms": 0.8378000000000156,
+            "cycle_check_ms": 0.07949999999993906,
+            "topo_ms": 19.841499999999996
+          },
+          {
+            "parse_ms": 1.9526999999999362,
+            "decode_ms": 70.8721999999999,
+            "plan_ms": 35.19760000000008,
+            "json_ms": 0.966199999999958,
+            "graph_probe_ms": 18.246700000000033,
+            "graph_build_ms": 0.8667000000000371,
+            "cycle_check_ms": 0.05010000000004311,
+            "topo_ms": 17.328700000000026
+          },
+          {
+            "parse_ms": 1.6762999999999693,
+            "decode_ms": 68.49430000000007,
+            "plan_ms": 29.535799999999995,
+            "json_ms": 0.9106000000000449,
+            "graph_probe_ms": 17.546699999999987,
+            "graph_build_ms": 0.8522999999999001,
+            "cycle_check_ms": 0.050299999999992906,
+            "topo_ms": 16.64289999999994
+          }
+        ],
+        "phase_medians_ms": {
+          "parse_ms": 1.9526999999999362,
+          "decode_ms": 70.8721999999999,
+          "plan_ms": 33.81979999999999,
+          "json_ms": 0.9294999999999618,
+          "graph_probe_ms": 18.246700000000033,
+          "graph_build_ms": 0.8522999999999001,
+          "cycle_check_ms": 0.050299999999992906,
+          "topo_ms": 17.328700000000026
+        }
+      }
+    ]
+  },
+  "after": {
+    "schema_version": 2,
+    "timestamp": "2026-11-09T02:29:26.910Z",
+    "commit": "b0711f3687c9fa8d4a6991d7ff2ed233fa90246d",
+    "benchmark_script_sha256": "7e863b98b7b276bc43f82fa291fb309a29a7898b318e3f191b8fbbeb76bd3e51",
+    "profile_source_sha256": "1b1cb43a05e8f55494c37b71f910ede6dd74361458fad4b2d54ff057ab0b016e",
+    "graph_source_sha256": "5a63d8e0099b41eb6c9e34159f26020580633c31cd9ef673298693db61b4cb8d",
+    "build_profile": "debug",
+    "environment": {
+      "os": "win32",
+      "release": "10.0.26100",
+      "arch": "x64",
+      "cpu": "Intel(R) Core(TM) i7-14650HX",
+      "node": "v24.15.0"
+    },
+    "toolchain": "moon 0.1.20261104 (940aa18 2026-11-04) D:\\Code\\息壤杯\\moonbit\\weft\\_build\\toolchains\\locked-windows-v2\\bin\\moon.exe\nmoonc v0.10.20+65efd5b93 (2026-11-05) D:\\Code\\息壤杯\\moonbit\\weft\\_build\\toolchains\\locked-windows-v2\\bin\\moonc.exe\nmoonrun 0.1.20261104 (940aa18 2026-11-04) D:\\Code\\息壤杯\\moonbit\\weft\\_build\\toolchains\\locked-windows-v2\\bin\\moonrun.exe\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+    "repeats": 3,
+    "metric": "fresh process CLI wall milliseconds, including startup, file I/O, decode, plan and output; build/generation excluded",
+    "fanout_1000_cases": [
+      {
+        "shape": "fanout",
+        "size": 1000,
+        "target": "native",
+        "median_ms": 232.52230000000054,
+        "min_ms": 230.91569999999774,
+        "samples_ms": [
+          232.52230000000054,
+          239.1923999999999,
+          230.91569999999774
+        ],
+        "plan_bytes": 172801,
+        "sha256": "0d18223218799546ff57113721a0a16abf3efbf3f3e938b4a09fc72977a27a71",
+        "phase_samples_ms": [
+          {
+            "parse_ms": 5.7253,
+            "decode_ms": 117.3841,
+            "plan_ms": 34.479,
+            "json_ms": 7.6469,
+            "graph_probe_ms": 5.0109,
+            "graph_build_ms": 4.8111,
+            "cycle_check_ms": 0.0922,
+            "topo_ms": 0.1075
+          },
+          {
+            "parse_ms": 6.2252,
+            "decode_ms": 120.01219999999999,
+            "plan_ms": 34.6445,
+            "json_ms": 7.4052,
+            "graph_probe_ms": 5.0441,
+            "graph_build_ms": 4.8453,
+            "cycle_check_ms": 0.0929,
+            "topo_ms": 0.10579999999999999
+          },
+          {
+            "parse_ms": 6.2139,
+            "decode_ms": 119.0018,
+            "plan_ms": 32.4271,
+            "json_ms": 7.078799999999999,
+            "graph_probe_ms": 4.9766,
+            "graph_build_ms": 4.776800000000001,
+            "cycle_check_ms": 0.0882,
+            "topo_ms": 0.1115
+          }
+        ],
+        "phase_medians_ms": {
+          "parse_ms": 6.2139,
+          "decode_ms": 119.0018,
+          "plan_ms": 34.479,
+          "json_ms": 7.4052,
+          "graph_probe_ms": 5.0109,
+          "graph_build_ms": 4.8111,
+          "cycle_check_ms": 0.0922,
+          "topo_ms": 0.1075
+        }
+      },
+      {
+        "shape": "fanout",
+        "size": 1000,
+        "target": "wasm-gc",
+        "median_ms": 445.766599999999,
+        "min_ms": 443.4831000000013,
+        "samples_ms": [
+          443.4831000000013,
+          445.766599999999,
+          453.6260000000002
+        ],
+        "plan_bytes": 172801,
+        "sha256": "0d18223218799546ff57113721a0a16abf3efbf3f3e938b4a09fc72977a27a71",
+        "phase_samples_ms": [
+          {
+            "parse_ms": 3.541,
+            "decode_ms": 55.2346,
+            "plan_ms": 9.991699999999998,
+            "json_ms": 2.3804000000000003,
+            "graph_probe_ms": 1.1863,
+            "graph_build_ms": 0.9965,
+            "cycle_check_ms": 0.1051,
+            "topo_ms": 0.084
+          },
+          {
+            "parse_ms": 3.1304000000000003,
+            "decode_ms": 41.995200000000004,
+            "plan_ms": 10.7574,
+            "json_ms": 2.6678,
+            "graph_probe_ms": 0.9848000000000001,
+            "graph_build_ms": 0.8875,
+            "cycle_check_ms": 0.026199999999999998,
+            "topo_ms": 0.0703
+          },
+          {
+            "parse_ms": 2.2788000000000004,
+            "decode_ms": 39.8393,
+            "plan_ms": 8.996300000000002,
+            "json_ms": 2.0863,
+            "graph_probe_ms": 0.9995,
+            "graph_build_ms": 0.899,
+            "cycle_check_ms": 0.0269,
+            "topo_ms": 0.07289999999999999
+          }
+        ],
+        "phase_medians_ms": {
+          "parse_ms": 3.1304000000000003,
+          "decode_ms": 41.995200000000004,
+          "plan_ms": 9.991699999999998,
+          "json_ms": 2.3804000000000003,
+          "graph_probe_ms": 0.9995,
+          "graph_build_ms": 0.899,
+          "cycle_check_ms": 0.0269,
+          "topo_ms": 0.07289999999999999
+        }
+      },
+      {
+        "shape": "fanout",
+        "size": 1000,
+        "target": "js",
+        "median_ms": 484.12119999999777,
+        "min_ms": 477.8811999999998,
+        "samples_ms": [
+          484.12119999999777,
+          477.8811999999998,
+          487.6618000000017
+        ],
+        "plan_bytes": 172801,
+        "sha256": "0d18223218799546ff57113721a0a16abf3efbf3f3e938b4a09fc72977a27a71",
+        "phase_samples_ms": [
+          {
+            "parse_ms": 3.9046000000000163,
+            "decode_ms": 83.07299999999998,
+            "plan_ms": 14.7029,
+            "json_ms": 0.897199999999998,
+            "graph_probe_ms": 1.1172000000000253,
+            "graph_build_ms": 0.9796000000000049,
+            "cycle_check_ms": 0.0946999999999889,
+            "topo_ms": 0.04210000000000491
+          },
+          {
+            "parse_ms": 1.981800000000021,
+            "decode_ms": 69.39859999999999,
+            "plan_ms": 15.084100000000035,
+            "json_ms": 0.940599999999904,
+            "graph_probe_ms": 0.9388999999999896,
+            "graph_build_ms": 0.8416999999999462,
+            "cycle_check_ms": 0.050399999999967804,
+            "topo_ms": 0.04610000000002401
+          },
+          {
+            "parse_ms": 2.685200000000009,
+            "decode_ms": 69.02239999999995,
+            "plan_ms": 12.658299999999942,
+            "json_ms": 0.8754000000000133,
+            "graph_probe_ms": 0.9512999999999465,
+            "graph_build_ms": 0.8235999999999422,
+            "cycle_check_ms": 0.050299999999992906,
+            "topo_ms": 0.07670000000007349
+          }
+        ],
+        "phase_medians_ms": {
+          "parse_ms": 2.685200000000009,
+          "decode_ms": 69.39859999999999,
+          "plan_ms": 14.7029,
+          "json_ms": 0.897199999999998,
+          "graph_probe_ms": 0.9512999999999465,
+          "graph_build_ms": 0.8416999999999462,
+          "cycle_check_ms": 0.050399999999967804,
+          "topo_ms": 0.04610000000002401
+        }
+      }
+    ]
+  },
+  "all_18_plan_hashes_match": true
+}

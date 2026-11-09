@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/priority_queue",
   "soehi/weft/ir",
   "soehi/weft/manifest",
 }

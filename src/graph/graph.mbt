@@ -191,35 +191,24 @@ pub fn topo_order(g : Graph) -> Array[Int32] {
       indeg[w] = indeg[w] + 1
     }
   }
-  // Ready set kept as a sorted array; we pop the smallest each round. With the
-  // scale this planner targets (tens to hundreds of components) this is fine and
-  // avoids depending on a priority queue's tie-break semantics.
-  let ready : Array[Int32] = []
+  // Core provides a max-heap. Negated node indices make it a min-heap;
+  // build_graph sorts nodes with cmp_str, so index order is name order.
+  // Push/pop are O(log V), avoiding scans and front-removal shifts.
+  let ready : @priority_queue.PriorityQueue[Int32] = @priority_queue.PriorityQueue::PriorityQueue([],
+  )
   for v in 0..<n {
     if indeg[v] == 0 {
-      ready.push(v)
+      ready.push(-v)
     }
   }
   let order : Array[Int32] = []
-  while ready.length() > 0 {
-    // `ready` is maintained in name order; take the first.
-    let v = ready[0]
-    let _ = ready.remove(0)
+  while !ready.is_empty() {
+    let v = -ready.pop().unwrap()
     order.push(v)
     for w in g.edges[v] {
       indeg[w] = indeg[w] - 1
       if indeg[w] == 0 {
-        // Insert keeping `ready` sorted by node name.
-        let mut pos = ready.length()
-        let mut i = 0
-        while i < ready.length() {
-          if @ir.cmp_str(g.nodes[w], g.nodes[ready[i]]) < 0 {
-            pos = i
-            break
-          }
-          i = i + 1
-        }
-        ready.insert(pos, w)
+        ready.push(-w)
       }
     }
   }

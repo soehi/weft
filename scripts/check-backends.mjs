@@ -15,7 +15,7 @@ try {
   const targets = ['native', 'wasm-gc', 'js'];
   for (const target of targets) {
     console.log(`== test (${target}) ==`);
-    run('moon', ['test', 'src/manifest', 'src/ir', 'src/plan', 'src/wac_adapter', 'src/exec_plan', 'src/api', 'src/cli', '--target', target]);
+    run('moon', ['test', 'src/graph', 'src/manifest', 'src/ir', 'src/plan', 'src/wac_adapter', 'src/exec_plan', 'src/api', 'src/cli', '--target', target]);
   }
   run('moon', ['run', 'src/tools/make_fixtures', '--target', 'native', '--', 'examples']);
   for (const target of targets) {

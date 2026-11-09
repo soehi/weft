@@ -48,8 +48,13 @@ fn profile() -> Unit raise {
     // Already part of plan_ms; do not add this to the pipeline total.
     let timer = @bench.monotonic_clock_start()
     let graph = @plan.build_graph(m)
+    let build_ms = @bench.monotonic_clock_end(timer) / 1000.0
+    let timer_cycle = @bench.monotonic_clock_start()
     @plan.check_acyclic(graph)
+    let cycle_ms = @bench.monotonic_clock_end(timer_cycle) / 1000.0
+    let timer_topo = @bench.monotonic_clock_start()
     let order = @plan.topo_order(graph)
+    let topo_ms = @bench.monotonic_clock_end(timer_topo) / 1000.0
     let graph_ms = @bench.monotonic_clock_end(timer) / 1000.0
     match golden {
       None => golden = Some(json)
@@ -63,7 +68,7 @@ fn profile() -> Unit raise {
     }
     if sample > 0 {
       println(
-        "{\"parse_ms\":\{parse_ms},\"decode_ms\":\{decode_ms},\"plan_ms\":\{plan_ms},\"json_ms\":\{json_ms},\"graph_probe_ms\":\{graph_ms}}",
+        "{\"parse_ms\":\{parse_ms},\"decode_ms\":\{decode_ms},\"plan_ms\":\{plan_ms},\"json_ms\":\{json_ms},\"graph_probe_ms\":\{graph_ms},\"graph_build_ms\":\{build_ms},\"cycle_check_ms\":\{cycle_ms},\"topo_ms\":\{topo_ms}}",
       )
     }
     if sample == repeats {
