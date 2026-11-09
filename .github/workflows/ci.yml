@@ -82,6 +82,10 @@ jobs:
         run: moon check src/runtime_native --target native
       - name: Verify real cross-instance native wiring probe
         run: moon test src/runtime_probe src/runtime_native --target native
+      - name: Build and exercise experimental native command
+        run: |
+          moon build src/runtime_native --target native
+          python3 scripts/test-native-cli.py
 
   browser:
     name: local browser demo (Chromium)

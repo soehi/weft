@@ -69,3 +69,26 @@ moon test src/runtime_probe --target native
 资源限制请求明确拒绝。新增实际执行器集成测试；提交 `ac63c82` 的 [Linux CI](https://github.com/soehi/weft/actions/runs/42543565157)
 实际执行器 5 测试与原有 3 探针均通过。
 本轮保持独立命令及通用 CLI run 的非零退出行为；公开命令的参数协议与文件 I/O 接入留待后续。
+
+## E1.3 独立命令与 E1.4 限制拒绝（2026-11-09）
+
+Linux x86_64 下使用固定工具链（安装步骤见 release/README.md）：
+
+```bash
+moon build src/runtime_native --target native
+_build/native/debug/build/runtime_native/runtime_native.exe run examples/execution/chain.json --component consumer --export run --arg u32:41
+```
+
+成功输出应为 `84`，退出码 0。原生文件在 Linux 同样名为 runtime_native.exe，可直接执行。
+也可使用 `moon run src/runtime_native --target native -- run ...`。组件路径以清单目录为基准，支持绝对路径。
+参数支持 s32/u32/s64/u64/f32/f64/bool/char；重复 --arg 按顺序传入。
+--component 与 --export 必须各出现一次，未知选项、缺值和额外位置参数拒绝；--help 单独使用退出 0。
+参数、读取、规划、实例化、调用或 guest trap 失败均输出 error: 并退出 1。
+
+实际二进制检查由 `python3 scripts/test-native-cli.py` 执行，包含正常/改接结果、跨目录/带空格路径、
+断线、错误目标与参数、非法文件、guest trap，以及 quota/max_memory_pages 请求拒绝。Linux 结果待本轮 CI。
+Windows native 仍受上游 C11 原子构建阻塞，本机只完成类型检查与夹具生成。
+独立实验命令不包含在 v0.3.0 规划 CLI 包中；通用 weft run 保持未支持，浏览器也不执行组件。
+
+`examples/execution` 的组件由 `moon run src/tools/make_execution_fixtures --target native -- examples/execution`
+重新生成。配额没有声称已执行：任何显式 quota 或 max_memory_pages（包括 0）均拒绝执行，规划仍保存元数据。

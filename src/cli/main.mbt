@@ -160,7 +160,7 @@ fn run_command(cmd : Command) -> Unit {
     }
     Run(_) =>
       die(
-        "run is unsupported: real cross-instance wiring has not been verified. Use `weft plan` to generate a plan.",
+        "run is unsupported: execution uses the separate experimental Linux runtime_native command; see docs/S3-EXECUTION.md.",
       )
   }
 }

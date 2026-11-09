@@ -2,7 +2,7 @@
 //
 // wasmoon's component runtime is `supported_targets = "+native"`, so this
 // package is native-only. The experimental execute API is covered by Linux
-// integration tests; the public command remains disabled.
+// integration tests; the separate Linux experimental command accepts explicit targets.
 
 import {
   "soehi/weft/exec_plan" @exec,
@@ -11,6 +11,11 @@ import {
   "soehi/weft/api",
   "moonbitlang/x/sys",
   "moonbitlang/core/string" @strparse,
+  "moonbitlang/core/env",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/x/fs",
+  "moonbitlang/x/path",
+  "soehi/weft/manifest",
 }
 
 pkgtype(kind: "executable")

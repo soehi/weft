@@ -1,4 +1,4 @@
-// Experimental native execution from validated manifests. CLI entry stays disabled.
+// Experimental native execution from validated manifests.
 
 ///|
 pub(all) suberror ExecError {
