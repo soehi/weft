@@ -10,7 +10,7 @@
 - `executor.mbt` 已改用底层 ComponentLinker，按目标安装源 export 后实例化；Linux 集成验证已通过。
 - 纯逻辑轨迹改为逐目标 Bind → Instantiate，5 个测试在三个后端通过，调用目标必须显式指定。
 - 示例 reader 返回常数 0；sink 只有 import，没有 CI 之前试图调用的 `read` 导出。
-- `weft run` 在所有后端明确报未支持并退出 1；独立适配器入口也关闭执行。
+- 通用规划 CLI 的 `weft run` 在所有后端仍报未支持；独立 Linux 原生入口现已提供实验执行命令，见本文末尾。
 - CI 保留实验适配器类型检查，并增加独立 `runtime_probe` 的真实执行断言；该探针不调用旧执行器。
 - 资源字段仅为计划元数据，未验证执行配额；plan hash 不包含组件二进制内容。
 - WAC 库级与 CLI 往返已验证，外部组合和执行尚未验证，不能据此宣称执行闭环。
@@ -68,7 +68,7 @@ moon test src/runtime_probe --target native
 参数仅接受标量，bool 严格 true/false，char 严格单个 Unicode 标量；无符号数按完整位宽解析/显示。
 资源限制请求明确拒绝。新增实际执行器集成测试；提交 `ac63c82` 的 [Linux CI](https://github.com/soehi/weft/actions/runs/42543565157)
 实际执行器 5 测试与原有 3 探针均通过。
-本轮保持独立命令及通用 CLI run 的非零退出行为；公开命令的参数协议与文件 I/O 接入留待后续。
+随后完成的独立命令参数协议、文件 I/O 与失败退出行为见下一节；通用规划 CLI run 仍未支持。
 
 ## E1.3 独立命令与 E1.4 限制拒绝（2026-11-09）
 
@@ -86,7 +86,7 @@ _build/native/debug/build/runtime_native/runtime_native.exe run examples/executi
 参数、读取、规划、实例化、调用或 guest trap 失败均输出 error: 并退出 1。
 
 实际二进制检查由 `python3 scripts/test-native-cli.py` 执行，包含正常/改接结果、跨目录/带空格路径、
-断线、错误目标与参数、非法文件、guest trap，以及 quota/max_memory_pages 请求拒绝。Linux 结果待本轮 CI。
+断线、错误目标与参数、非法文件、guest trap，以及 quota/max_memory_pages 请求拒绝。提交 `3f81840` 的 [Linux CI](https://github.com/soehi/weft/actions/runs/42544614957) 已通过30项实际 CLI 检查及8项执行器/探针测试。
 Windows native 仍受上游 C11 原子构建阻塞，本机只完成类型检查与夹具生成。
 独立实验命令不包含在 v0.3.0 规划 CLI 包中；通用 weft run 保持未支持，浏览器也不执行组件。
 

@@ -2,7 +2,7 @@
 
 > *weft*：织造时横向穿过的纬线。清单里的 `wires` 就是纬线——本项目把它们织成一份计划。
 
-一个用 MoonBit 写的、可编译到 **native / wasm-gc / js** 的 WebAssembly Component **部署计划编译器**，附一个尚未验证真实连线的实验性 native 执行适配层。
+一个用 MoonBit 写的、可编译到 **native / wasm-gc / js** 的 WebAssembly Component **部署计划编译器**，附一个已通过 Linux 实际命令验证的实验性 native 执行适配层。
 
 它不做运行时、不做分布式、不做静态合成。它只做一件事：**读一份声明式清单和若干组件二进制，算出一份确定性的实例化计划**，并且**同一份输入在三个后端产出逐字节相同的计划**。
 
@@ -87,7 +87,7 @@ moon run src/cli --target js -- plan examples/chain.json
 | `weft run <manifest>` | 预留命令，明确报未支持并退出 1 | 全部 |
 
 `run` 在所有后端均返回 `error: run is unsupported`，退出码为 1。
-独立 Linux 探针已验证跨实例 import 安装；实验执行器已接入，公开命令尚未接入，`src/runtime_native` 入口仍关闭执行。
+独立 Linux 原生命令 `src/runtime_native` 已验证真实执行，支持显式调用目标与类型化参数，见下方执行层现状。
 查看规划结果使用 `plan`。
 
 `convert` 默认把清单打印到标准输出，`--out` 指定输出文件。`--dep` 的文件路径和
@@ -128,7 +128,7 @@ weft/
 │   ├── wac_adapter/   WAC ↔ 清单 双向转换
 │   ├── exec_plan/     计划 → 执行轨迹（纯逻辑，三后端可测）
 │   ├── cli/           CLI（三后端可编译）
-│   ├── runtime_native/  ★ native-only 实验执行适配（入口关闭）
+│   ├── runtime_native/  ★ native-only 实验执行命令（Linux 验证）
 │   ├── runtime_probe/   Linux 两组件真实连线执行探针
 │   └── tools/         开发者工具（生成示例组件）
 ├── examples/
@@ -219,8 +219,8 @@ Windows 的 `bash` 若指向未安装发行版的 WSL，可设置 `WEFT_TEST_BAS
   > "This project is primarily developed with AI assistance and has not been thoroughly audited. **Do not use in production or security-sensitive environments.**"
 
   本项目只能宣称"编排策略"，不能宣称"隔离保证"。
-- 实验执行器已通过清单规划到真实跨实例连线的 Linux 集成测试；公开执行命令尚未接入。
-- Linux 独立探针已验证真实连线、断线和改接；实验执行器已接入，公开命令尚未接入。Windows/MSVC 的 C11 原子链接阻塞仍存在，macOS 未验证。见 `docs/S3-EXECUTION.md`。
+- 实验执行器已通过清单规划到真实跨实例连线的 Linux 集成测试；独立原生命令已验证30项CLI检查。
+- Linux 独立探针已验证真实连线、断线和改接；实验执行器及独立原生命令已接入。Windows/MSVC 的 C11 原子链接阻塞仍存在，macOS 未验证。见 `docs/S3-EXECUTION.md`。
 - 不做分布式、不做集群、不做网络传输——那是 wasmCloud 的领域。
 - 不做静态合成产物——那是 wasm-compose 的领域。
 - 不重写 WAC 语言——解析与验证全部走 `moonrockz/wac`。本适配器只把**已通过验证**的语义模型映射成清单，遇到 spread、嵌套 `new`、rename 等超出清单模型的结构会明确报 `Unsupported`，不静默近似。
@@ -231,9 +231,16 @@ Windows 的 `bash` 若指向未安装发行版的 WSL，可设置 `WEFT_TEST_BAS
 ## 执行层现状
 
 `src/runtime_native` 已改为安装导入后实例化，并显式指定调用组件与导出。实际执行器已通过 5 项 Linux 集成测试。
-两个执行入口仍返回未支持。独立 `src/runtime_probe` 在 Linux CI 中通过三个真实执行断言：
+通用规划 CLI 的 `weft run` 仍未支持；独立原生命令可用。`src/runtime_probe` 在 Linux CI 中通过三个真实执行断言：
 41 → 源 +1 → 消费者经 import 调用并 ×2 得到 84，断线实例化失败，改接 +2 得到 86。
-下一步按 [E1.3 路线](docs/ROADMAP.md)改造部署计划执行顺序及调用目标。
+Linux 下使用固定工具链执行示例：
+
+```bash
+moon run src/runtime_native --target native -- run examples/execution/chain.json --component consumer --export run --arg u32:41
+```
+
+输出 `84`、退出码0；失败退出1。清单中的 quota/max_memory_pages 请求均拒绝。
+该命令独立构建，不包含在规划 CLI 发布包内；完整参数及复现说明见 [执行层实证](docs/S3-EXECUTION.md)。
 
 `emit-wac` 与 `convert` 已验证库级往返及 CLI 文件往返，外部组合与运行尚未建立固定命令和结果断言，
 所以暂不宣称可执行产物闭环。示例组件仅用于规划检查，reader 返回常数 0，sink 没有可调用导出。
