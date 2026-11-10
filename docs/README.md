@@ -10,6 +10,7 @@
 
 | 文件 | 内容 |
 |---|---|
+| [公开申报书](SUBMISSION.md) / [验收演示](../release/DEMO.md) | 0.3.1正式交付、复演命令及证据入口 |
 | [TOOLCHAIN-COMPAT.md](TOOLCHAIN-COMPAT.md) | 0.10.19构建差异、Int32迁移与双工具链兼容验证 |
 | [PERFORMANCE.md](PERFORMANCE.md) | 100/1,000组件链、扇出、扇入的真实CLI基线与方法 |
 | [发布验证](../release/README.md) | M3 固定输入、CLI 包、校验与首次使用 |

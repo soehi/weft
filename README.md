@@ -17,6 +17,7 @@
 
 | 使用方式 | 入口与状态 |
 |---|---|
+| 评审材料与复演 | [公开申报书](docs/SUBMISSION.md)（不含联系方式）、[5–10分钟演示](release/DEMO.md)，正式版本证据见 [发布验收记录](release/CANDIDATE.md) |
 | 源码构建 | 下方快速开始，固定工具链安装见 [构建说明](release/README.md) |
 | Windows/Linux 预构建规划 CLI | [v0.3.1正式Release](https://github.com/soehi/weft/releases/tag/v0.3.1)，Windows/Linux包及SHA-256均已下载复验；见[构建说明](release/README.md) |
 | Mooncakes 库 | 已发布 [soehi/weft@0.3.1](https://mooncakes.io/docs/soehi/weft)，依赖固定为0.3.1；[独立注册表消费者](examples/registry-consumer/README.md)已复验 |
@@ -232,18 +233,19 @@ weft/
 ## 测试
 
 ```bash
-moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target native
-moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target wasm-gc
-moon test src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/cli --target js
+moon test src/graph src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/api src/cli --target native
+moon test src/graph src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/api src/cli --target wasm-gc
+moon test src/graph src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/api src/cli --target js
 ```
 
-本轮实测：**139 个测试，三个后端各自全部通过**；各后端另外执行 35 项真实 CLI 检查。
+正式 tag `08306e9` 的 [完整 CI](https://github.com/soehi/weft/actions/runs/42613835620)：**139 个独立测试，三个后端各自全部通过**；各后端另外执行 35 项真实 CLI 检查。main 后续兼容维护的证据另见 [工具链兼容记录](docs/TOOLCHAIN-COMPAT.md)。
 
 | 包 | 测试数 | 覆盖 |
 |---|---|---|
+| `graph` | 3 | 排序参考算法对照、输入排列与边界 |
 | `manifest` | 25 | 合法/非法 JSON、缺字段、重复组件、端口路径、负数/小数配额、版本 |
 | `ir` | 7 | 函数/接口导入导出、富类型、canonical 展开、排序、解码失败命名 |
-| `plan` | 64 | 线性链、菱形、宽扇出、成环（自环/多节点）、未知组件/端口、签名不匹配、接口路径、资源、hash 敏感性、21 节点扇入、黄金字节、语义结构匹配、相同 ABI 反例、未支持类型、重复绑定与 import 覆盖 |
+| `plan` | 69 | 线性链、菱形、宽扇出、成环（自环/多节点）、未知组件/端口、签名不匹配、接口路径、资源、hash 敏感性、21 节点扇入、黄金字节、语义结构匹配、相同 ABI 反例、未支持类型、重复绑定、import 覆盖与端口索引失效 |
 | `wac_adapter` | 18 | WAC→清单、Access→wire、缺依赖、往返、名称消毒 |
 | `exec_plan` | 5 | 两阶段顺序、轨迹确定性、终点调用、空计划 |
 | `api` | 7 | 内存输入、稳定诊断、缺字节、解码、类型/绑定与环 |

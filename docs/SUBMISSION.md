@@ -7,6 +7,7 @@
 - GitHub 仓库：[https://github.com/soehi/weft](https://github.com/soehi/weft)
 - 项目方向：系统工具 / WebAssembly 组件工具链 / 跨平台基础设施
 - 主要实现语言：MoonBit
+- 正式交付：模块/CLI 0.3.1，计划格式0.2.0；tag `v0.3.1`，源码 `08306e9a0ed4ce40984461ac2502c38caa863292`
 - 已验证编译器版本：moonc v0.10.20+65efd5b93，满足不低于 v0.10.16 的要求
 - 开源许可证：Apache-2.0
 - 是否为移植项目：否；本项目实现部署规划逻辑，组件解码、WAC 解析验证和 canonical ABI 展开复用已有 MoonBit 开源库
@@ -79,16 +80,16 @@ weft 是一个用 MoonBit 实现的 WebAssembly Component 部署计划编译器�
 
 ## 实测结果与最小使用样例
 
-以下记录以候选验收基线 `61f9488`（模块/CLI 0.3.0、计划格式0.2.0）为依据，
-[该提交CI成功](https://github.com/soehi/weft/actions/runs/42582669079)。材料与元数据对齐后须以最终候选提交重跑门禁，
-该源码SHA、打包清单及发布状态记于 release/CANDIDATE.md，不将尚未完成的注册表或Release工作计作已发布成果。
+以下记录以正式 tag `v0.3.1` 的源码 `08306e9`（模块/CLI 0.3.1、计划格式0.2.0）为依据，
+[该提交完整CI九项成功](https://github.com/soehi/weft/actions/runs/42613835620)。
+源码SHA、打包清单及发布证据见 [发布验收记录](../release/CANDIDATE.md)；[Release流程五项检查](https://github.com/soehi/weft/actions/runs/42614477838)包含双平台实际下载复验。
 
 | 验证项目 | 结果 |
 |---|---|
 | 核心回归 | 139个独立测试，在native、wasm-gc、js各运行一次并通过；不是417个独立用例 |
 | 真实规划CLI | 每后端35项进程检查，包括错误退出、带空格/跨目录路径与转换往返 |
 | 计划格式 | 三后端规范UTF-8文件逐字节一致，保留0.1.0/0.2.0黄金样本，输出计划0.2.0 |
-| 内存API | api.compile接收清单和组件名字节映射，结构化诊断；独立本地workspace消费者三后端通过 |
+| 内存API | api.compile接收清单和组件名字节映射，结构化诊断；本地workspace和0.3.1独立注册表消费者均三后端通过 |
 | 浏览器 | 实际Chromium验证五类示例、本地映射、诊断和下载与CLI字节相同 |
 | Linux独立执行 | 8项执行器/探针测试，30项实际命令检查；正常/断线/改接、trap、资源请求拒绝 |
 | 门禁 | 9个CI job涵盖功能、浏览器、Linux执行、制品、模式及性能；故意失败的Bash/PowerShell入口保留原始诊断并失败 |
@@ -101,7 +102,7 @@ weft 是一个用 MoonBit 实现的 WebAssembly Component 部署计划编译器�
 在已安装 MoonBit 工具链及 native 编译所需平台工具的环境中，可按以下步骤运行规划示例。完整门禁还需要 Node.js；Windows 可使用 PowerShell 入口。
 
 ```bash
-git clone https://github.com/soehi/weft.git
+git clone --branch v0.3.1 https://github.com/soehi/weft.git
 cd weft
 # 先按README设置固定工具链的MOON_HOME/PATH，再解析依赖
 moon update
@@ -122,21 +123,21 @@ node scripts/check-backends.mjs
 
 示例清单连接 `reader.read → filter.in`、`filter.out → sink.in`，规划结果的实例化顺序为 `reader`、`filter`、`sink`，当前0.2.0计划的 `plan_hash` 为 `1a3640bcc99318d5`。示例证明的是从组件文件到部署计划的完整路径，不声称已经运行这条组件链。
 
-## 验收交付计划与当前发布状态
+## 验收交付与当前发布状态
 
-M1–M3、E1及三轮性能优化已完成，接下来按 docs/ROADMAP.md 第24节推进：
+M1–M6、E1及三轮性能优化已完成，正式交付为0.3.1；第24节为历史发布计划，完成记录见 [ROADMAP第28节](ROADMAP.md#28-031最终交付验收)。
 
 | 阶段 | 交付内容 | 当前状态 |
 |---|---|---|
-| M4 候选冻结 | 最终源码SHA、材料、README、发布元数据、打包与许可证核对 | 候选d6ebb0b九项CI成功；最终tag工作流继续核对源码SHA |
-| M5 Mooncakes闭环 | soehi/weft@0.3.0注册表发布，无本地workspace的独立消费者三后端复验 | 0.3.0已发布，独立注册表消费者三后端合法计划和两项错误诊断通过 |
+| M4 候选冻结 | 最终源码SHA、材料、README、发布元数据、打包与许可证核对 | 已完成；正式tag源码08306e9完整CI九项通过 |
+| M5 Mooncakes闭环 | soehi/weft@0.3.1注册表发布，无本地workspace的独立消费者三后端复验 | 已完成；0.3.1合法计划和缺字节、类型错误诊断通过 |
 | M6 正式制品与复演 | tag/GitHub Release、SHA-256、5–10分钟演示、干净目录下载抽检 | v0.3.1已发布，Release流程5项检查与双平台实际下载复验通过 |
 
-2026-11-09发布前精确版本查询返回404，随后从候选d6ebb0b实际发布0.3.0，服务器返回200 OK，
-moon view可查询目标版本。注册表独立消费者不引用本地moon.work/path override，三后端计划与黄金文件一致，
-缺组件字节及类型错误诊断通过。包checksum与发布源码记于release/CANDIDATE.md。
-M6的正式tag/Release及下载抽检正在推进，最终补丁制品源码SHA以v0.3.1 tag及包内BUILD.json为准，
-原注册表包保持不可变。CI安装Action问题已在早期修复，不再作为当前阻塞；发布阶段保持格式与公共API稳定。
+2026-11-09先从候选d6ebb0b发布0.3.0；其GitHub Release尝试因runner缺少rg失败。
+源码示例路径和发布脚本通过补丁0.3.1修正，0.3.1注册表发布、双平台Release及下载抽检均已完成。
+注册表独立消费者不引用本地moon.work/path override，三后端计划与黄金文件一致，缺组件字节及类型错误诊断通过。
+包checksum与发布源码记于 [发布验收记录](../release/CANDIDATE.md)，制品源码SHA以v0.3.1 tag及包内BUILD.json为准。
+原0.3.0注册表包与失败标签保留，未覆盖历史成果。公开下载及5–10分钟复演见 [演示说明](../release/DEMO.md)。
 
 ## 移植或参考说明
 
@@ -151,7 +152,7 @@ M6的正式tag/Release及下载抽检正在推进，最终补丁制品源码SHA�
 | `moonbitlang/x` | [moonbitlang/x](https://github.com/moonbitlang/x) | 0.5.5 | Apache-2.0 | CLI 所需文件系统与系统接口 |
 | `Milky2018/wasmoon` | [Milky2018/wasmoon](https://github.com/Milky2018/wasmoon) | 0.18.0 | Apache-2.0 | 实验性 native 执行适配器依赖，仅用于独立Linux实验执行，通用规划命令不执行组件 |
 
-本项目根目录提供 Apache-2.0 `LICENSE`，依赖目录不纳入仓库源代码。规划CLI制品已带第三方说明；Mooncakes源码包与正式Release仍须按实际内容核对许可证、版权及NOTICE保留要求。项目不将上游实现归为本项目原创成果，也不将上游运行时的存在等同于本项目已经完成执行验证。
+本项目根目录提供 Apache-2.0 `LICENSE`，依赖目录不纳入仓库源代码。0.3.1源码包已通过实际打包审查，规划CLI制品含许可证与第三方说明；核对范围见 [第三方记录](../release/THIRD-PARTY.md)。后续发布仍按实际内容复核。项目不将上游实现归为本项目原创成果，也不将上游运行时的存在等同于本项目已经完成执行验证。
 
 ## 预期生态价值
 
@@ -169,3 +170,9 @@ Mooncakes0.3.1已发布且独立消费者三后端通过；v0.3.1 Release的双�
 本节为发布后的证据补记，指向上述tag功能版本，不将补记提交视为制品源码。
 下载：https://github.com/soehi/weft/releases/tag/v0.3.1
 发布工作流：https://github.com/soehi/weft/actions/runs/42614477838
+
+## 发布后维护（2026-11-10）
+
+main 的 `70ecdf3` 同步Int32/UInt32与源码格式，并在Windows本机0.10.19+97801ee1b、锁定0.10.20+65efd5b93下复验。
+该兼容维护未包含在原0.3.1注册表包或Release中；公有接口与计划字节不变，暂不另发补丁。
+精确平台范围、构建差异与复验入口见 [工具链兼容记录](TOOLCHAIN-COMPAT.md)，不据版本下限推断未测版本也受支持。

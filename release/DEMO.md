@@ -21,3 +21,17 @@
 证据：功能门禁见候选提交CI；格式黄金样本在docs/fixtures；浏览器用scripts/test-browser.py复验；
 独立执行用scripts/test-native-cli.py复验。性能数据在docs/PERFORMANCE.md，属于另一个测量口径，
 不将debug性能样本计为功能测试数量。
+
+## 入口抽检（2026-11-10）
+
+- 版本：正式0.3.1，计划0.2.0；源码tag `v0.3.1`，`08306e9a0ed4ce40984461ac2502c38caa863292`。
+- Windows x86_64本机从[正式Release](https://github.com/soehi/weft/releases/tag/v0.3.1)重新匿名下载zip及`.zip.sha256`。
+  `python scripts/test-release.py <zip>`通过：压缩包及逐文件SHA-256、带空格干净目录中的native/Node版本、黄金计划与错误退出。
+  `python scripts/check-release-source.py <zip> 08306e9a0ed4ce40984461ac2502c38caa863292 0.3.1`通过。
+- 同日本机在默认安装和隔离安装中运行`node scripts/test-registry-consumer.mjs 0.3.1`；
+  两者实际指纹均为0.10.20+65efd5b93，不计作两个版本。每次均新建无workspace/path override的消费者，
+  三后端合法链字节及缺字节、类型错误诊断通过。精确范围见[支持矩阵](../docs/TOOLCHAIN-COMPAT.md)。
+- Linux本轮未在本机重复运行二进制；沿用[正式发布流程](https://github.com/soehi/weft/actions/runs/42614477838)中
+  Ubuntu 24.04双入口下载运行及源码核对的成功证据。浏览器与独立执行仍以对应完整CI记录为准。
+- README到公开申报书、Release、注册表消费者及本演示的本地链接、源码路径均已核对；公开申报书没有联系方式。
+  本轮为文档与分发入口维护，没有修改代码或替换原制品。

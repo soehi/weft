@@ -4,6 +4,10 @@
 每包附同一版本 Node CLI；不包含 wasmoon 执行适配器，也不会将 run 开放为已验证能力。
 正式下载入口：[v0.3.1 Release](https://github.com/soehi/weft/releases/tag/v0.3.1)。Mooncakes 0.3.1已发布并经独立消费者复验；Actions artifacts仍作为过程证据保留。
 
+上述正式制品及注册表包来自 tag `v0.3.1`（`08306e9`）。复建该版本先运行
+`git checkout v0.3.1`；main 包含发布后的整数语法兼容维护，不能当作原制品源码。
+精确环境、复验命令及暂不发布0.3.2的依据见 [工具链兼容记录](../docs/TOOLCHAIN-COMPAT.md)。
+
 ## 固定输入
 
 - toolchain.lock.json 固定官方 Linux/Windows 二进制及 core 归档的 SHA-256、moon/moonc/moonrun/core 版本。
@@ -64,5 +68,5 @@ Windows 将 ./weft 替换为 ./weft.exe。输出应为 weft 0.3.1 (plan 0.2.0)�
 Linux native 包在 Ubuntu 24.04 同系列环境验证，仍依赖系统 ABI/标准共享库，不是所有发行版通用的静态二进制。
 
 测试脚本会在带空格的全新临时目录校验/解包制品，从包目录之外同时调用原生与 Node CLI，
-核对版本、黄金计划和错误退出码。独立 MoonBit API 消费者示例继续由 examples/consumer 验证；
-它通过本地 workspace 引入模块，不等于 registry 发布后的安装验证。
+核对版本、黄金计划和错误退出码。[独立注册表消费者](../examples/registry-consumer/README.md)验证已发布0.3.1；
+examples/consumer 则通过本地 workspace 验证维护源码，两种验证分别记录。
