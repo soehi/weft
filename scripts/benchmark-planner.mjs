@@ -23,7 +23,7 @@ function run(command, args, cwd=root) {
 }
 const targets = ['native', 'wasm-gc', 'js'];
 const report = {
-  schema_version:2, timestamp:new Date().toISOString(),
+  schema_version:3, timestamp:new Date().toISOString(),
   commit:run('git',['rev-parse','HEAD']).stdout.trim(),
   benchmark_script_sha256:createHash('sha256').update(readFileSync(fileURLToPath(import.meta.url))).digest('hex'),
   profile_source_sha256:createHash('sha256').update(readFileSync(join(root,'src/tools/profile_planner/main.mbt'))).digest('hex'),
@@ -86,15 +86,24 @@ try {
       const phaseSamples = phase.stdout.trim().split(/\r?\n/).map(line=>JSON.parse(line));
       assert.equal(phaseSamples.length,repeats);
       const phaseMedians = {};
-      for (const key of ['parse_ms','decode_ms','plan_ms','json_ms','graph_probe_ms','graph_build_ms','cycle_check_ms','topo_ms']) {
+      for (const key of ['parse_ms','decode_ms','plan_ms','json_ms','graph_probe_ms','graph_build_ms','cycle_check_ms','topo_ms','type_table_probe_ms','flatten_probe_ms']) {
         const values=phaseSamples.map(sample=>sample[key]);
         assert(values.every(value=>Number.isFinite(value)&&value>=0), `invalid phase timer ${key}`);
         phaseMedians[key]=values.sort((a,b)=>a-b)[Math.floor(repeats/2)];
+      }
+      const expectedValues = plan.wires.reduce((sum,w)=>sum+
+        ([w.from_signature,w.to_signature].join(' ').match(/\b(?:i32|i64|f32|f64|v128|other)\b/g)??[]).length, 0);
+      for (const sample of phaseSamples) {
+        assert.equal(sample.endpoint_count,2*wires.length, 'probe endpoint coverage');
+        assert.equal(sample.flat_value_count,expectedValues, 'probe ABI arity differs from CLI');
+        assert(Number.isSafeInteger(sample.type_table_entries)&&sample.type_table_entries>=0);
+        assert.equal(sample.type_table_entries,phaseSamples[0].type_table_entries, 'probe work changed');
       }
       assert(readFileSync(destination).equals(golden), `profile differs from CLI ${shape}/${size}/${target}`);
       Object.assign(report.cases.at(-1),{phase_samples_ms:phaseSamples,phase_medians_ms:phaseMedians});
       console.log(`phases ${shape} ${size} ${target}: decode ${phaseMedians.decode_ms.toFixed(1)}, plan ${phaseMedians.plan_ms.toFixed(1)}, graph probe ${phaseMedians.graph_probe_ms.toFixed(1)} ms`);
       console.log(`graph ${shape} ${size} ${target}: build ${phaseMedians.graph_build_ms.toFixed(2)}, cycle ${phaseMedians.cycle_check_ms.toFixed(2)}, topo ${phaseMedians.topo_ms.toFixed(2)} ms`);
+      console.log(`types ${shape} ${size} ${target}: tables ${phaseMedians.type_table_probe_ms.toFixed(2)}, flatten including tables ${phaseMedians.flatten_probe_ms.toFixed(2)} ms`);
       writeFileSync(manifest,JSON.stringify({components:[...components].reverse(),wires:[...wires].reverse()}));
       cli(target,manifest,destination);
       assert(readFileSync(destination).equals(golden), `permutation mismatch ${shape}/${size}/${target}`);
