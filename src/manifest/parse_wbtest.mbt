@@ -1,10 +1,6 @@
 ///|
 fn err_of(s : String) -> String? {
-  let _ = parse(s) catch {
-    e => {
-      return Some(e.to_string())
-    }
-  }
+  let _ = parse(s) catch { e => return Some(e.to_string()) }
   None
 }
 

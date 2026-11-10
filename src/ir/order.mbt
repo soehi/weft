@@ -10,7 +10,7 @@
 ///|
 /// Lexicographic comparison by Unicode codepoint, shorter prefix first.
 /// Returns a negative number if `a < b`, positive if `a > b`, 0 if equal.
-pub fn cmp_str(a : String, b : String) -> Int {
+pub fn cmp_str(a : String, b : String) -> Int32 {
   let ai = a.iter()
   let bi = b.iter()
   while true {
@@ -20,5 +20,7 @@ pub fn cmp_str(a : String, b : String) -> Int {
       (Some(_), None) => return 1
       (None, None) => return 0
     }
-  } nobreak { 0 }
+  } nobreak {
+    0
+  }
 }

@@ -61,7 +61,7 @@ pub fn short_name(pkg : String) -> String {
     i = i + 1
   }
   if colon >= 0 && colon + 1 < pkg.length() {
-    pkg[colon + 1 :].to_owned()
+    pkg[colon + 1:].to_owned()
   } else {
     pkg
   }
@@ -105,7 +105,9 @@ pub fn wac_to_manifest(
       bytes: d.bytes,
     })
   }
-  let verifier_deps : ReadOnlyArray[@verifier.PackageSource] = ReadOnlyArray::from_array(list)
+  let verifier_deps : ReadOnlyArray[@verifier.PackageSource] = ReadOnlyArray::from_array(
+    list,
+  )
   let model = match
     @verifier.verify(
       parsed,
@@ -131,23 +133,32 @@ pub fn wac_to_manifest(
   let nodes = model.composition()
   // Preserve exactly one whole-instance export per instantiation. Other output
   // shapes and hidden instances have no faithful representation in a manifest.
-  let exported : Map[Int, String] = Map([])
+  let exported : Map[Int32, String] = Map([])
   let used_names : Map[String, Unit] = Map([])
   for e in model.composition_exports() {
-    if e.value < 0 || e.value >= nodes.length() { raise Unsupported("invalid export node") }
+    if e.value < 0 || e.value >= nodes.length() {
+      raise Unsupported("invalid export node")
+    }
     match nodes[e.value].operation {
       @verifier.Instantiate(_, _, _) => ()
-      _ => raise Unsupported("export `\{e.name}` is not a whole component instance")
+      _ =>
+        raise Unsupported(
+          "export `\{e.name}` is not a whole component instance",
+        )
     }
     require_name(e.name, "exported instance")
-    if exported.contains(e.value) { raise Unsupported("instance exported more than once") }
-    if used_names.contains(e.name) { raise DuplicateInstance(e.name) }
+    if exported.contains(e.value) {
+      raise Unsupported("instance exported more than once")
+    }
+    if used_names.contains(e.name) {
+      raise DuplicateInstance(e.name)
+    }
     used_names.set(e.name, ())
     exported.set(e.value, e.name)
   }
   // Map composition node id -> component name, filled as we go. WAC orders
   // declarations so a referenced node always precedes its use.
-  let node_name : Map[Int, String] = Map([])
+  let node_name : Map[Int32, String] = Map([])
   let components : Array[@manifest.ComponentDecl] = []
   let wires : Array[@manifest.WireDecl] = []
   for n in nodes {
@@ -163,31 +174,41 @@ pub fn wac_to_manifest(
         }
         let unique = match exported.get(n.id) {
           Some(name) => name
-          None => raise Unsupported("instance from `\{pkg}` is not exported exactly once")
+          None =>
+            raise Unsupported(
+              "instance from `\{pkg}` is not exported exactly once",
+            )
         }
         let name = unique
-        components.push({ name: unique, path: dep.path })
+        components.push({ name: unique, path: dep.path, })
         node_name.set(n.id, unique)
         for a in args {
-          if a.value < 0 || a.value >= nodes.length() { raise Unsupported("invalid argument node") }
+          if a.value < 0 || a.value >= nodes.length() {
+            raise Unsupported("invalid argument node")
+          }
           match nodes[a.value].kind {
             @verifier.Function(_) => ()
-            _ => raise Unsupported("argument `\{a.name}` on `\{name}` is not a function")
+            _ =>
+              raise Unsupported(
+                "argument `\{a.name}` on `\{name}` is not a function",
+              )
           }
           // The argument's value is usually an `Access(source_node, export)`
           // node, not the instantiation itself. Follow it back to the producing
           // instance before looking up the component name.
           let (src_node, port) = match resolve_access(nodes, a.value) {
             Some(x) => x
-            None => raise Unsupported(
-              "argument `\{a.name}` on `\{name}` is not a direct port access (node \{a.value})",
-            )
+            None =>
+              raise Unsupported(
+                "argument `\{a.name}` on `\{name}` is not a direct port access (node \{a.value})",
+              )
           }
           let src_name = match node_name.get(src_node) {
             Some(s) => s
-            None => raise Unsupported(
-              "argument `\{a.name}` on `\{name}` reads from node \{src_node}, which is not a component instantiation",
-            )
+            None =>
+              raise Unsupported(
+                "argument `\{a.name}` on `\{name}` reads from node \{src_node}, which is not a component instantiation",
+              )
           }
           wires.push({
             from_component: src_name,
@@ -197,8 +218,10 @@ pub fn wac_to_manifest(
           })
         }
       }
-      @verifier.Import(name) => raise Unsupported("host import `\{name}` is not representable")
-      @verifier.Definition => raise Unsupported("local WAC definitions are not representable")
+      @verifier.Import(name) =>
+        raise Unsupported("host import `\{name}` is not representable")
+      @verifier.Definition =>
+        raise Unsupported("local WAC definitions are not representable")
       @verifier.Access(_, _) => ()
     }
   }
@@ -206,7 +229,7 @@ pub fn wac_to_manifest(
     version: "0.2.0",
     components,
     wires,
-    resources: { max_memory_pages: None, quota: None },
+    resources: { max_memory_pages: None, quota: None, },
   }
 }
 
@@ -215,8 +238,8 @@ pub fn wac_to_manifest(
 /// (an exported function of an instance) or a plain `Definition`.
 fn resolve_access(
   nodes : ReadOnlyArray[@verifier.CompositionNode],
-  id : Int,
-) -> (Int, String)? {
+  id : Int32,
+) -> (Int32, String)? {
   if id < 0 || id >= nodes.length() {
     return None
   }

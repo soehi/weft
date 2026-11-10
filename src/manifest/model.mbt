@@ -25,8 +25,8 @@ pub(all) struct WireDecl {
 /// Resource limits attached to the plan. All fields are optional; absent means
 /// "unconstrained" and is reported as such in the emitted plan.
 pub(all) struct ResourceLimits {
-  max_memory_pages : Int?
-  quota : Int?
+  max_memory_pages : Int32?
+  quota : Int32?
 }
 
 ///|
@@ -81,7 +81,8 @@ pub fn ManifestError::to_string(self : ManifestError) -> String {
     NegativeNumber(loc, field) =>
       "manifest: \{loc} field `\{field}` must not be negative"
     UnknownField(loc, field) => "manifest: \{loc} has unknown field `\{field}`"
-    NumberOutOfRange(loc, field) => "manifest: \{loc} field `\{field}` exceeds 2147483647"
+    NumberOutOfRange(loc, field) =>
+      "manifest: \{loc} field `\{field}` exceeds 2147483647"
     UnsupportedManifestVersion(v) =>
       "manifest: unsupported version `\{v}` (expected 0.1.0 or 0.2.0)"
   }

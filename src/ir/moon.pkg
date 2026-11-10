@@ -8,11 +8,12 @@
 
 import {
   "Milky2018/wasm_component",
-  "Milky2018/wasm_component/model" @model,
+  "Milky2018/wasm_component/model",
   "Milky2018/wasm_core/types" @core,
-  "moonrockz/wac/verifier" @verifier,
+  "moonrockz/wac/verifier",
   "soehi/weft/manifest",
 }
+
 import {
   "Milky2018/wasm_component/text",
 } for "wbtest"

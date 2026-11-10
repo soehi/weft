@@ -37,9 +37,7 @@ fn filter_wat() -> String {
 ///|
 /// A component importing `in: (s32) -> s32`.
 fn sink_wat() -> String {
-  "(component " +
-  "(import \"in\" (func (param \"x\" s32) (result s32)))" +
-  ")"
+  "(component " + "(import \"in\" (func (param \"x\" s32) (result s32)))" + ")"
 }
 
 ///|
@@ -84,8 +82,22 @@ fn main {
       return
     }
   }
-  write_wat(dir, "join", "(component (import \"left\" (func (param \"x\" s32) (result s32))) (import \"right\" (func (param \"x\" s32) (result s32))))") catch { e => { println("error: \{e}"); return } }
-  write_wat(dir, "wide-sink", "(component (import \"in\" (func (param \"x\" s64) (result s64))))") catch { e => { println("error: \{e}"); return } }
+  write_wat(
+    dir, "join", "(component (import \"left\" (func (param \"x\" s32) (result s32))) (import \"right\" (func (param \"x\" s32) (result s32))))",
+  ) catch {
+    e => {
+      println("error: \{e}")
+      return
+    }
+  }
+  write_wat(
+    dir, "wide-sink", "(component (import \"in\" (func (param \"x\" s64) (result s64))))",
+  ) catch {
+    e => {
+      println("error: \{e}")
+      return
+    }
+  }
   let manifest =
     #|{
     #|  "version": "0.1.0",

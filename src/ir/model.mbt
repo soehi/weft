@@ -41,7 +41,7 @@ pub(all) enum ValTy {
   Char
   String
   ErrorContext
-  Index(Int)
+  Index(Int32)
 } derive(Debug, Eq)
 
 ///|
@@ -83,7 +83,7 @@ pub(all) enum TypeDef {
   Func(FuncSig)
   Record(Array[ParamSig])
   List(ValTy)
-  FixedList(ValTy, Int)
+  FixedList(ValTy, Int32)
   MapType(ValTy, ValTy)
   Tuple(Array[ValTy])
   Option(ValTy)
@@ -91,8 +91,8 @@ pub(all) enum TypeDef {
   Variant(Array[CaseSig])
   Flags(Array[String])
   Enum(Array[String])
-  Own(Int)
-  Borrow(Int)
+  Own(Int32)
+  Borrow(Int32)
   Future(ValTy?)
   Stream(ValTy?)
   Resource
@@ -163,6 +163,7 @@ pub impl Show for IrError with fn output(self, logger) {
 pub fn IrError::to_string(self : IrError) -> String {
   match self {
     DecodeFailed(comp, msg) => "ir: cannot decode `\{comp}`: \{msg}"
-    UnsupportedType(comp) => "ir: `\{comp}` uses a value type this planner cannot express"
+    UnsupportedType(comp) =>
+      "ir: `\{comp}` uses a value type this planner cannot express"
   }
 }

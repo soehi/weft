@@ -64,12 +64,15 @@ fn decode(name : String, wat : String) -> @ir.Iface raise PlanError {
 }
 
 ///|
-fn input_of(m : @manifest.Manifest, pairs : Array[(String, String)]) -> Input raise PlanError {
+fn input_of(
+  m : @manifest.Manifest,
+  pairs : Array[(String, String)],
+) -> Input raise PlanError {
   let ifaces : Map[String, @ir.Iface] = Map([])
   for (name, wat) in pairs {
     ifaces.set(name, decode(name, wat))
   }
-  { manifest: m, ifaces }
+  { manifest: m, ifaces, }
 }
 
 ///|

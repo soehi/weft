@@ -19,8 +19,8 @@ pub fn fnv1a64_hex(s : String) -> String {
 }
 
 ///|
-fn utf8_bytes(cp : Int) -> Array[Int] {
-  let out : Array[Int] = []
+fn utf8_bytes(cp : Int32) -> Array[Int32] {
+  let out : Array[Int32] = []
   if cp < 0x80 {
     out.push(cp)
   } else if cp < 0x800 {

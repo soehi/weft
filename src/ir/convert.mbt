@@ -26,7 +26,10 @@ fn scalar_to_valty(s : String) -> ValTy? {
 
 ///|
 /// Follow `Alias` chains to the underlying index. Returns the final index.
-fn resolve_alias(i : Int, arena : ReadOnlyArray[@verifier.ResolvedType]) -> Int {
+fn resolve_alias(
+  i : Int32,
+  arena : ReadOnlyArray[@verifier.ResolvedType],
+) -> Int32 {
   let mut cur = i
   let mut hops = 0
   while hops < arena.length() {
@@ -47,7 +50,10 @@ fn resolve_alias(i : Int, arena : ReadOnlyArray[@verifier.ResolvedType]) -> Int 
 ///|
 /// Convert an arena type reference into an IR `ValTy`. Scalars inline; anything
 /// else keeps its (alias-resolved) index so it points at the converted table.
-fn arena_valty(i : Int, arena : ReadOnlyArray[@verifier.ResolvedType]) -> ValTy {
+fn arena_valty(
+  i : Int32,
+  arena : ReadOnlyArray[@verifier.ResolvedType],
+) -> ValTy {
   let idx = resolve_alias(i, arena)
   if idx >= 0 && idx < arena.length() {
     match arena[idx].kind {
@@ -65,7 +71,7 @@ fn arena_valty(i : Int, arena : ReadOnlyArray[@verifier.ResolvedType]) -> ValTy 
 
 ///|
 fn arena_opt_valty(
-  i : Int?,
+  i : Int32?,
   arena : ReadOnlyArray[@verifier.ResolvedType],
 ) -> ValTy? {
   match i {
@@ -77,16 +83,16 @@ fn arena_opt_valty(
 ///|
 fn arena_func(
   f : ReadOnlyArray[@verifier.TypeMember],
-  result : Int?,
+  result : Int32?,
   is_async : Bool,
   arena : ReadOnlyArray[@verifier.ResolvedType],
   name : String,
 ) -> FuncSig {
   let ps : Array[ParamSig] = []
   for p in f {
-    ps.push({ name: p.name, ty: arena_valty(p.ty, arena) })
+    ps.push({ name: p.name, ty: arena_valty(p.ty, arena), })
   }
-  { name, is_async, params: ps, result: arena_opt_valty(result, arena) }
+  { name, is_async, params: ps, result: arena_opt_valty(result, arena), }
 }
 
 ///|
@@ -101,7 +107,9 @@ fn to_array(a : ReadOnlyArray[String]) -> Array[String] {
 ///|
 /// Build the IR type table from a verifier arena. Index alignment is preserved:
 /// entry `i` always corresponds to arena index `i`.
-fn build_types(arena : ReadOnlyArray[@verifier.ResolvedType]) -> Array[TypeDef?] {
+fn build_types(
+  arena : ReadOnlyArray[@verifier.ResolvedType],
+) -> Array[TypeDef?] {
   let out : Array[TypeDef?] = []
   for t in arena {
     let d : TypeDef? = match t.kind {
@@ -116,7 +124,7 @@ fn build_types(arena : ReadOnlyArray[@verifier.ResolvedType]) -> Array[TypeDef?]
       Record(fields) => {
         let fs : Array[ParamSig] = []
         for f in fields {
-          fs.push({ name: f.name, ty: arena_valty(f.ty, arena) })
+          fs.push({ name: f.name, ty: arena_valty(f.ty, arena), })
         }
         Some(Record(fs))
       }
@@ -136,7 +144,7 @@ fn build_types(arena : ReadOnlyArray[@verifier.ResolvedType]) -> Array[TypeDef?]
       Variant(cases) => {
         let cs : Array[CaseSig] = []
         for c in cases {
-          cs.push({ label: c.name, payload: arena_opt_valty(c.payload, arena) })
+          cs.push({ label: c.name, payload: arena_opt_valty(c.payload, arena), })
         }
         Some(Variant(cs))
       }
@@ -209,9 +217,8 @@ fn iface_funcs(
       Function(fi) =>
         if fi >= 0 && fi < arena.length() {
           match arena[fi].kind {
-            Function(params, result, is_async) => {
+            Function(params, result, is_async) =>
               fs.push(arena_func(params, result, is_async, arena, e.name))
-            }
             _ => ()
           }
         }
@@ -271,13 +278,13 @@ pub fn decode_component(
       World(_, _, ins, outs) => {
         for e in ins {
           match arena_port(e.kind, arena) {
-            Some(p) => imports.push({ name: e.name, port: p })
+            Some(p) => imports.push({ name: e.name, port: p, })
             None => unwireable_imports.push(e.name)
           }
         }
         for e in outs {
           match arena_port(e.kind, arena) {
-            Some(p) => exports.push({ name: e.name, port: p })
+            Some(p) => exports.push({ name: e.name, port: p, })
             None => ()
           }
         }
@@ -292,7 +299,7 @@ pub fn decode_component(
   sort_iface_funcs(exports)
   sort_iface_funcs(imports)
   unwireable_imports.sort_by(cmp_str)
-  { name, path, exports, imports, unwireable_imports, types }
+  { name, path, exports, imports, unwireable_imports, types, }
 }
 
 // --- IR -> model conversion, for canonical ABI reuse -----------------------
@@ -337,7 +344,7 @@ pub fn to_model_table(types : Array[TypeDef?]) -> Array[@model.TypeDef?] {
       Some(Func(sig)) => {
         let ps : Array[@model.Param] = []
         for p in sig.params {
-          ps.push({ label: p.name, ty: ir_valty_to_model(p.ty) })
+          ps.push({ label: p.name, ty: ir_valty_to_model(p.ty), })
         }
         Some(
           @model.FuncType({
@@ -350,16 +357,14 @@ pub fn to_model_table(types : Array[TypeDef?]) -> Array[@model.TypeDef?] {
       Some(Record(fields)) => {
         let fs : Array[@model.RecordField] = []
         for f in fields {
-          fs.push({ label: f.name, ty: ir_valty_to_model(f.ty) })
+          fs.push({ label: f.name, ty: ir_valty_to_model(f.ty), })
         }
         Some(@model.Record(fs))
       }
       Some(List(t)) => Some(@model.List(ir_valty_to_model(t)))
       Some(FixedList(t, n)) => Some(@model.FixedList(ir_valty_to_model(t), n))
       Some(MapType(k, v)) =>
-        Some(
-          @model.MapType(ir_valty_to_model(k), ir_valty_to_model(v)),
-        )
+        Some(@model.MapType(ir_valty_to_model(k), ir_valty_to_model(v)))
       Some(Tuple(ts)) => {
         let xs : Array[@model.ValType] = []
         for x in ts {
@@ -369,9 +374,7 @@ pub fn to_model_table(types : Array[TypeDef?]) -> Array[@model.TypeDef?] {
       }
       Some(Option(t)) => Some(@model.Option(ir_valty_to_model(t)))
       Some(Result(ok, err)) =>
-        Some(
-          @model.Result(ir_opt_to_model(ok), ir_opt_to_model(err)),
-        )
+        Some(@model.Result(ir_opt_to_model(ok), ir_opt_to_model(err)))
       Some(Variant(cases)) => {
         let cs : Array[@model.VariantCase] = []
         for c in cases {
@@ -410,11 +413,19 @@ pub fn flatten(t : ValTy, types : Array[TypeDef?]) -> Array[@core.ValueType]? {
 ///|
 /// Flatten a whole signature, per upstream canonical ABI. `None` if any part
 /// cannot be flattened.
-pub fn flatten_func(sig : FuncSig, types : Array[TypeDef?]) -> (Array[@core.ValueType], Array[@core.ValueType])? {
+pub fn flatten_func(
+  sig : FuncSig,
+  types : Array[TypeDef?],
+) -> (Array[@core.ValueType], Array[@core.ValueType])? {
   let table = to_model_table(types)
   let params : Array[@core.ValueType] = []
   for p in sig.params {
-    match @wasm_component.canonical_flat_types(ir_valty_to_model(p.ty), table, @core.I32) {
+    match
+      @wasm_component.canonical_flat_types(
+        ir_valty_to_model(p.ty),
+        table,
+        @core.I32,
+      ) {
       Some(flat) =>
         for v in flat {
           params.push(v)
@@ -425,7 +436,12 @@ pub fn flatten_func(sig : FuncSig, types : Array[TypeDef?]) -> (Array[@core.Valu
   let results : Array[@core.ValueType] = []
   match sig.result {
     Some(r) =>
-      match @wasm_component.canonical_flat_types(ir_valty_to_model(r), table, @core.I32) {
+      match
+        @wasm_component.canonical_flat_types(
+          ir_valty_to_model(r),
+          table,
+          @core.I32,
+        ) {
         Some(flat) =>
           for v in flat {
             results.push(v)

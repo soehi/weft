@@ -8,10 +8,11 @@
 import {
   "soehi/weft/graph",
   "soehi/weft/ir",
-  "moonrockz/wac/parser" @parser,
-  "moonrockz/wac/verifier" @verifier,
-  "soehi/weft/manifest" @manifest,
+  "moonrockz/wac/parser",
+  "moonrockz/wac/verifier",
+  "soehi/weft/manifest",
 }
+
 import {
   "Milky2018/wasm_component/text",
 } for "wbtest"

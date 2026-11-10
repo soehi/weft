@@ -1,3 +1,10 @@
 // Embeddable API: no filesystem, environment, CLI, runtime or network imports.
-import { "soehi/weft/manifest", "soehi/weft/ir", "soehi/weft/plan" }
-import { "Milky2018/wasm_component/text" } for "wbtest"
+import {
+  "soehi/weft/manifest",
+  "soehi/weft/ir",
+  "soehi/weft/plan",
+}
+
+import {
+  "Milky2018/wasm_component/text",
+} for "wbtest"

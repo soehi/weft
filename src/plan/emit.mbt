@@ -12,7 +12,7 @@ fn q(s : String) -> String {
 }
 
 ///|
-fn opt_int(v : Int?) -> String {
+fn opt_int(v : Int32?) -> String {
   match v {
     Some(n) => n.to_string()
     None => "null"
@@ -46,15 +46,24 @@ pub fn plan_body(p : Plan) -> String {
       q("\{w.to_component}.\{w.to_port}") +
       ",\"from_signature\":" +
       q(
-        "(" + w.from_flat_params.join(", ") + ") -> (" + w.from_flat_results.join(", ") + ")",
+        "(" +
+        w.from_flat_params.join(", ") +
+        ") -> (" +
+        w.from_flat_results.join(", ") +
+        ")",
       ) +
       ",\"to_signature\":" +
-      q(("(" + w.to_flat_params.join(", ") + ") -> (" + w.to_flat_results.join(", ") + ")")) +
+      q(
+        "(" +
+        w.to_flat_params.join(", ") +
+        ") -> (" +
+        w.to_flat_results.join(", ") +
+        ")",
+      ) +
       "}",
     )
   }
-  let res =
-    "{\"max_memory_pages\":" +
+  let res = "{\"max_memory_pages\":" +
     opt_int(p.resources.max_memory_pages) +
     ",\"quota\":" +
     opt_int(p.resources.quota) +
@@ -71,7 +80,7 @@ pub fn plan_body(p : Plan) -> String {
 }
 
 ///|
-fn q_int_list(xs : Array[Int]) -> String {
+fn q_int_list(xs : Array[Int32]) -> String {
   let parts : Array[String] = []
   for x in xs {
     parts.push(x.to_string())

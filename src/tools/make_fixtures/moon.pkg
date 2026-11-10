@@ -5,9 +5,9 @@
 // files appear next to the manifest.
 
 import {
-  "Milky2018/wasm_component/text" @text,
-  "moonbitlang/x/fs" @fs,
-  "moonbitlang/core/env" @env,
+  "Milky2018/wasm_component/text",
+  "moonbitlang/x/fs",
+  "moonbitlang/core/env",
 }
 
 pkgtype(kind: "executable")

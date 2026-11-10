@@ -26,7 +26,11 @@ pub fn parse_args(args : Array[String]) -> Command {
   }
   let cmd = args[0]
   if cmd == "--version" || cmd == "version" || cmd == "-V" {
-    return if args.length() == 1 { Version } else { Unknown("version takes no arguments") }
+    return if args.length() == 1 {
+      Version
+    } else {
+      Unknown("version takes no arguments")
+    }
   }
   if cmd == "help" || cmd == "--help" || cmd == "-h" {
     return if args.length() == 1 {

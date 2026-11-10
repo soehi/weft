@@ -28,12 +28,8 @@ fn golden_chain() -> Input raise PlanError {
 
 ///|
 test "golden: example plan bytes are exactly as documented" {
-  let input = golden_chain() catch {
-    e => fail(e.to_string())
-  }
-  let p = plan(input) catch {
-    e => fail(e.to_string())
-  }
+  let input = golden_chain() catch { e => fail(e.to_string()) }
+  let p = plan(input) catch { e => fail(e.to_string()) }
   let expected =
     #|{"plan_version":"0.2.0","instances":[{"name":"reader","path":"reader.wasm","order":0,"incoming":[]},{"name":"filter","path":"filter.wasm","order":1,"incoming":[1]},{"name":"sink","path":"sink.wasm","order":2,"incoming":[0]}],"wires":[{"from":"filter.out","to":"sink.in","from_signature":"(i32) -> (i32)","to_signature":"(i32) -> (i32)"},{"from":"reader.read","to":"filter.in","from_signature":"(i32) -> (i32)","to_signature":"(i32) -> (i32)"}],"resources":{"max_memory_pages":256,"quota":1000000},"plan_hash":"1a3640bcc99318d5"}
   inspect(plan_json(p), content=expected)

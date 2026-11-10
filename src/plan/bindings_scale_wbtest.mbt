@@ -21,8 +21,16 @@ fn scale_binding_input(size : Int32) -> (Input, Array[PlannedWire]) {
   }
   let m : @manifest.Manifest = {
     version: "0.2.0",
-    components: [{ name: "source", path: "source" },{ name: "sink", path: "sink", }],
-    wires: wires.map(w => {from_component:w.from_component,from_port:w.from_port,to_component:w.to_component,to_port:w.to_port}),
+    components: [
+      { name: "source", path: "source", },
+      { name: "sink", path: "sink", },
+    ],
+    wires: wires.map(w => {
+      from_component: w.from_component,
+      from_port: w.from_port,
+      to_component: w.to_component,
+      to_port: w.to_port,
+    }),
     resources: { max_memory_pages: None, quota: None, },
   }
   let iface : @ir.Iface = {
@@ -33,9 +41,25 @@ fn scale_binding_input(size : Int32) -> (Input, Array[PlannedWire]) {
     types: [],
     unwireable_imports: [],
   }
-  let source : @ir.Iface = {name:"source",path:"source",imports:[],types:[],unwireable_imports:[],
-    exports:[{name:"out",port:@ir.Func({name:"out",is_async:false,params:[],result:None})}]}
-  ({ manifest: m, ifaces: Map([("sink", iface),("source",source)]), }, wires)
+  let source : @ir.Iface = {
+    name: "source",
+    path: "source",
+    imports: [],
+    types: [],
+    unwireable_imports: [],
+    exports: [
+      {
+        name: "out",
+        port: @ir.Func({
+          name: "out",
+          is_async: false,
+          params: [],
+          result: None,
+        }),
+      },
+    ],
+  }
+  ({ manifest: m, ifaces: Map([("sink", iface), ("source", source)]), }, wires)
 }
 
 ///|
@@ -60,7 +84,7 @@ fn binding_outcome(
 test "bindings: sorted coverage preserves wide-table diagnostics" {
   let (input, wires) = scale_binding_input(1000)
   assert_eq(binding_outcome(input, wires, false), "ok")
-  assert_eq(plan(input).wires.length(),1000)
+  assert_eq(plan(input).wires.length(), 1000)
   for missing in [0, 1, 99, 999] {
     let partial = wires.copy()
     let _ = partial.remove(missing)
@@ -85,7 +109,8 @@ test "bindings: duplicate and unwireable public IR entries preserve precedence" 
       [interface_entry] + original.imports,
     ] {
     for unwireable in [[], ["in-0"], ["a", "in-0"], ["in-2"]] {
-      let ifaces = Map([("source",input.ifaces.get("source").unwrap()),
+      let ifaces = Map([
+        ("source", input.ifaces.get("source").unwrap()),
         ("sink", { ..original, imports, unwireable_imports: unwireable, }),
       ])
       let candidate = { ..input, ifaces, }

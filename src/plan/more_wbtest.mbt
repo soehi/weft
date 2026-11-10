@@ -13,7 +13,10 @@ test "plan: repeated identical wires are rejected" {
   let input = input_of(m, [("a", a), ("b", b)]) catch {
     e => fail(e.to_string())
   }
-  inspect(plan_err(input), content="plan: duplicate binding for `b.in`: a.out and a.out")
+  inspect(
+    plan_err(input),
+    content="plan: duplicate binding for `b.in`: a.out and a.out",
+  )
 }
 
 ///|
@@ -35,9 +38,7 @@ test "plan: self-wire component order is still a cycle error, not a hang" {
   ) catch {
     e => fail(e.to_string())
   }
-  let input = input_of(m, [("a", wat)]) catch {
-    e => fail(e.to_string())
-  }
+  let input = input_of(m, [("a", wat)]) catch { e => fail(e.to_string()) }
   let msg = plan_err(input)
   inspect(msg.has_prefix("plan: dependency cycle:"), content="true")
 }
@@ -151,21 +152,15 @@ test "plan: wide fan-out from one export" {
   let input = input_of(m, [("a", a), ("b", b), ("c", c)]) catch {
     e => fail(e.to_string())
   }
-  let p = plan(input) catch {
-    e => fail(e.to_string())
-  }
+  let p = plan(input) catch { e => fail(e.to_string()) }
   inspect(p.instances[0].name, content="a")
   inspect(p.instances.length(), content="3")
 }
 
 ///|
 test "plan: plan_json is valid JSON and hash round-trips" {
-  let input = chain_input() catch {
-    e => fail(e.to_string())
-  }
-  let p = plan(input) catch {
-    e => fail(e.to_string())
-  }
+  let input = chain_input() catch { e => fail(e.to_string()) }
+  let p = plan(input) catch { e => fail(e.to_string()) }
   let json = plan_json(p)
   // Ensure the emitter produces something the JSON parser accepts.
   let _ = @json.parse(json) catch {
@@ -180,12 +175,11 @@ test "plan: empty-string port is rejected by the manifest parser" {
   let got = @manifest.parse(
     "{\"components\":[{\"name\":\"a\",\"path\":\"a\"}],\"wires\":[{\"from\":\"a.\",\"to\":\"a.in\"}]}",
   ) catch {
-    e => {
+    e =>
       return inspect(
         e.to_string(),
         content="manifest: wires[0].from must be `<component>.<port>`, got `a.`",
       )
-    }
   }
   fail("expected a parse error, got \{got.version}")
 }
@@ -208,16 +202,16 @@ test "plan: many components stay ordered deterministically" {
     i = i + 1
   }
   let m = manifest_of(
-    "{\"components\":[" + comps.join(",") + "],\"wires\":[" + wires.join(",") + "]}",
+    "{\"components\":[" +
+    comps.join(",") +
+    "],\"wires\":[" +
+    wires.join(",") +
+    "]}",
   ) catch {
     e => fail(e.to_string())
   }
-  let input = input_of(m, pairs) catch {
-    e => fail(e.to_string())
-  }
-  let p = plan(input) catch {
-    e => fail(e.to_string())
-  }
+  let input = input_of(m, pairs) catch { e => fail(e.to_string()) }
+  let p = plan(input) catch { e => fail(e.to_string()) }
   inspect(p.instances[0].name, content="c0")
   // c1..c9 follow in lexicographic order.
   inspect(p.instances[1].name, content="c1")

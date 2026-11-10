@@ -35,9 +35,7 @@ test "ir: plain function import and export" {
     "(func (export \"double\") (param \"v\" s32) (result s32) " +
     "(canon lift (core func $m \"f\") (memory $m \"mem\") (realloc (core func $m \"realloc\"))))" +
     ") "
-  let iface = decode_wat("comp", wat) catch {
-    e => fail(e.to_string())
-  }
+  let iface = decode_wat("comp", wat) catch { e => fail(e.to_string()) }
   inspect(iface.imports.length(), content="1")
   inspect(iface.exports.length(), content="1")
   match find_entry(iface.imports, "host") {
@@ -72,9 +70,7 @@ test "ir: interface import exposes nested functions" {
     "(type $T (instance (export \"transform\" (func (param \"p\" s32) (result s32)))))" +
     "(import \"reader:io/transform@1.0.0\" (instance $io (type $T)))" +
     ") "
-  let iface = decode_wat("comp", wat) catch {
-    e => fail(e.to_string())
-  }
+  let iface = decode_wat("comp", wat) catch { e => fail(e.to_string()) }
   inspect(iface.imports.length(), content="1")
   match find_entry(iface.imports, "reader:io/transform@1.0.0") {
     Some(e) =>
@@ -101,9 +97,7 @@ test "ir: rich types survive the arena" {
     "(func (export \"rich\") (param \"xs\" (list u32)) (param \"flag\" bool) (result string) " +
     "(canon lift (core func $m \"f\") (memory $m \"mem\") (realloc (core func $m \"realloc\"))))" +
     ") "
-  let iface = decode_wat("comp", wat) catch {
-    e => fail(e.to_string())
-  }
+  let iface = decode_wat("comp", wat) catch { e => fail(e.to_string()) }
   match find_entry(iface.exports, "rich") {
     Some(e) =>
       match e.port {
@@ -137,11 +131,9 @@ test "ir: flatten list<u32> to two i32" {
     "(func (export \"sum\") (param \"xs\" (list u32)) (result u32) " +
     "(canon lift (core func $m \"f\") (memory $m \"mem\") (realloc (core func $m \"realloc\"))))" +
     ") "
-  let iface = decode_wat("comp", wat) catch {
-    e => fail(e.to_string())
-  }
+  let iface = decode_wat("comp", wat) catch { e => fail(e.to_string()) }
   let sig = match find_entry(iface.exports, "sum") {
-    Some({ port: Func(sig), name: _ }) => sig
+    Some({ port: Func(sig), name: _, }) => sig
     _ => fail("missing sum")
   }
   match flatten_func(sig, iface.types) {
@@ -166,9 +158,7 @@ test "ir: flatten string is ptr+len" {
     "(func (export \"echo\") (param \"s\" string) (result string) " +
     "(canon lift (core func $m \"f\") (memory $m \"mem\") (realloc (core func $m \"realloc\"))))" +
     ") "
-  let iface = decode_wat("comp", wat) catch {
-    e => fail(e.to_string())
-  }
+  let iface = decode_wat("comp", wat) catch { e => fail(e.to_string()) }
   match flatten(String, iface.types) {
     Some(flat) => inspect(flat.length(), content="2")
     None => fail("string should flatten")
@@ -180,7 +170,10 @@ test "ir: decode failure names the component" {
   let bytes : Bytes = [0xFF, 0x00, 0x01, 0x02]
   let _ = decode_component("broken", "broken.wasm", bytes) catch {
     e => {
-      inspect(e.to_string().has_prefix("ir: cannot decode `broken`:"), content="true")
+      inspect(
+        e.to_string().has_prefix("ir: cannot decode `broken`:"),
+        content="true",
+      )
       return
     }
   }
@@ -199,9 +192,7 @@ test "ir: exports are sorted by name" {
     "(func (export \"alpha\") (param \"v\" s32) (result s32) " +
     "(canon lift (core func $m \"f\") (memory $m \"mem\") (realloc (core func $m \"realloc\"))))" +
     ") "
-  let iface = decode_wat("comp", wat) catch {
-    e => fail(e.to_string())
-  }
+  let iface = decode_wat("comp", wat) catch { e => fail(e.to_string()) }
   inspect(iface.exports.length(), content="2")
   inspect(iface.exports[0].name, content="alpha")
   inspect(iface.exports[1].name, content="zeta")
