@@ -1,0 +1,7 @@
+import {
+  "soehi/weft/probes/instance" @fixture,
+  "moonbitlang/core/env",
+  "moonbitlang/x/fs",
+  "moonbitlang/x/sys",
+}
+pkgtype(kind: "executable")

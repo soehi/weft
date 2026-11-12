@@ -10,6 +10,7 @@
 
 | 文件 | 内容 |
 |---|---|
+| [核心深化规划](CORE-DEVELOPMENT.md) / [D0探针](INSTANCE-PROBE.md) | 接口实例组合、制品绑定与独立核验的新主线；探针不代表生产支持 |
 | [公开申报书](SUBMISSION.md) / [验收演示](../release/DEMO.md) | 0.3.1正式交付、复演命令及证据入口 |
 | [TOOLCHAIN-COMPAT.md](TOOLCHAIN-COMPAT.md) | 0.10.19构建差异、Int32迁移与双工具链兼容验证 |
 | [PERFORMANCE.md](PERFORMANCE.md) | 100/1,000组件链、扇出、扇入的真实CLI基线与方法 |

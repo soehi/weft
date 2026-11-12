@@ -1,0 +1,21 @@
+{
+  "recorded_on": "2026-11-12",
+  "repository": "https://github.com/WebAssembly/component-model",
+  "commit": "6250899af9a71591dcfdb2500b41343c330623f9",
+  "path": "design/mvp/Explainer.md",
+  "raw_sha256": "86611a54b428ecc5431fbf19273d354a979039b29d3e8db57d0d6f85b5b698e5",
+  "sections": ["Instance Definitions", "Alias Definitions", "Type Checking", "Import and Export Definitions"],
+  "implementation_versions": {
+    "Milky2018/wasm_component": "0.18.0",
+    "Milky2018/wasmoon": "0.18.0",
+    "moonrockz/wac": "0.3.0",
+    "moonrockz/wit": "0.3.0",
+    "moonbitlang/x": "0.5.5"
+  },
+  "sha256_implementation": {
+    "package": "moonbitlang/x/crypto",
+    "license": "Apache-2.0",
+    "file": "crypto/sha256.mbt",
+    "source_sha256": "2fd3517d6ecbf971a72563fbe1a161a23ab710374fe1b526f8fc07f77342f527"
+  }
+}

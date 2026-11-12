@@ -1,0 +1,5 @@
+// D0 reuses the already pinned SHA implementation; no host crypto calls.
+import {
+  "moonbitlang/x/crypto",
+  "moonbitlang/core/encoding/utf8",
+} for "wbtest"

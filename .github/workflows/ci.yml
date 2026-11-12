@@ -63,6 +63,11 @@ jobs:
         run: |
           moon test src/graph src/manifest src/ir src/plan src/wac_adapter src/exec_plan src/api src/cli \
             --target ${{ matrix.target }}
+      - name: D0 instance decoding and SHA-256 probes
+        run: moon test src/probes/instance src/probes/digest --target ${{ matrix.target }}
+      - name: Verify committed D0 component binaries
+        if: matrix.target == 'native'
+        run: python3 scripts/test-instance-fixtures.py
 
   identical:
     # Byte-for-byte comparison of the three backends' plans. Runs the same

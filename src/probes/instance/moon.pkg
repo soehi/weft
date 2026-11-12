@@ -1,0 +1,8 @@
+// D0 fixture factory; not imported by the planner or CLI.
+import {
+  "Milky2018/wasm_component/text",
+}
+import {
+  "moonrockz/wac/verifier",
+  "soehi/weft/ir",
+} for "wbtest"

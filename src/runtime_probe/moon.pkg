@@ -3,6 +3,7 @@ import {
   "Milky2018/wasmoon/component/runtime_impl" @linker,
   "Milky2018/wasmoon/component_native" @native,
   "Milky2018/wasm_component/text",
+  "soehi/weft/probes/instance" @instance_fixture,
 } for "wbtest"
 
 supported_targets = "native"
