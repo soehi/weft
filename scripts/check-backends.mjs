@@ -18,6 +18,8 @@ try {
     run('moon', ['test', 'src/graph', 'src/manifest', 'src/ir', 'src/plan', 'src/wac_adapter', 'src/exec_plan', 'src/api', 'src/cli', '--target', target]);
     console.log(`== D0 feasibility probes (${target}) ==`);
     run('moon', ['test', 'src/probes/instance', 'src/probes/digest', '--target', target]);
+    console.log(`== D1 scoped type checks (${target}) ==`);
+    run('moon', ['test', 'src/compose_ir', 'src/compose_types', '--target', target]);
   }
   run('moon', ['run', 'src/tools/make_fixtures', '--target', 'native', '--', 'examples']);
   for (const target of targets) {

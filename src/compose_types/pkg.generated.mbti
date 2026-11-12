@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "soehi/weft/compose_types"
+
+import {
+  "soehi/weft/compose_ir",
+}
+
+// Values
+pub fn check_instance(@compose_ir.Component, String, @compose_ir.Component, String) -> Correspondence raise CompatibilityError
+
+// Errors
+pub(all) suberror CompatibilityError {
+  Rejected(Diagnostic)
+}
+
+// Types and methods
+pub(all) struct Correspondence {
+  consumer_component : String
+  provider_component : String
+  pairs : Array[(Int32, Int32)]
+}
+
+pub(all) struct Diagnostic {
+  code : String
+  component : String
+  path : Array[String]
+  detail : String
+}
+
+// Type aliases
+
+// Traits

@@ -1,0 +1,8 @@
+// D1 semantic IR. References are resolved within one component, never globally.
+import {
+  "moonrockz/wac/verifier",
+}
+import {
+  "soehi/weft/probes/instance" @fixture,
+  "Milky2018/wasm_component/text",
+} for "wbtest"

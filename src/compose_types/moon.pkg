@@ -1,0 +1,7 @@
+import {
+  "soehi/weft/compose_ir" @ir,
+  "soehi/weft/ir" @order,
+}
+import {
+  "soehi/weft/probes/instance" @fixture,
+} for "wbtest"

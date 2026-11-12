@@ -65,6 +65,8 @@ jobs:
             --target ${{ matrix.target }}
       - name: D0 instance decoding and SHA-256 probes
         run: moon test src/probes/instance src/probes/digest --target ${{ matrix.target }}
+      - name: D1 scoped IR and instance compatibility
+        run: moon test src/compose_ir src/compose_types --target ${{ matrix.target }}
       - name: Verify committed D0 component binaries
         if: matrix.target == 'native'
         run: python3 scripts/test-instance-fixtures.py
