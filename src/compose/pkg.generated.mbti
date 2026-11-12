@@ -1,0 +1,40 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "soehi/weft/compose"
+
+import {
+  "soehi/weft/compose_plan",
+  "soehi/weft/compose_types",
+}
+
+// Values
+pub fn compile(String, Map[String, Bytes]) -> Result[Output, @compose_types.Diagnostic]
+
+pub fn emit_wac(String, Map[String, Bytes]) -> Result[String, @compose_types.Diagnostic]
+
+pub fn parse(String) -> Manifest raise InputError
+
+// Errors
+pub(all) suberror InputError {
+  Rejected(@compose_types.Diagnostic)
+}
+
+// Types and methods
+pub(all) struct ComponentDecl {
+  name : String
+  path : String
+}
+
+pub(all) struct Manifest {
+  components : Array[ComponentDecl]
+  bindings : Array[@compose_plan.Binding]
+}
+
+pub(all) struct Output {
+  manifest : Manifest
+  plan : @compose_plan.Plan
+  json : String
+}
+
+// Type aliases
+
+// Traits

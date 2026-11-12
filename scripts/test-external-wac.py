@@ -40,3 +40,25 @@ with tempfile.TemporaryDirectory(prefix="external instance ", dir=root / "_build
             assert all(word in result.stderr for word in required), result.stderr
         print(f"OK: WAC {lock['version']} instance case {mode}")
     assert products[0] != products[1], "different provider contents must change composed artifacts"
+    # Validate WAC emitted from D1's checked composition, using the independent
+    # Rust composer instead of the decoder used by our own type adapter.
+    emitted = work / "d1-emitted.wac"
+    subprocess.run([
+        "moon", "run", "src/compose_cli", "--target", "js", "--", "emit-wac",
+        str(root / "examples/instances/chain.json"), "--out", str(emitted),
+    ], cwd=root, check=True, timeout=120)
+    for provider in ["source", "alternate", "missing", "wrong-type"]:
+        output = work / f"d1-{provider}.wasm"
+        result = subprocess.run([
+            str(tool), "compose", str(emitted),
+            "--dep", f"weft:source={root / 'examples/instances' / (provider + '.wasm')}",
+            "--dep", f"weft:consumer={root / 'examples/instances/consumer.wasm'}",
+            "-o", str(output),
+        ], text=True, encoding="utf-8", capture_output=True, timeout=30)
+        if provider in {"source", "alternate"}:
+            assert result.returncode == 0, result.stderr
+            assert output.read_bytes()[:8] == bytes.fromhex("0061736d0d000100")
+        else:
+            assert result.returncode != 0 and not output.exists(), provider
+            assert ("twice" if provider == "missing" else "value") in result.stderr, result.stderr
+        print(f"OK: D1 emitted WAC case {provider}")

@@ -1,0 +1,55 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "soehi/weft/compose_plan"
+
+import {
+  "soehi/weft/compose_ir",
+  "soehi/weft/compose_types",
+}
+
+// Values
+pub fn emit_wac(Array[@compose_ir.Component], Array[Binding]) -> String raise PlanError
+
+pub fn plan(Array[@compose_ir.Component], Array[Binding]) -> Plan raise PlanError
+
+// Errors
+pub(all) suberror PlanError {
+  Rejected(@compose_types.Diagnostic)
+}
+
+// Types and methods
+pub(all) struct Binding {
+  kind : BindingKind
+  from : Endpoint
+  to : Endpoint
+}
+
+pub(all) enum BindingKind {
+  Function
+  Instance
+}
+
+pub(all) struct CheckedBinding {
+  binding : Binding
+  correspondence : @compose_types.Correspondence
+}
+
+pub(all) struct Endpoint {
+  component : String
+  port : String
+  member_name : String?
+}
+
+pub(all) enum Operation {
+  InstallImport(Int32)
+  Instantiate(String)
+}
+
+pub(all) struct Plan {
+  order : Array[String]
+  bindings : Array[CheckedBinding]
+  operations : Array[Operation]
+}
+
+// Type aliases
+
+// Traits

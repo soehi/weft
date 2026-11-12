@@ -1,0 +1,19 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "soehi/weft/compose_host"
+
+import {
+  "soehi/weft/compose_types",
+}
+
+// Values
+pub fn diagnostic(@compose_types.Diagnostic) -> String
+
+pub fn read(String) -> (String, Map[String, Bytes]) raise
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

@@ -1,0 +1,9 @@
+// Experimental D1 in-memory API. All filesystem handling remains in hosts.
+import {
+  "soehi/weft/compose_ir" @ir,
+  "soehi/weft/compose_types" @types,
+  "soehi/weft/compose_plan" @plan,
+  "soehi/weft/ir" @order,
+  "moonbitlang/core/json",
+}
+import { "soehi/weft/probes/instance" @fixture } for "wbtest"

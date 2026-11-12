@@ -1,0 +1,13 @@
+import {
+  "soehi/weft/compose",
+  "soehi/weft/compose_host" @host,
+  "moonbitlang/core/env",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/x/fs",
+  "moonbitlang/x/sys",
+}
+pkgtype(kind: "executable")
+options(targets: {
+  "argv_js.mbt": ["js"],
+  "argv_other.mbt": ["native", "wasm-gc"],
+})

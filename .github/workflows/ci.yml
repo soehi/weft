@@ -66,7 +66,7 @@ jobs:
       - name: D0 instance decoding and SHA-256 probes
         run: moon test src/probes/instance src/probes/digest --target ${{ matrix.target }}
       - name: D1 scoped IR and instance compatibility
-        run: moon test src/compose_ir src/compose_types --target ${{ matrix.target }}
+        run: moon test src/compose_ir src/compose_types src/compose_plan src/compose --target ${{ matrix.target }}
       - name: Verify committed D0 component binaries
         if: matrix.target == 'native'
         run: python3 scripts/test-instance-fixtures.py
@@ -124,11 +124,13 @@ jobs:
       - name: Type-check the adapter
         run: moon check src/runtime_native --target native
       - name: Verify real cross-instance native wiring probe
-        run: moon test src/runtime_probe src/runtime_native --target native
+        run: moon test src/runtime_probe src/runtime_native src/runtime_instance --target native
       - name: Build and exercise experimental native command
         run: |
           moon build src/runtime_native --target native
           python3 scripts/test-native-cli.py
+      - name: Build and exercise D1 complete-instance command
+        run: python3 scripts/test-native-instance-cli.py
 
   browser:
     name: local browser demo (Chromium)

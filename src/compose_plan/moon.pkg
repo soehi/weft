@@ -1,0 +1,12 @@
+import {
+  "soehi/weft/compose_ir" @ir,
+  "soehi/weft/compose_types" @types,
+  "soehi/weft/graph",
+  "soehi/weft/manifest",
+  "soehi/weft/ir" @order,
+  "moonbitlang/core/json",
+}
+import {
+  "soehi/weft/probes/instance" @fixture,
+  "Milky2018/wasm_component/text",
+} for "wbtest"

@@ -24,4 +24,6 @@ for name, version in [("plan-v0.1.0", "0.1.0"), ("plan-v0.2.0", "0.2.0"), ("form
     for byte in body:
         result = ((result ^ byte) * 0x100000001b3) & 0xffffffffffffffff
     assert value["plan_hash"] == f"{result:016x}", name
-print("OK: schemas, versioned artifacts and independent UTF-8 FNV hashes")
+schemas["manifest-instance-v0.3.0.schema.json"].validate(read("examples/instances/chain.json"))
+schemas["plan-instance-v0.3.0.schema.json"].validate(read("docs/fixtures/plan-instance-v0.3.0.json"))
+print("OK: schemas, versioned instance/function artifacts and independent legacy UTF-8 FNV hashes")

@@ -1,0 +1,8 @@
+// Host-only file adapter. Pure composition packages do not import this package.
+import {
+  "soehi/weft/compose",
+  "soehi/weft/compose_types" @types,
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/x/fs",
+  "moonbitlang/x/path",
+}

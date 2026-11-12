@@ -188,9 +188,59 @@ pub fn check_instance(
 ) -> Correspondence raise CompatibilityError {
   let pi = root(provider, provider.exports, export_name, ["exports"])
   let ci = root(consumer, consumer.imports, import_name, ["imports"])
-  supported(provider, pi, ["exports", export_name])
-  supported(consumer, ci, ["imports", import_name])
-  let work : Array[(Int32?, Int32?, Array[String])] = [(Some(ci), Some(pi), ["imports", import_name])]
+  compare(provider, pi, ["exports", export_name], consumer, ci, ["imports", import_name])
+}
+
+///|
+fn named(c : @ir.Component, entries : Array[@ir.NamedItem], name : String, at : Array[String]) -> @ir.NamedItem raise CompatibilityError {
+  for e in sorted_items(c, entries, at) { if e.name == name { return e } }
+  reject("MISSING_MEMBER", c, at + [name], "member does not exist")
+  abort("unreachable")
+}
+
+///|
+/// Function binding in the new profile. A source may be one explicitly named
+/// member of an exported interface; a consumer import must be a root function.
+pub fn check_function(
+  provider : @ir.Component, export_name : String, member_name : String?,
+  consumer : @ir.Component, import_name : String,
+) -> Correspondence raise CompatibilityError {
+  let mut entry = named(provider, provider.exports, export_name, ["exports"])
+  let mut at = ["exports", export_name]
+  if member_name is Some(name) {
+    guard entry.item is @ir.Instance(i) else {
+      reject("INVALID_MEMBER_KIND", provider, at, "function member requires an instance")
+      abort("unreachable")
+    }
+    guard node(provider, resolve(provider, i, at), at) is @ir.Interface(_, _, es) else {
+      reject("INVALID_MEMBER_KIND", provider, at, "invalid source instance")
+      abort("unreachable")
+    }
+    entry = named(provider, es, name, at)
+    at = at + [name]
+  }
+  guard entry.item is @ir.Function(pi) else {
+    reject("INVALID_MEMBER_KIND", provider, at, "expected source function")
+    abort("unreachable")
+  }
+  let _ = member_type(provider, entry, at)
+  let target = named(consumer, consumer.imports, import_name, ["imports"])
+  guard target.item is @ir.Function(ci) else {
+    reject("INVALID_MEMBER_KIND", consumer, ["imports", import_name], "expected root function import")
+    abort("unreachable")
+  }
+  let _ = member_type(consumer, target, ["imports", import_name])
+  compare(provider, pi, at, consumer, ci, ["imports", import_name])
+}
+
+///|
+fn compare(
+  provider : @ir.Component, pi : Int32, provider_path : Array[String],
+  consumer : @ir.Component, ci : Int32, consumer_path : Array[String],
+) -> Correspondence raise CompatibilityError {
+  supported(provider, pi, provider_path)
+  supported(consumer, ci, consumer_path)
+  let work : Array[(Int32?, Int32?, Array[String])] = [(Some(ci), Some(pi), consumer_path)]
   let seen : Map[(Int32, Int32), Unit] = Map([])
   let pairs : Array[(Int32, Int32)] = []
   while work.pop() is Some((ct, pt, at)) {
@@ -198,12 +248,12 @@ pub fn check_instance(
       (None, None) => continue
       (Some(c), Some(p)) => {
         let c = resolve(consumer, c, at)
-        let p = resolve(provider, p, ["exports", export_name])
+        let p = resolve(provider, p, provider_path)
         if seen.contains((c, p)) { continue }
         seen.set((c, p), ())
         pairs.push((c, p))
         let cs = shape(consumer, c, at)
-        let ps = shape(provider, p, ["exports", export_name])
+        let ps = shape(provider, p, provider_path)
         if cs.tag != ps.tag {
           reject("TYPE_MISMATCH", consumer, at, "expected " + cs.tag + ", provider has " + ps.tag)
         }

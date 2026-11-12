@@ -19,7 +19,7 @@ try {
     console.log(`== D0 feasibility probes (${target}) ==`);
     run('moon', ['test', 'src/probes/instance', 'src/probes/digest', '--target', target]);
     console.log(`== D1 scoped type checks (${target}) ==`);
-    run('moon', ['test', 'src/compose_ir', 'src/compose_types', '--target', target]);
+    run('moon', ['test', 'src/compose_ir', 'src/compose_types', 'src/compose_plan', 'src/compose', '--target', target]);
   }
   run('moon', ['run', 'src/tools/make_fixtures', '--target', 'native', '--', 'examples']);
   for (const target of targets) {
@@ -38,6 +38,7 @@ try {
     if (!formatGolden.equals(readFileSync(join(out, `format-${target}.json`)))) throw new Error(`format golden differs: ${target}`);
   }
   run('node', ['scripts/test-consumer.mjs']);
+  run('node', ['scripts/test-instance-composition.mjs']);
   console.log('OK: all three backends produced byte-identical plans, including Unicode/escaping/integer boundaries');
 } catch (e) {
   console.error(e.message);
