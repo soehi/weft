@@ -68,6 +68,11 @@ jobs:
       - name: Verify committed D0 component binaries
         if: matrix.target == 'native'
         run: python3 scripts/test-instance-fixtures.py
+      - name: D0 external WAC instance composition
+        if: matrix.target == 'native'
+        run: |
+          python3 scripts/install-external-wac.py
+          python3 scripts/test-external-wac.py
 
   identical:
     # Byte-for-byte comparison of the three backends' plans. Runs the same

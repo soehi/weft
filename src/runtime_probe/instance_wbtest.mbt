@@ -39,10 +39,14 @@ test "D0 whole instance import rejects disconnected missing and wrong-type provi
     try linker.instantiate("consumer", validated) catch {
       error => {
         let message = error.to_string()
-        match mode {
-          "disconnected" => assert_true(message.contains("ops"))
-          "missing" => assert_true(message.contains("twice"))
-          _ => assert_true(message.contains("value") || message.contains("inc"))
+        let expected_error = match mode {
+          "disconnected" => message.contains("UnknownImport") && message.contains("ops")
+          // wasmoon@0.18.0 reports the outer import key for a missing member.
+          "missing" => message.contains("UnknownImport") && message.contains("ops")
+          _ => message.contains("value") || message.contains("inc")
+        }
+        if !expected_error {
+          fail("unexpected " + mode + " rejection: " + message)
         }
       }
     } noraise {

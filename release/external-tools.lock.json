@@ -1,0 +1,18 @@
+{
+  "wac": {
+    "version": "0.12.0",
+    "repository": "https://github.com/bytecodealliance/wac",
+    "license": "Apache-2.0",
+    "release": "https://github.com/bytecodealliance/wac/releases/tag/v0.12.0",
+    "assets": {
+      "windows-x86_64": {
+        "url": "https://github.com/bytecodealliance/wac/releases/download/v0.12.0/wac-cli-x86_64-pc-windows-gnu",
+        "sha256": "33d92a2a73db1f8de69538038e594a14cc8f9e6feb8138bf29fdaf2598d425d9"
+      },
+      "linux-x86_64": {
+        "url": "https://github.com/bytecodealliance/wac/releases/download/v0.12.0/wac-cli-x86_64-unknown-linux-musl",
+        "sha256": "7cd490edbd452221ef89e6750fc43eacc9b71b1242095eb577cb9a3bf0d3beda"
+      }
+    }
+  }
+}

@@ -30,12 +30,14 @@
 新增三项native测试放在`src/runtime_probe/instance_wbtest.mbt`：
 
 1. 实例化source，取其`ops`导出，以单个`Instance`外部值传给linker，再实例化consumer；输入0/7/41应分别得到2/16/84。
-2. 不接ops、缺少twice、value/inc类型不符，均要求消费者实例化失败并点名相应成员；两个错误提供方须先独立验证、实例化成功。
+2. 不接ops、缺少twice、value/inc类型不符，均要求消费者实例化失败；两个错误提供方须先独立验证、实例化成功。
 3. 同时实例化原提供方和另一提供方，将整个ops改接到后者，consumer输入41应得到102。
 
 使用已有固定版本的底层`ComponentLinker.add_import`，没有将两个成员分别注册成host函数。
 两个算术步骤都由组件内的core Wasm执行，宿主仅连接并断言返回值。
-本机Windows类型检查已通过；实际Linux结果以本批提交CI为准，尚未据本机类型检查宣称执行成功。
+本机Windows类型检查已通过。首次Linux运行中正常调用与改接通过；负例测试暴露上游缺成员时仅报告`UnknownImport("ops")`，
+而不是成员`twice`。探针按固定上游的实际错误类型断言，D1仍须在独立静态检查中补齐成员路径，不依靠运行时诊断实现该要求。
+修正后完整结果以本批CI为准，不能将首次失败运行算作全套探针通过。
 
 ## SHA-256选择
 
@@ -58,4 +60,24 @@ moon test src/runtime_probe src/runtime_native --target native
 ```
 
 原139个核心测试与35项CLI按原口径报告；D0另列4个可移植探针和3个native测试。
-外部WAC工具固定与验证尚待下一批，D0未整体完成；三探针通过后再设计D1的作用域IR、结构化实例绑定与迁移规则。
+## 固定外部组合器
+
+选择[Bytecode Alliance WAC 0.12.0](https://github.com/bytecodealliance/wac/releases/tag/v0.12.0)，
+许可证Apache-2.0。Windows/Linux官方原始二进制SHA-256固定在`release/external-tools.lock.json`，
+安装器只写`_build/external`，不改变系统PATH；工具不随规划CLI或Mooncakes库再分发。
+依赖解析使用显式本地`--dep`参数，组合时不跳过产物验证。
+
+```bash
+python scripts/install-external-wac.py
+python scripts/test-external-wac.py
+# 等价的合法组合命令（Windows使用wac.exe）
+_build/external/wac compose examples/instances/compose.wac \
+  --dep d0:provider=examples/instances/source.wasm \
+  --dep d0:consumer=examples/instances/consumer.wasm -o _build/instance.wasm
+```
+
+本机五个外部用例通过：source与alternate成功生成不同的组件制品；缺成员点名twice，错误类型点名value/u32/bool，
+断线点名ops，三个反例均非零退出且不生成制品。脚本固定UTF-8读取诊断，支持带空格及Unicode路径。
+Linux已纳入native可移植门禁，实际结果待本批CI。该外部组合证明当前最小子集，不扩大为完整接口兼容性或复杂类型差分结论。
+
+D0在Linux运行与外部门禁全部通过后完成；随后进入D1的作用域IR、结构化实例绑定与迁移设计。

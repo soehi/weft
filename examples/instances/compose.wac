@@ -1,0 +1,8 @@
+package d0:composition;
+
+let provider = new d0:provider {};
+let consumer = new d0:consumer {
+  ops: provider.ops,
+};
+
+export consumer.run;
