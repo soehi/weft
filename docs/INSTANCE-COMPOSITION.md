@@ -1,6 +1,6 @@
 # D1 接口实例组合开发记录
 
-状态：D1源代码集成与验收中；正式交付仍为0.3.1，旧函数模式与计划0.2.0不变。
+状态：D1已验收，D2制品锁与独立核验也已完成；见[核心规划](CORE-DEVELOPMENT.md)与[进度证据](ROADMAP.md)。正式交付仍为0.3.1，旧函数模式与计划0.2.0不变，新能力尚未发布。
 本文件描述新模式的明确子集，不宣称完整Component Model subtyping。
 
 ## 作用域IR
@@ -39,7 +39,7 @@
 新计划版本0.3.0包含确定性实例顺序、结构化bindings及InstallImport/Instantiate操作：提供方先实例化，
 再为目标安装全部导入，最后实例化目标。清单和计划schema位于schemas/manifest-instance-v0.3.0.schema.json与
 schemas/plan-instance-v0.3.0.schema.json。文件规范UTF-8、无BOM/末尾换行；stdout行结束符仅为终端传输。
-本模式尚无内容摘要或锁文件，不能据此发现同路径同接口的二进制替换；这属于D2。没有把旧FNV当成新制品身份。
+`compile`的0.3.0计划不包含内容摘要或锁文件，不能据此发现同路径同接口的二进制替换。需要制品身份时，使用D2新增的`seal/verify`及部署计划0.4.0，见[协议](DEPLOYMENT-VERIFICATION.md)；旧FNV不承担制品身份。
 
 旧manifest/plan 0.1.0/0.2.0继续由原API与CLI处理；新模式在main开发，未发布0.4包或替换正式0.3.1制品。
 
@@ -56,7 +56,7 @@ moon run src/runtime_instance --target native -- run examples/instances/chain.js
 现阶段组件及端口只发射可保真的小写kebab子集；其他合法逻辑ID仍可规划，但WAC明确拒绝。
 固定外部WAC 0.12.0已接受新发射器的完整实例传递，并拒绝缺成员与错误类型依赖。
 
-独立runtime_instance只接受重新从清单和字节编译的计划，不把外部plan JSON当作可信执行输入。
+独立runtime_instance的`run`从清单和字节重新编译；D2新增`run-locked`，独立核验外部计划、可信锁及原始组件字节后再执行。
 调用仅开放D0已验证的同步单u32参数、单u32结果；静态复合值兼容性不等于复合值执行已支持。
 新增Linux测试覆盖84/102、函数成员转发42、静态错误先于运行时、未知调用目标和未绑定时不实例化trapping源；真实结果以完整CI为准。
 通用`weft run`仍未支持，Windows不声明原生执行可用。
@@ -68,7 +68,7 @@ moon run src/runtime_instance --target native -- run examples/instances/chain.js
 
 ## 本批验证入口
 
-`node scripts/check-backends.mjs`包含原139测试、D0各4测试、D1各33测试，原35 CLI与新实例26 CLI分别计数。
+`node scripts/check-backends.mjs`包含原139测试、D0各4测试及compose包组；D1固定用例33，D2/D3增量后的包组数量见ROADMAP。原35 CLI、新实例26 CLI及部署26 CLI分别计数。
 `python scripts/test-external-wac.py`独立检查固定外部组合器；Linux另运行`python scripts/test-native-instance-cli.py`。
 `node scripts/test-instance-consumer.mjs`创建独立的本地workspace消费者，只导入compose纯API，三后端核对黄金计划及缺字节/类型错误诊断。
 它不引用宿主文件适配层，不作为尚未发布新版本的注册表验证证据。

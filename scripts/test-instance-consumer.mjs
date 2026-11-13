@@ -21,6 +21,9 @@ let bins = Map([("source",b0),("consumer",b1)])
 let result = match @compose.compile(text,bins) { Ok(o) => o.json; Err(d) => abort(d.code+": "+d.detail) }
 match @compose.compile(text,Map([])) { Err(d) => if d.code != "MISSING_BINARY" { abort(d.code) }; Ok(_) => abort("missing input succeeded") }
 match @compose.compile(text,Map([("source",b2),("consumer",b1)])) { Err(d) => if d.code != "TYPE_MISMATCH" { abort(d.code) }; Ok(_) => abort("mismatch succeeded") }
+let bundle = match @compose.seal(text,bins) { Ok(b) => b; Err(d) => abort(d.code) }
+match @compose.verify(bundle.plan_text,bundle.lock_text,bins) { Ok(v) => if !v.canonical || v.plan.order != ["source","consumer"] { abort("invalid verified deployment") }; Err(d) => abort(d.code) }
+match @compose.verify(bundle.plan_text,bundle.lock_text,Map([("source",b2),("consumer",b1)])) { Err(d) => if d.code != "BINARY_DIGEST_MISMATCH" { abort(d.code) }; Ok(_) => abort("unreviewed bytes accepted") }
 println(result)
 }
 `);
@@ -33,7 +36,7 @@ println(result)
     if(run.error) throw run.error;
     assert.equal(run.status,0,run.stdout+run.stderr);
     assert.equal(run.stdout.replace(/\r?\n$/,''),golden);
-    console.log(`OK: independent D1 memory API consumer (${target}), golden plan and two diagnostics`);
+    console.log(`OK: independent D1/D2 memory API consumer (${target}), golden plan, seal/verify and diagnostics`);
   }
 } finally {
   assert.equal(dirname(work),output);
