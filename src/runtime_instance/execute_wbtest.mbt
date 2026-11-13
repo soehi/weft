@@ -54,5 +54,22 @@ test "D1 explicit function member bindings still execute via the same operation 
   let binding = "[{\"kind\":\"function\",\"from\":{\"component\":\"source\",\"port\":\"ops\",\"member\":\"inc\"},\"to\":{\"component\":\"consumer\",\"port\":\"inc\"}}]"
   let binaries = bins("source")
   binaries.set("consumer", @fixture.function_consumer())
-  assert_eq(execute(manifest(binding), binaries, "consumer", "run", 41U), 42U)
+  let result = execute(manifest(binding), binaries, "consumer", "run", 41U) catch {
+    Invalid(message) => fail("input: " + message)
+    Runtime(message) => fail("runtime: " + message)
+  }
+  assert_eq(result, 42U)
+}
+
+///|
+test "D1 all root validation completes before a provider's trapping initializer can run" {
+  let binding = "[{\"kind\":\"function\",\"from\":{\"component\":\"source\",\"port\":\"ops\",\"member\":\"inc\"},\"to\":{\"component\":\"consumer\",\"port\":\"inc\"}}]"
+  let binaries = Map([
+    ("source", @fixture.provider("trap-start")),
+    ("consumer", @fixture.forwarded_import()),
+  ])
+  try execute(manifest(binding), binaries, "consumer", "run", 41U) catch {
+    Invalid(message) => assert_true(message.contains("consumer") && message.contains("ExportedImportedFunc"))
+    _ => fail("provider initialized before all root inputs were validated")
+  } noraise { _ => fail("unsupported root export executed") }
 }

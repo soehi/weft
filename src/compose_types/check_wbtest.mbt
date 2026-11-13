@@ -202,3 +202,22 @@ test "D1 nested instance members use local references and reject recursive insta
   provider.types[1] = { name: None, kind: @ir.Interface(None, [], [{ name: "loop", item: @ir.Instance(2) }]) }
   assert_eq(failure(provider, consumer).code, "CYCLIC_TYPE")
 }
+
+///|
+test "D1 a re-exported function retains the same declared import signature" {
+  let c = @ir.decode("forwarder", @fixture.forwarded_import())
+  let _ = check_function(c, "run", None, c, "inc") catch {
+    Rejected(d) => fail(d.code + " " + d.path.join(" / ") + " " + d.detail)
+  }
+}
+
+///|
+test "D1 even structurally matching public IR cannot use function or instance types as values" {
+  for kind in [@ir.Kind::Function([], None, false), @ir.Kind::Interface(None, [], [])] {
+    let provider = synthetic()
+    let consumer = synthetic()
+    provider.types[0] = { name: None, kind }
+    consumer.types[0] = { name: None, kind }
+    assert_eq(failure(provider, consumer).code, "INVALID_VALUE_TYPE")
+  }
+}

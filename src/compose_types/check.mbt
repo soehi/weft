@@ -141,23 +141,41 @@ fn shape(c : @ir.Component, i : Int32, path : Array[String]) -> Shape raise Comp
 // a cycle, while a completed node may be shared. This is not coinductive matching.
 fn supported(c : @ir.Component, start : Int32, path : Array[String]) -> Unit raise CompatibilityError {
   let states : Map[Int32, Bool] = Map([])
-  let work : Array[(Int32, Array[String], Bool)] = [(start, path, false)]
-  while work.pop() is Some((i, at, exiting)) {
+  let role = match node(c, resolve(c, start, path), path) {
+    @ir.Function(_, _, _) => FunctionType
+    @ir.Interface(_, _, _) => InstanceType
+    _ => ValueType
+  }
+  let work : Array[(Int32, Array[String], Bool, TypeRole)] = [(start, path, false, role)]
+  while work.pop() is Some((i, at, exiting, role)) {
     if exiting { states.set(i, false); continue }
+    let actual = node(c, resolve(c, i, at), at)
+    let correct_role = match (role, actual) {
+      (FunctionType, @ir.Function(_, _, _)) | (InstanceType, @ir.Interface(_, _, _)) => true
+      (ValueType, @ir.Function(_, _, _) | @ir.Interface(_, _, _) | @ir.World(_, _, _, _) | @ir.Module) => false
+      (ValueType, _) => true
+      _ => false
+    }
+    if !correct_role { reject("INVALID_VALUE_TYPE", c, at, "reference used in the wrong type position") }
     match states.get(i) {
       Some(true) => reject("CYCLIC_TYPE", c, at, "recursive type graph")
       Some(false) => continue
       None => ()
     }
     states.set(i, true)
-    work.push((i, at, true))
+    work.push((i, at, true, role))
     let s = shape(c, i, at)
     if node(c, i, at) is @ir.Interface(_, used, _) {
-      for u in used { work.push((u.ty, at + ["use:" + u.name], false)) }
+      for u in used { work.push((u.ty, at + ["use:" + u.name], false, ValueType)) }
     }
     for j = s.edges.length() - 1; j >= 0; j = j - 1 {
       let (label, child) = s.edges[j]
-      if child is Some(t) { work.push((t, at + [label], false)) }
+      if child is Some(t) {
+        let child_role = if s.tag == "alias" { role } else if s.tag == "instance" && label.has_prefix("function:") {
+          FunctionType
+        } else if s.tag == "instance" && label.has_prefix("instance:") { InstanceType } else { ValueType }
+        work.push((t, at + [label], false, child_role))
+      }
     }
   }
 }

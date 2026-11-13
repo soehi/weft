@@ -21,6 +21,7 @@
 - 标量类型严格匹配；record字段、tuple元素、variant case、flags/enum名称及顺序均严格匹配。支持list/option/result等现有同步结构。
 - 两侧分别解析alias，再建立消费者类型引用到提供方引用的结构对应关系。一个共享消费者类型可以对应多个结构相等的提供方节点。
 - 每侧先用显式DFS区分访问中与已完成节点，拒绝非法循环，再使用已验证类型对避免重复比较；遇到访问过的节点本身不作为循环兼容证明。
+- 引用位置也需匹配：参数、结果和复合值成员必须引用值类型，不能把结构相同的函数或实例节点当作合法值。
 - 整个已绑定接口必须在支持子集内，额外的未支持成员也拒绝。resource/own/borrow、future/stream、async、map、fixed-list及外部宿主能力均不自动放行。
 - 错误带稳定code、组件与分段path；类型不符、缺成员、重复成员、错误引用与不支持构造分别报告。path不靠点号拆分名称。
 
@@ -60,9 +61,14 @@ moon run src/runtime_instance --target native -- run examples/instances/chain.js
 新增Linux测试覆盖84/102、函数成员转发42、静态错误先于运行时、未知调用目标和未绑定时不实例化trapping源；真实结果以完整CI为准。
 通用`weft run`仍未支持，Windows不声明原生执行可用。
 
+固定运行时将每个输入组件按root单独验证。直接重新导出import函数的组件可作为外部WAC的嵌套依赖，
+但root验证会返回ExportedImportedFunc；静态兼容成功不等于该执行宿主可以运行所有组件形态。
+函数调用夹具使用guest core Wasm包装并canon lift，保留直接转发反例。执行器先验证全部root，
+再开始任何实例化；trapping提供方与非法consumer的组合用来断言此顺序。
+
 ## 本批验证入口
 
-`node scripts/check-backends.mjs`包含原139测试、D0各4测试、D1各30测试，原35 CLI与新实例26 CLI分别计数。
+`node scripts/check-backends.mjs`包含原139测试、D0各4测试、D1各33测试，原35 CLI与新实例26 CLI分别计数。
 `python scripts/test-external-wac.py`独立检查固定外部组合器；Linux另运行`python scripts/test-native-instance-cli.py`。
 `node scripts/test-instance-consumer.mjs`创建独立的本地workspace消费者，只导入compose纯API，三后端核对黄金计划及缺字节/类型错误诊断。
 它不引用宿主文件适配层，不作为尚未发布新版本的注册表验证证据。

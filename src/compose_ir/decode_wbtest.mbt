@@ -80,3 +80,16 @@ test "D1 real named composite type aliases retain the consumer reference graph" 
   }
   assert_true(referenced_option)
 }
+
+///|
+test "D1 dependency re-exports and independently instantiated roots have distinct validation rules" {
+  let raw = @fixture.forwarded_import()
+  let c = decode("forwarder", raw)
+  assert_true(c.exports.any(e => e.name == "run" && e.item is Function(_)))
+  let input = @component.parse_component(raw)
+  try @validator.validate_component_for_instantiation(input) catch {
+    @validator.ExportedImportedFunc(index) => assert_eq(index, 0)
+    _ => fail("unexpected root validation failure")
+  } noraise { _ => fail("fixed root validator unexpectedly accepted imported function re-export") }
+  let _ = @validator.validate_component_for_instantiation(@component.parse_component(@fixture.function_consumer()))
+}

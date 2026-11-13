@@ -5,4 +5,6 @@ import {
 import {
   "soehi/weft/probes/instance" @fixture,
   "Milky2018/wasm_component/text",
+  "Milky2018/wasm_component" @component,
+  "Milky2018/wasm_component/validator",
 } for "wbtest"

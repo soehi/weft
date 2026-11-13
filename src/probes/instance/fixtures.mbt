@@ -6,6 +6,7 @@ pub fn provider(mode : String) -> Bytes raise {
   let extra_export = if mode == "missing" { "" } else {
     "(export \"twice\" (func $twice))"
   }
+  let initializer = if mode == "trap-start" { "(func $init unreachable) (start $init)" } else { "" }
   @text.parse_component_wat(
     (
       $|(component
@@ -14,7 +15,8 @@ pub fn provider(mode : String) -> Bytes raise {
       $|  (func (export "inc") (param i32) (result i32)
       $|   local.get 0 i32.const \{delta} i32.add)
       $|  (func (export "twice") (param i32) (result i32)
-      $|   local.get 0 i32.const 2 i32.mul))
+      $|   local.get 0 i32.const 2 i32.mul)
+      $|  \{initializer})
       $| (core instance $i (instantiate $m))
       $| (func $inc (param "x" $value) (result u32)
       $|  (canon lift (core func $i "inc")))
@@ -63,6 +65,24 @@ pub fn consumer() -> Bytes raise {
 ///|
 /// D1 function binding regression: forward a root import to an explicit call.
 pub fn function_consumer() -> Bytes raise {
+  @text.parse_component_wat(
+    (
+      #|(component
+      #| (import "inc" (func $inc (param "x" u32) (result u32)))
+      #| (core func $lower (canon lower (func $inc)))
+      #| (core module $m
+      #|  (import "env" "inc" (func $inc (param i32) (result i32)))
+      #|  (func (export "run") (param i32) (result i32) local.get 0 call $inc))
+      #| (core instance $i (instantiate $m
+      #|  (with "env" (instance (export "inc" (func $lower))))))
+      #| (func (export "run") (param "x" u32) (result u32)
+      #|  (canon lift (core func $i "run"))))
+    ),
+  )
+}
+
+///|
+pub fn forwarded_import() -> Bytes raise {
   @text.parse_component_wat(
     "(component (import \"inc\" (func $inc (param \"x\" u32) (result u32))) (export \"run\" (func $inc)))",
   )

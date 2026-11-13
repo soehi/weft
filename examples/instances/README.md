@@ -10,7 +10,7 @@
 | missing.wasm | ops缺少twice成员 | 消费者实例化失败 |
 | wrong-type.wasm | 命名类型value及inc参数为bool | 消费者实例化失败 |
 | consumer.wasm | 导入ops并导出run | 不提供ops时实例化失败 |
-| function-consumer.wasm | D1根函数import转发到run | 显式接source.ops的inc成员后，输入41得到42 |
+| function-consumer.wasm | D1 guest包装函数调用根import并导出run | 显式接source.ops的inc成员后，输入41得到42 |
 
 这些组件自身均有效，失败来自组合关系。没有宿主代算，也不安装文件系统或网络能力。
 用固定工具链在仓库根目录重新生成（目录需已存在）：

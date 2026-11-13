@@ -54,6 +54,15 @@ pub fn execute(
     @native.open_native_component_session(),
   ) catch { e => raise Runtime(e.to_string()) }
   defer linker.close()
+  // Runtime root validation can be stricter than dependency composition.
+  // Validate every binary before instantiating even the first provider.
+  let validated_inputs = Map([])
+  for name in output.plan.order {
+    let validated = linker.validate_input(binaries.get(name).unwrap()) catch {
+      e => raise Invalid(name + ": " + e.to_string())
+    }
+    validated_inputs.set(name, validated)
+  }
   let instances : Map[String, @linker.ComponentInstance] = Map([])
   for operation in output.plan.operations {
     match operation {
@@ -79,8 +88,7 @@ pub fn execute(
         linker.add_import(b.to.port, exported) catch { e => raise Runtime(e.to_string()) }
       }
       @plan.Instantiate(name) => {
-        let validated = linker.validate_input(binaries.get(name).unwrap()) catch { e => raise Invalid(e.to_string()) }
-        let instance = linker.instantiate(name, validated) catch { e => raise Runtime(name + ": " + e.to_string()) }
+        let instance = linker.instantiate(name, validated_inputs.get(name).unwrap()) catch { e => raise Runtime(name + ": " + e.to_string()) }
         instances.set(name, instance)
       }
     }

@@ -26,3 +26,6 @@ priv struct Shape {
   tag : String
   edges : Array[(String, Int32?)]
 }
+
+///|
+priv enum TypeRole { ValueType; FunctionType; InstanceType }
