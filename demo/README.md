@@ -39,3 +39,14 @@ python scripts/test-browser.py
 CI 另安装 Chromium 系统依赖。实际浏览器检查五类示例、下载/CLI 字节相同、图表来自计划、无用户文件网络请求、
 重复键错误、同名文件手动映射、失效下载、非法 UTF-8、Worker 加载失败及 390px 响应布局。
 DOM 输出使用 textContent，不将文件名/清单内容作为 HTML 插入。页面无 CDN、外部字体、遥测或服务端规划接口。
+
+## 完整接口与制品锁（main 开发入口）
+
+打开 `http://127.0.0.1:8000/deployment.html`，或从首页进入“审核完整接口并锁定组件内容”。这是显式 `instance-sync-v1` 新模式，未包含在正式0.3.1中。
+使用0.3.0实例清单，Worker通过独立`deployment_bridge`调用纯`compose.seal`；结果为部署计划0.4.0和输入锁0.1.0。
+两个按钮分别原样下载`plan.json`与`inputs.lock.json`。实例表直接读取计划顺序、摘要和导入索引，不另行计算依赖关系。
+保留审核过的锁，在Linux用`run-locked`核验同一批组件后执行；命令、摘要精确定义与信任边界见[部署核验协议](../docs/DEPLOYMENT-VERIFICATION.md)。
+
+新增标准提供方、另一提供方及缺少接口成员三个本地示例。页面仍只做静态检查，复合值支持边界沿用D1。
+实际Chromium测试下载两份文件并逐字节对照CLI，再通过CLI核验；同时检查替换提供方、缺成员、用户文件留在内存、旧结果失效及移动布局。
+生成的`demo/deployment-planner.mjs`同样不提交，由构建脚本重建。

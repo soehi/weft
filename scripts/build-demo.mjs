@@ -7,7 +7,11 @@ const run = (args) => { const r = spawnSync('moon', args, { cwd: root, stdio: 'i
 run(['run', 'src/tools/make_fixtures', '--target', 'native', '--', 'examples']);
 run(['build', 'src/browser_bridge', '--target', 'js', '--release']);
 copyFileSync(join(root, '_build/js/release/build/browser_bridge/browser_bridge.js'), join(root, 'demo/planner.mjs'));
+run(['build', 'src/deployment_bridge', '--target', 'js', '--release']);
+copyFileSync(join(root, '_build/js/release/build/deployment_bridge/deployment_bridge.js'), join(root, 'demo/deployment-planner.mjs'));
 mkdirSync(join(root, 'demo/examples'), { recursive: true });
 for (const name of readdirSync(join(root, 'examples/browser')).filter(n => n.endsWith('.json'))) copyFileSync(join(root, 'examples/browser', name), join(root, 'demo/examples', name));
 for (const name of ['reader', 'filter', 'sink', 'join', 'wide-sink']) copyFileSync(join(root, 'examples', `${name}.wasm`), join(root, 'demo/examples', `${name}.wasm`));
+mkdirSync(join(root, 'demo/examples/instances'), { recursive: true });
+for (const name of ['chain.json', 'source.wasm', 'alternate.wasm', 'consumer.wasm', 'missing.wasm']) copyFileSync(join(root, 'examples/instances', name), join(root, 'demo/examples/instances', name));
 console.log('Demo ready: python scripts/serve-demo.py');

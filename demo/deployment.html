@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; worker-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'"><title>weft · 审核部署制品</title><link rel="stylesheet" href="style.css"></head>
+<body><header><a class="brand" href="./">╋ weft<span class="subbrand">部署审核 · 开发版</span></a><span class="local">本地计算 · 文件不上传</span></header>
+<main><div class="intro"><div><p class="eyebrow">让审核结果跟随组件</p><h1>确认连线，锁定制品。</h1><p>检查完整接口，下载绑定具体组件内容的计划与输入锁。</p></div><p class="boundary">同步接口静态检查<br><strong>浏览器不会执行组件</strong></p></div>
+<div class="workbench"><section class="inputs"><div class="section-title"><span>01 / 输入</span><h2>选择清单与组件</h2></div>
+<div class="file-row"><label class="file-button" for="manifest-file">选择清单 .json</label><input id="manifest-file" type="file" accept=".json,application/json"><span id="manifest-name">尚未选择</span></div>
+<label for="manifest">实例组合清单</label><textarea id="manifest" spellcheck="false" placeholder='{"manifest_version":"0.3.0","profile":"instance-sync-v1","components":[],"bindings":[]}'></textarea>
+<div class="file-row"><label class="file-button" for="component-files">选择组件 .wasm</label><input id="component-files" type="file" multiple accept=".wasm,application/wasm"><span id="file-count">0 个文件</span></div>
+<p class="hint">逻辑路径用于匹配文件。存在同名文件时，请手动指定。</p><div id="mapping"></div>
+<button id="check" class="primary" disabled>检查并锁定输入 ↗</button><p id="status" role="status" aria-live="polite">正在准备核验工具…</p>
+<details open><summary>试一份完整接口示例</summary><div id="examples"><button data-provider="source">标准提供方</button><button data-provider="alternate">另一提供方</button><button data-provider="missing">缺少接口成员</button></div></details></section>
+<section class="results"><div class="section-title"><span>02 / 审核结果</span><h2>内容摘要与实例顺序</h2></div><div id="empty"><h3>从一份实例清单开始</h3><p>下载计划与锁后，保留审核过的锁文件，<br>在 Linux 对照同一组组件字节核验并执行。</p></div><div id="diagnostic" role="alert" hidden></div>
+<div id="success" hidden><div class="result-toolbar"><span class="success-label">接口检查通过，输入已锁定</span><button id="download" class="primary">下载 plan.json ↓</button><button id="download-lock">下载 inputs.lock.json ↓</button></div><p id="hash"></p>
+<table><caption>计划中的实际实例顺序</caption><thead><tr><th>顺序</th><th>逻辑 ID</th><th>组件 SHA-256 / 字节数</th><th>导入数</th></tr></thead><tbody id="instances"></tbody></table>
+<p class="hint">输入锁固定组件内容与绑定意图。部署时请使用审核过的锁；摘要不证明作者身份，也不隔离组件执行。</p>
+<details><summary>部署计划 JSON</summary><pre id="plan-json"></pre></details><details><summary>输入锁 JSON</summary><pre id="lock-json"></pre></details></div></section></div>
+<footer><a href="./">函数规划工作台</a><span>main 开发入口 · 尚未包含在正式 0.3.1 中</span></footer></main><script type="module" src="deployment.mjs"></script></body></html>

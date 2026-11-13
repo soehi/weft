@@ -1,0 +1,7 @@
+import {
+  "soehi/weft/compose",
+  "moonbitlang/core/json",
+}
+pkgtype(kind: "foreign_library")
+supported_targets = "js"
+options(link: { "js": { "exports": ["seal_json"], "format": "esm" } })

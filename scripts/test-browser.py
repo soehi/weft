@@ -90,6 +90,54 @@ try:
         expect(page.locator("#success")).to_be_visible()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         page.screenshot(path=str(ROOT / "_build/demo-mobile.png"), full_page=True)
+        # D2 uses a distinct explicit profile/page. Download both reviewed
+        # artifacts from an actual Worker, compare CLI bytes, then verify.
+        page.goto(url + "/deployment.html")
+        expect(page.locator("#check")).to_be_enabled()
+        for provider in ["source", "alternate", "missing"]:
+            page.locator(f"[data-provider={provider}]").click()
+            expect(page.locator("#status")).to_contain_text("示例已载入")
+            page.locator("#check").click()
+            if provider == "missing":
+                expect(page.locator("#diagnostic code")).to_have_text("MISSING_MEMBER")
+                expect(page.locator("#success")).to_be_hidden()
+                continue
+            expect(page.locator("#success")).to_be_visible()
+            downloaded = {}
+            for button, filename, shown in [("download", "sealed-plan.json", "plan-json"), ("download-lock", "inputs.lock.json", "lock-json")]:
+                with page.expect_download() as download:
+                    page.locator("#" + button).click()
+                raw = Path(download.value.path()).read_bytes()
+                assert raw == page.locator("#" + shown).text_content().encode("utf-8")
+                (temp / filename).write_bytes(raw)
+                downloaded[filename] = raw
+            value = json.loads(page.locator("#manifest").input_value())
+            for component in value["components"]:
+                (temp / component["path"]).write_bytes((ROOT / "examples/instances" / component["path"]).read_bytes())
+            (temp / "instance.json").write_text(json.dumps(value), encoding="utf-8")
+            subprocess.run(["moon", "run", "src/compose_cli", "--target", "js", "--", "seal", str(temp / "instance.json"), "--out", str(temp / "cli-sealed.json"), "--lock", str(temp / "cli-lock.json")], cwd=ROOT, check=True)
+            assert downloaded["sealed-plan.json"] == (temp / "cli-sealed.json").read_bytes()
+            assert downloaded["inputs.lock.json"] == (temp / "cli-lock.json").read_bytes()
+            subprocess.run(["moon", "run", "src/compose_cli", "--target", "js", "--", "verify", str(temp / "sealed-plan.json"), "--lock", str(temp / "inputs.lock.json"), "--inputs", str(temp / "instance.json")], cwd=ROOT, check=True)
+        # Local selection remains local; edits immediately invalidate both downloads.
+        value = json.loads((ROOT / "examples/instances/chain.json").read_text(encoding="utf-8"))
+        for component in value["components"]: component["path"] = "C:\\reviewed\\" + component["path"]
+        (temp / "user-instance.json").write_text(json.dumps(value), encoding="utf-8")
+        request_count = len(requests)
+        page.locator("#manifest-file").set_input_files(temp / "user-instance.json")
+        page.locator("#component-files").set_input_files([ROOT / "examples/instances/source.wasm", ROOT / "examples/instances/consumer.wasm"])
+        page.locator("#check").click()
+        expect(page.locator("#success")).to_be_visible()
+        assert request_count == len(requests), "D2 selected files caused network traffic"
+        page.screenshot(path=str(ROOT / "_build/deployment-mobile.png"), full_page=True)
+        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        page.locator("#manifest").fill('{"manifest_version":"0.3.0","manifest_version":"0.3.0"}')
+        expect(page.locator("#success")).to_be_hidden()
+        page.locator("#check").click()
+        expect(page.locator("#diagnostic code")).to_have_text("INVALID_JSON")
+        page.locator("#manifest-file").set_input_files({"name":"bad.json","mimeType":"application/json","buffer":bytes([123,255,125])})
+        expect(page.locator("#diagnostic code")).to_have_text("BROWSER_UTF8")
+        print("OK: D2 Chromium plan+lock downloads equal CLI and verify, alternate/missing members, local files, stale results and mobile")
         assert not errors, errors
         assert all(method == "GET" and address.startswith(url) for method,address in requests)
         # Worker bootstrap failure remains visible and cannot enable planning.
@@ -98,6 +146,11 @@ try:
         broken.goto(url)
         expect(broken.locator("#diagnostic code")).to_have_text("BROWSER_WORKER")
         expect(broken.locator("#check")).to_be_disabled()
+        broken_deploy = browser.new_page()
+        broken_deploy.route("**/deployment-planner.mjs", lambda route: route.abort())
+        broken_deploy.goto(url + "/deployment.html")
+        expect(broken_deploy.locator("#diagnostic code")).to_have_text("BROWSER_WORKER")
+        expect(broken_deploy.locator("#check")).to_be_disabled()
         browser.close()
         print("OK: downloads match CLI, user files stay local, mapping ambiguity, duplicate JSON, stale download invalidation, mobile and no browser errors")
 finally:

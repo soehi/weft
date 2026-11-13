@@ -38,4 +38,7 @@ u32 节点标准向量：`8af9aafb8305662baa02403c8bc7d4ec6119d679cf39dd40c12042
 
 操作必须按实例声明顺序分组，先安装该实例全部导入，再实例化一次；不允许跨消费者交错安装同名全局 linker 导入。任何合法拓扑序、绑定数组排列和组内安装排列均可有效；规范结果额外要求字典序 Kahn 顺序、上述绑定排序、升序 incoming/安装索引及精确编码。独立核验器重建规范表示仅用于 `canonical` 判定，语义有效性由前述不变量决定。
 
-原生 `run-locked` 在开执行会话前核验，随后在首个实例化前验证全部 root 输入。D1 的直接源码 `run` 继续从清单编译；通用旧 `weft run` 仍不支持。浏览器入口与完整 Linux 实际调用验收进度见 CORE-DEVELOPMENT 和 ROADMAP，不将本机类型检查当作执行证据。
+原生 `run-locked` 在开执行会话前核验，随后在首个实例化前验证全部 root 输入。D1 的直接源码 `run` 继续从清单编译；通用旧 `weft run` 仍不支持。Linux CI `43371786122` 的原生 job 已通过19测试与11项锁定部署CLI检查，真实guest结果为84/102/42；完整CI验收进度见ROADMAP。
+
+浏览器先执行`node scripts/build-demo.mjs`及`python scripts/serve-demo.py`，打开`http://127.0.0.1:8000/deployment.html`。
+Worker调用同一纯API，分别导出计划及输入锁；实际Chromium检查两份下载与CLI字节一致，并再次通过CLI核验。完整接口/缺成员与另一提供方示例均为本地资源，用户选择文件不上传。

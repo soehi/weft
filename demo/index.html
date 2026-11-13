@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; worker-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'"><title>weft · 本地规划工作台</title><link rel="stylesheet" href="style.css"></head>
 <body><header><a class="brand" href="./" aria-label="weft 首页"><span class="weave" aria-hidden="true">╋</span> weft<span class="subbrand">Component planner</span></a><span class="local">本地计算 · 文件不上传</span></header>
-<main><div class="intro"><div><p class="eyebrow">部署之前，理清每一条连线</p><h1>把组件，织成计划。</h1><p>检查接口与依赖，在浏览器中生成可复现的部署计划。</p></div><p class="boundary">规划与静态检查<br><strong>不会执行组件</strong></p></div>
+<main><div class="intro"><div><p class="eyebrow">部署之前，理清每一条连线</p><h1>把组件，织成计划。</h1><p>检查接口与依赖，在浏览器中生成可复现的部署计划。</p><p><a href="deployment.html">开发版：审核完整接口并锁定组件内容 ↗</a></p></div><p class="boundary">规划与静态检查<br><strong>不会执行组件</strong></p></div>
 <div class="workbench"><section class="inputs" aria-labelledby="input-title"><div class="section-title"><span>01 / 输入</span><h2 id="input-title">选择清单与组件</h2></div>
 <div class="file-row"><label class="file-button" for="manifest-file">选择清单 .json</label><input id="manifest-file" type="file" accept=".json,application/json"><span id="manifest-name">尚未选择</span></div>
 <label for="manifest">清单内容 <span>可直接编辑</span></label><textarea id="manifest" spellcheck="false" placeholder='{"version":"0.2.0","components":[],"wires":[]}'></textarea>

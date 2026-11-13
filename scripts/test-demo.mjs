@@ -4,6 +4,7 @@ import { readFileSync, copyFileSync, mkdtempSync, writeFileSync, rmSync } from '
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { compile_json } from '../demo/planner.mjs';
+import { seal_json } from '../demo/deployment-planner.mjs';
 import { chooseFile } from '../demo/files.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const temp = mkdtempSync(join(root, '_build', 'demo-check-'));
@@ -33,6 +34,18 @@ try {
   assert.equal(chooseFile('x.wasm', [{ name: 'x.wasm' }, { name: 'x.wasm' }]), -1);
   assert.equal(chooseFile('a/x.wasm', [{ name: 'x.wasm', webkitRelativePath: 'a/x.wasm' }, { name: 'x.wasm', webkitRelativePath: 'b/x.wasm' }]), 0);
   console.log('OK: five real cases, CLI byte parity, bridge input and logical path ambiguity');
+  const instanceText = readFileSync(join(root, 'examples/instances/chain.json'), 'utf8');
+  const instanceBytes = Object.create(null);
+  for (const c of JSON.parse(instanceText).components) instanceBytes[c.name] = Array.from(readFileSync(join(root, 'examples/instances', c.path)));
+  const sealed = JSON.parse(seal_json(instanceText, JSON.stringify(instanceBytes)));
+  assert.equal(sealed.ok, true);
+  assert.equal(sealed.plan_json, readFileSync(join(root, 'docs/fixtures/deployment-v0.4.0.json'), 'utf8'));
+  assert.equal(sealed.lock_json, readFileSync(join(root, 'docs/fixtures/input-lock-v0.1.0.json'), 'utf8'));
+  for (const data of ['null', '{', '{"a":[-1]}', '{"a":[256]}', '{"a":[1.5]}', '{"a":[],"a":[]}']) assert.equal(JSON.parse(seal_json(instanceText, data)).diagnostic.code, 'BROWSER_INPUT');
+  assert.equal(JSON.parse(seal_json('{"manifest_version":"0.3.0","manifest_version":"0.3.0"}', '{}')).diagnostic.code, 'INVALID_JSON');
+  const missingBytes = {...instanceBytes, source: Array.from(readFileSync(join(root, 'examples/instances/missing.wasm')))};
+  assert.equal(JSON.parse(seal_json(instanceText, JSON.stringify(missingBytes))).diagnostic.code, 'MISSING_MEMBER');
+  console.log('OK: D2 browser bridge exact plan/lock golden bytes and strict input/member diagnostics');
 } finally {
   assert.ok(resolve(temp).startsWith(resolve(root, '_build') + (process.platform === 'win32' ? '\\' : '/')));
   rmSync(temp, { recursive: true, force: true });

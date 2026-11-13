@@ -3,6 +3,7 @@ _build/
 docs/*.local.md
 
 demo/planner.mjs
+demo/deployment-planner.mjs
 demo/examples/
 
 __pycache__/
