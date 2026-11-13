@@ -73,3 +73,29 @@ test "D1 all root validation completes before a provider's trapping initializer 
     _ => fail("provider initialized before all root inputs were validated")
   } noraise { _ => fail("unsupported root export executed") }
 }
+
+///|
+test "D2 locked deployments verify original reviewed bytes then execute both guest calls" {
+  for (mode, result) in [("source", 84U), ("alternate", 102U)] {
+    let bytes = bins(mode)
+    guard @compose.seal(manifest(whole), bytes) is Ok(bundle) else { fail("seal failed") }
+    assert_eq(execute_deployment(bundle.plan_text, bundle.lock_text, bytes, "consumer", "run", 41U), result)
+  }
+}
+
+///|
+test "D2 verification failures precede any trapping initializer" {
+  let original = bins("source")
+  guard @compose.seal(manifest(whole), original) is Ok(bundle) else { fail("seal failed") }
+  let trap = bins("trap-start")
+  try execute_deployment(bundle.plan_text, bundle.lock_text, trap, "consumer", "run", 41U) catch {
+    Invalid(message) => assert_true(message.contains("BINARY_DIGEST_MISMATCH"))
+    _ => fail("unreviewed component initialized")
+  } noraise { _ => fail("changed bytes executed") }
+  guard @compose.seal(manifest(whole), trap) is Ok(trapping) else { fail("trap seal failed") }
+  let bad = trapping.plan_text.replace(old="\"order\":0", new="\"order\":1")
+  try execute_deployment(bad, trapping.lock_text, trap, "consumer", "run", 41U) catch {
+    Invalid(message) => assert_true(message.contains("PLAN_DIGEST_MISMATCH"))
+    _ => fail("provider initialized before plan verification")
+  } noraise { _ => fail("bad plan executed") }
+}

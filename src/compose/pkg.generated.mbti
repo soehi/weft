@@ -13,6 +13,10 @@ pub fn emit_wac(String, Map[String, Bytes]) -> Result[String, @compose_types.Dia
 
 pub fn parse(String) -> Manifest raise InputError
 
+pub fn seal(String, Map[String, Bytes]) -> Result[Deployment, @compose_types.Diagnostic]
+
+pub fn verify(String, String, Map[String, Bytes]) -> Result[VerifiedDeployment, @compose_types.Diagnostic]
+
 // Errors
 pub(all) suberror InputError {
   Rejected(@compose_types.Diagnostic)
@@ -24,6 +28,11 @@ pub(all) struct ComponentDecl {
   path : String
 }
 
+pub(all) struct Deployment {
+  plan_text : String
+  lock_text : String
+}
+
 pub(all) struct Manifest {
   components : Array[ComponentDecl]
   bindings : Array[@compose_plan.Binding]
@@ -33,6 +42,11 @@ pub(all) struct Output {
   manifest : Manifest
   plan : @compose_plan.Plan
   json : String
+}
+
+pub(all) struct VerifiedDeployment {
+  canonical : Bool
+  plan : @compose_plan.Plan
 }
 
 // Type aliases

@@ -1,14 +1,17 @@
 ///|
-let usage = "weft-instance-native run <manifest.json> --component <name> --export <name> --arg u32:<value>"
+let usage = "weft-instance-native run <manifest.json> --component <name> --export <name> --arg u32:<value> | run-locked <plan.json> --lock <lock.json> --inputs <manifest.json> --component <name> --export <name> --arg u32:<value>"
 
 ///|
 fn command(args : Array[String]) -> UInt32 raise {
-  if args.length() != 8 || args[0] != "run" || args[1].has_prefix("-") { raise Failure(usage) }
+  if args.length() < 2 { raise Failure(usage) }
+  let locked = args[0] == "run-locked"
+  if (if locked { args.length() != 12 } else { args[0] != "run" || args.length() != 8 }) || args[1] == "" || args[1].has_prefix("-") { raise Failure(usage) }
+  let flags = if locked { ["--component", "--export", "--arg", "--lock", "--inputs"] } else { ["--component", "--export", "--arg"] }
   let values : Map[String, String] = Map([])
   for i = 2; i < args.length(); i = i + 2 {
     let flag = args[i]
     let value = args[i + 1]
-    if !["--component", "--export", "--arg"].contains(flag) || values.contains(flag) || value == "" {
+    if !flags.contains(flag) || values.contains(flag) || value == "" {
       raise Failure("unknown, duplicate or empty option: " + flag)
     }
     values.set(flag, value)
@@ -18,8 +21,15 @@ fn command(args : Array[String]) -> UInt32 raise {
   let arg = values.get("--arg").unwrap()
   if !arg.has_prefix("u32:") { raise Failure("only --arg u32:<value> is supported") }
   let value = @strparse.parse_uint(arg[4:])
-  let (text, binaries) = @host.read(args[1])
-  execute(text, binaries, target, port, value)
+  if locked {
+    let (_, binaries) = @host.read(values.get("--inputs").unwrap())
+    let plan_text = @utf8.decode(@fs.read_file_to_bytes(args[1]), ignore_bom=false)
+    let lock_text = @utf8.decode(@fs.read_file_to_bytes(values.get("--lock").unwrap()), ignore_bom=false)
+    execute_deployment(plan_text, lock_text, binaries, target, port, value)
+  } else {
+    let (text, binaries) = @host.read(args[1])
+    execute(text, binaries, target, port, value)
+  }
 }
 
 ///|

@@ -1,5 +1,6 @@
 """Validate schema syntax, versioned examples and independently recompute hashes."""
 import json
+import hashlib
 from pathlib import Path
 from jsonschema import Draft202012Validator
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,4 +28,16 @@ for name, version in [("plan-v0.1.0", "0.1.0"), ("plan-v0.2.0", "0.2.0"), ("form
 schemas["manifest-instance-v0.3.0.schema.json"].validate(read("examples/instances/chain.json"))
 schemas["manifest-instance-v0.3.0.schema.json"].validate(read("examples/instances/function.json"))
 schemas["plan-instance-v0.3.0.schema.json"].validate(read("docs/fixtures/plan-instance-v0.3.0.json"))
+for name in ["deployment-v0.4.0", "input-lock-v0.1.0"]:
+    schemas[f"{name}.schema.json"].validate(read(f"docs/fixtures/{name}.json"))
+lock_bytes = (ROOT / "docs/fixtures/input-lock-v0.1.0.json").read_bytes()
+plan_bytes = (ROOT / "docs/fixtures/deployment-v0.4.0.json").read_bytes()
+deployment = json.loads(plan_bytes)
+assert deployment["lock_digest"]["value"] == hashlib.sha256(b"weft:input-lock:v1\n" + lock_bytes).hexdigest()
+payload = plan_bytes.rsplit(b',"plan_digest":', 1)[0] + b"}"
+assert deployment["plan_digest"]["value"] == hashlib.sha256(b"weft:deployment-plan:v1\n" + payload).hexdigest()
+for artifact in json.loads(lock_bytes)["artifacts"]:
+    binary = (ROOT / f"examples/instances/{artifact['id']}.wasm").read_bytes()
+    assert artifact["length"] == len(binary)
+    assert artifact["digest"] == hashlib.sha256(binary).hexdigest()
 print("OK: schemas, versioned instance/function artifacts and independent legacy UTF-8 FNV hashes")

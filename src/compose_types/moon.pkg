@@ -1,6 +1,9 @@
 import {
   "soehi/weft/compose_ir" @ir,
   "soehi/weft/ir" @order,
+  "moonbitlang/x/crypto",
+  "moonbitlang/core/json",
+  "moonbitlang/core/encoding/utf8",
 }
 import {
   "soehi/weft/probes/instance" @fixture,

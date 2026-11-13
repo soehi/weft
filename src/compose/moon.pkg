@@ -5,5 +5,7 @@ import {
   "soehi/weft/compose_plan" @plan,
   "soehi/weft/ir" @order,
   "moonbitlang/core/json",
+  "moonbitlang/core/encoding/utf8",
+  "moonbitlang/x/crypto",
 }
 import { "soehi/weft/probes/instance" @fixture } for "wbtest"

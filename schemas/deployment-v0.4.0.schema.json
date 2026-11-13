@@ -1,0 +1,281 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Experimental instance-sync-v1 deployment-v0.4.0",
+  "type": "object",
+  "properties": {
+    "plan_version": {
+      "const": "0.4.0"
+    },
+    "profile": {
+      "const": "instance-sync-v1"
+    },
+    "planner_version": {
+      "const": "instance-planner-v1"
+    },
+    "lock_digest": {
+      "type": "object",
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "algorithm",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "instances": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "algorithm": {
+            "const": "sha256"
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "length": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "imports": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "algorithm",
+          "digest",
+          "length",
+          "order",
+          "imports"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "instance"
+              },
+              "from": {
+                "type": "object",
+                "properties": {
+                  "component": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "port": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "component",
+                  "port"
+                ],
+                "additionalProperties": false
+              },
+              "to": {
+                "type": "object",
+                "properties": {
+                  "component": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "port": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "component",
+                  "port"
+                ],
+                "additionalProperties": false
+              },
+              "from_signature": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "to_signature": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "kind",
+              "from",
+              "to",
+              "from_signature",
+              "to_signature"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "function"
+              },
+              "from": {
+                "type": "object",
+                "properties": {
+                  "component": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "port": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "member": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "component",
+                  "port"
+                ],
+                "additionalProperties": false
+              },
+              "to": {
+                "type": "object",
+                "properties": {
+                  "component": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "port": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "component",
+                  "port"
+                ],
+                "additionalProperties": false
+              },
+              "from_signature": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "to_signature": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "kind",
+              "from",
+              "to",
+              "from_signature",
+              "to_signature"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "instantiate"
+              },
+              "component": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "op",
+              "component"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "install-import"
+              },
+              "binding": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              }
+            },
+            "required": [
+              "op",
+              "binding"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "plan_digest": {
+      "type": "object",
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "algorithm",
+        "value"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "plan_version",
+    "profile",
+    "planner_version",
+    "lock_digest",
+    "instances",
+    "bindings",
+    "operations",
+    "plan_digest"
+  ],
+  "additionalProperties": false
+}

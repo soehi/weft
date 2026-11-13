@@ -131,6 +131,8 @@ jobs:
           python3 scripts/test-native-cli.py
       - name: Build and exercise D1 complete-instance command
         run: python3 scripts/test-native-instance-cli.py
+      - name: Verify and execute reviewed D2 deployments
+        run: python3 scripts/test-native-deployment.py
 
   browser:
     name: local browser demo (Chromium)

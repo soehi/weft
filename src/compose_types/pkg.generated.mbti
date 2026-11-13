@@ -10,6 +10,8 @@ pub fn check_function(@compose_ir.Component, String, String?, @compose_ir.Compon
 
 pub fn check_instance(@compose_ir.Component, String, @compose_ir.Component, String) -> Correspondence raise CompatibilityError
 
+pub fn fingerprint(@compose_ir.Component, Int32) -> String raise CompatibilityError
+
 // Errors
 pub(all) suberror CompatibilityError {
   Rejected(Diagnostic)

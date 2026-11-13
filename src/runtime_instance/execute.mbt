@@ -45,7 +45,29 @@ pub fn execute(
     Ok(output) => output
     Err(d) => raise Invalid(@host.diagnostic(d))
   }
-  if !output.plan.order.contains(target) { raise Invalid("unknown explicit call component") }
+  execute_checked(output.plan, binaries, target, port, argument)
+}
+
+///|
+/// Verify the trusted content lock and external plan before opening a session.
+/// Both canonical and valid noncanonical orders preserve checked semantics.
+pub fn execute_deployment(
+  plan_text : String, trusted_lock_text : String, binaries : Map[String, Bytes],
+  target : String, port : String, argument : UInt32,
+) -> UInt32 raise ExecError {
+  let verified = match @compose.verify(plan_text, trusted_lock_text, binaries) {
+    Ok(v) => v
+    Err(d) => raise Invalid(@host.diagnostic(d))
+  }
+  execute_checked(verified.plan, binaries, target, port, argument)
+}
+
+///|
+fn execute_checked(
+  checked : @plan.Plan, binaries : Map[String, Bytes],
+  target : String, port : String, argument : UInt32,
+) -> UInt32 raise ExecError {
+  if !checked.order.contains(target) { raise Invalid("unknown explicit call component") }
   let call_ir = @ir.decode(target, binaries.get(target).unwrap()) catch {
     @ir.InvalidComponent(_, detail) => raise Invalid(detail)
   }
@@ -57,17 +79,17 @@ pub fn execute(
   // Runtime root validation can be stricter than dependency composition.
   // Validate every binary before instantiating even the first provider.
   let validated_inputs = Map([])
-  for name in output.plan.order {
+  for name in checked.order {
     let validated = linker.validate_input(binaries.get(name).unwrap()) catch {
       e => raise Invalid(name + ": " + e.to_string())
     }
     validated_inputs.set(name, validated)
   }
   let instances : Map[String, @linker.ComponentInstance] = Map([])
-  for operation in output.plan.operations {
+  for operation in checked.operations {
     match operation {
       @plan.InstallImport(index) => {
-        let b = output.plan.bindings[index].binding
+        let b = checked.bindings[index].binding
         let provider = instances.get(b.from.component).unwrap()
         let mut exported = match provider.get_export(b.from.port) {
           Some(e) => e
