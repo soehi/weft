@@ -57,12 +57,12 @@ moon run src/runtime_instance --target native -- run examples/instances/chain.js
 
 独立runtime_instance只接受重新从清单和字节编译的计划，不把外部plan JSON当作可信执行输入。
 调用仅开放D0已验证的同步单u32参数、单u32结果；静态复合值兼容性不等于复合值执行已支持。
-新增Linux测试覆盖84/102、静态错误先于运行时、未知调用目标和未绑定时不实例化trapping源；真实结果待本批CI。
+新增Linux测试覆盖84/102、函数成员转发42、静态错误先于运行时、未知调用目标和未绑定时不实例化trapping源；真实结果以完整CI为准。
 通用`weft run`仍未支持，Windows不声明原生执行可用。
 
 ## 本批验证入口
 
-`node scripts/check-backends.mjs`包含原139测试、D0各4测试、D1各28测试，原35 CLI与新实例24 CLI分别计数。
+`node scripts/check-backends.mjs`包含原139测试、D0各4测试、D1各30测试，原35 CLI与新实例26 CLI分别计数。
 `python scripts/test-external-wac.py`独立检查固定外部组合器；Linux另运行`python scripts/test-native-instance-cli.py`。
 三后端实际新计划与docs/fixtures/plan-instance-v0.3.0.json逐字节一致；输入排列、部分绑定、重绑、未知格式、重复JSON键、
 非法UTF-8、Unicode/空格目录和失败不覆盖输出均已纳入实际CLI验证。

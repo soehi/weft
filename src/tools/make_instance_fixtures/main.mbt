@@ -8,6 +8,7 @@ fn main {
       @fs.write_bytes_to_file("\{dir}/\{mode}.wasm", @fixture.provider(mode))
     }
     @fs.write_bytes_to_file("\{dir}/consumer.wasm", @fixture.consumer())
+    @fs.write_bytes_to_file("\{dir}/function-consumer.wasm", @fixture.function_consumer())
   } catch {
     error => {
       println(error.to_string())

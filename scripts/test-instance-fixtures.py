@@ -5,7 +5,7 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 (root / "_build").mkdir(exist_ok=True)
-names = ["source", "alternate", "missing", "wrong-type", "consumer"]
+names = ["source", "alternate", "missing", "wrong-type", "consumer", "function-consumer"]
 with tempfile.TemporaryDirectory(prefix="instance probe ", dir=root / "_build") as directory:
     subprocess.run(
         ["moon", "run", "src/tools/make_instance_fixtures", "--target", "native", "--", directory],
@@ -15,4 +15,4 @@ with tempfile.TemporaryDirectory(prefix="instance probe ", dir=root / "_build") 
         assert (Path(directory) / f"{name}.wasm").read_bytes() == (
             root / "examples/instances" / f"{name}.wasm"
         ).read_bytes(), name
-print("OK: five committed instance binaries match the fixture factory")
+print("OK: six committed instance/function binaries match the fixture factory")

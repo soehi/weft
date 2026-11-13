@@ -62,3 +62,16 @@ with tempfile.TemporaryDirectory(prefix="external instance ", dir=root / "_build
             assert result.returncode != 0 and not output.exists(), provider
             assert ("twice" if provider == "missing" else "value") in result.stderr, result.stderr
         print(f"OK: D1 emitted WAC case {provider}")
+    function_wac = work / "d1-function.wac"
+    subprocess.run([
+        "moon", "run", "src/compose_cli", "--target", "js", "--", "emit-wac",
+        str(root / "examples/instances/function.json"), "--out", str(function_wac),
+    ], cwd=root, check=True, timeout=120)
+    result = subprocess.run([
+        str(tool), "compose", str(function_wac),
+        "--dep", f"weft:source={root / 'examples/instances/source.wasm'}",
+        "--dep", f"weft:consumer={root / 'examples/instances/function-consumer.wasm'}",
+        "-o", str(work / "d1-function.wasm"),
+    ], text=True, encoding="utf-8", capture_output=True, timeout=30)
+    assert result.returncode == 0, result.stderr
+    print("OK: D1 emitted WAC explicit function-member access")

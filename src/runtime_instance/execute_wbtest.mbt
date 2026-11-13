@@ -48,3 +48,11 @@ test "D1 invalid explicit call target is rejected before instantiation" {
     _ => fail("expected explicit call error")
   } noraise { _ => fail("unknown call target executed") }
 }
+
+///|
+test "D1 explicit function member bindings still execute via the same operation sequence" {
+  let binding = "[{\"kind\":\"function\",\"from\":{\"component\":\"source\",\"port\":\"ops\",\"member\":\"inc\"},\"to\":{\"component\":\"consumer\",\"port\":\"inc\"}}]"
+  let binaries = bins("source")
+  binaries.set("consumer", @fixture.function_consumer())
+  assert_eq(execute(manifest(binding), binaries, "consumer", "run", 41U), 42U)
+}

@@ -10,6 +10,7 @@
 | missing.wasm | ops缺少twice成员 | 消费者实例化失败 |
 | wrong-type.wasm | 命名类型value及inc参数为bool | 消费者实例化失败 |
 | consumer.wasm | 导入ops并导出run | 不提供ops时实例化失败 |
+| function-consumer.wasm | D1根函数import转发到run | 显式接source.ops的inc成员后，输入41得到42 |
 
 这些组件自身均有效，失败来自组合关系。没有宿主代算，也不安装文件系统或网络能力。
 用固定工具链在仓库根目录重新生成（目录需已存在）：
@@ -22,3 +23,6 @@ moon test src/runtime_probe --target native
 ```
 
 完整边界与证据见[实例探针记录](../../docs/INSTANCE-PROBE.md)。
+
+D1新模式的完整实例输入为chain.json，显式函数成员输入为function.json；
+使用src/compose_cli规划/WAC发射，Linux使用src/runtime_instance执行，见[D1说明](../../docs/INSTANCE-COMPOSITION.md)。

@@ -1,0 +1,15 @@
+{
+  "manifest_version": "0.3.0",
+  "profile": "instance-sync-v1",
+  "components": [
+    { "name": "consumer", "path": "function-consumer.wasm" },
+    { "name": "source", "path": "source.wasm" }
+  ],
+  "bindings": [
+    {
+      "kind": "function",
+      "from": { "component": "source", "port": "ops", "member": "inc" },
+      "to": { "component": "consumer", "port": "inc" }
+    }
+  ]
+}

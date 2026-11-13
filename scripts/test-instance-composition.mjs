@@ -13,7 +13,7 @@ const golden=readFileSync(join(root,'docs/fixtures/plan-instance-v0.3.0.json'));
 const targets=['native','wasm-gc','js'];
 let goldenWac;
 try {
-  for(const name of ['source','alternate','consumer','missing','wrong-type']) copyFileSync(join(fixture,name+'.wasm'),join(work,name+'.wasm'));
+  for(const name of ['source','alternate','consumer','missing','wrong-type','function-consumer']) copyFileSync(join(fixture,name+'.wasm'),join(work,name+'.wasm'));
   const foreign=join(work,'foreign cwd'); mkdirSync(foreign);
   const manifest=join(work,'input.json'), output=join(work,'plan.json');
   for(const target of targets) {
@@ -21,7 +21,8 @@ try {
     if(build.error) throw build.error;
     assert.equal(build.status,0,build.stderr);
     const artifact=join(root,'_build',target,'debug/build/compose_cli/compose_cli');
-    const executable=target==='native'?artifact+(process.platform==='win32'?'.exe':''):target==='js'?process.execPath:'moonrun';
+    // This locked MoonBit uses .exe for native artifacts on Linux as well.
+    const executable=target==='native'?artifact+'.exe':target==='js'?process.execPath:'moonrun';
     const prefix=target==='native'?[]:target==='js'?[artifact+'.js']:[artifact+'.wasm','--'];
     let checks=0;
     function run(args,code=0,contains='') {
@@ -46,6 +47,12 @@ try {
     const alternate=structuredClone(base); alternate.components.find(c=>c.name==='source').path='alternate.wasm';
     const alt=JSON.parse(plan(alternate));
     assert.equal(alt.instances[0].path,'alternate.wasm');
+    const functionInput=JSON.parse(readFileSync(join(fixture,'function.json'),'utf8'));
+    const functionPlan=JSON.parse(plan(functionInput));
+    assert.equal(functionPlan.bindings[0].kind,'function');
+    assert.equal(functionPlan.bindings[0].from.member,'inc');
+    run(['emit-wac',manifest,'--out',wac]);
+    assert(readFileSync(wac,'utf8').includes('c-source["ops"]["inc"]'));
     function failure(value,code) {
       writeFileSync(manifest,typeof value==='string'?value:JSON.stringify(value));
       writeFileSync(output,'sentinel');

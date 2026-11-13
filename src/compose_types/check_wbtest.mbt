@@ -185,3 +185,20 @@ test "D1 flags and enum names retain order and payload presence is exact" {
     assert_eq(failure(a, b).code, "TYPE_MISMATCH")
   }
 }
+
+///|
+test "D1 nested instance members use local references and reject recursive instances" {
+  let consumer = graph("consumer", [
+    @ir.Scalar("u32"),
+    @ir.Interface(None, [], [{ name: "value", item: @ir.Type(0) }]),
+    @ir.Interface(None, [], [{ name: "child", item: @ir.Instance(1) }]),
+  ])
+  let provider = graph("provider", [
+    @ir.Scalar("u32"),
+    @ir.Interface(None, [], [{ name: "extra", item: @ir.Type(0) }, { name: "value", item: @ir.Type(0) }]),
+    @ir.Interface(None, [], [{ name: "child", item: @ir.Instance(1) }]),
+  ])
+  let _ = check_instance(provider, "ops", consumer, "ops")
+  provider.types[1] = { name: None, kind: @ir.Interface(None, [], [{ name: "loop", item: @ir.Instance(2) }]) }
+  assert_eq(failure(provider, consumer).code, "CYCLIC_TYPE")
+}

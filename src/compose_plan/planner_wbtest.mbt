@@ -106,3 +106,15 @@ test "D1 binding order does not change operations or target ordering" {
   assert_true(x.operations is [Instantiate("source"), InstallImport(0), Instantiate("a"), InstallImport(1), Instantiate("b")])
   assert_eq(x.bindings.map(x => x.binding.to.component), y.bindings.map(x => x.binding.to.component))
 }
+
+///|
+test "D1 separate root function and instance imports may both have explicit providers" {
+  let source = @ir.decode("source", @fixture.provider("source"))
+  let consumer = @ir.decode("consumer", @text.parse_component_wat(
+    "(component (import \"ops\" (instance (type $v u32) (export \"value\" (type (eq $v))) (export \"inc\" (func (param \"x\" u32) (result u32))) (export \"twice\" (func (param \"x\" u32) (result u32))))) (import \"extra\" (func (param \"x\" u32) (result u32))))",
+  ))
+  let extra : Binding = { kind: Function, from: ep("source", "ops", member_name="inc"), to: ep("consumer", "extra") }
+  let p = plan([consumer, source], [instance_binding(), extra])
+  assert_eq(p.bindings.length(), 2)
+  assert_true(p.operations is [Instantiate("source"), InstallImport(0), InstallImport(1), Instantiate("consumer")])
+}

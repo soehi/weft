@@ -4,6 +4,8 @@ package "soehi/weft/probes/instance"
 // Values
 pub fn consumer() -> Bytes raise
 
+pub fn function_consumer() -> Bytes raise
+
 pub fn provider(String) -> Bytes raise
 
 // Errors

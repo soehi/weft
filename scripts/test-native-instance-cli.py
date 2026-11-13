@@ -10,14 +10,14 @@ from pathlib import Path
 assert sys.platform == "linux", "instance execution is only verified on Linux"
 root = Path(__file__).resolve().parents[1]
 subprocess.run(["moon", "build", "src/runtime_instance", "--target", "native"], cwd=root, check=True)
-binary = root / "_build/native/debug/build/runtime_instance/runtime_instance"
+binary = root / "_build/native/debug/build/runtime_instance/runtime_instance.exe"
 base = json.loads((root / "examples/instances/chain.json").read_text(encoding="utf-8"))
 checks = 0
 with tempfile.TemporaryDirectory(prefix="instance run 空格 ", dir=root / "_build") as directory:
     work = Path(directory)
     foreign = work / "foreign cwd"
     foreign.mkdir()
-    for name in ["source", "consumer", "alternate", "missing", "wrong-type"]:
+    for name in ["source", "consumer", "alternate", "missing", "wrong-type", "function-consumer"]:
         shutil.copyfile(root / f"examples/instances/{name}.wasm", work / f"{name}.wasm")
     manifest = work / "input.json"
     flags = ["--component", "consumer", "--export", "run", "--arg", "u32:41"]
@@ -39,6 +39,8 @@ with tempfile.TemporaryDirectory(prefix="instance run 空格 ", dir=root / "_bui
     alternate = copy.deepcopy(base)
     alternate["components"][1]["path"] = "alternate.wasm"
     run(alternate, expected="102")
+    function_input = json.loads((root / "examples/instances/function.json").read_text(encoding="utf-8"))
+    run(function_input, expected="42")
     for name, code, member in [("missing", "MISSING_MEMBER", "twice"), ("wrong-type", "TYPE_MISMATCH", "inc")]:
         value = copy.deepcopy(base)
         value["components"][1]["path"] = name + ".wasm"

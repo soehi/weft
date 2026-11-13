@@ -59,3 +59,11 @@ pub fn consumer() -> Bytes raise {
     ),
   )
 }
+
+///|
+/// D1 function binding regression: forward a root import to an explicit call.
+pub fn function_consumer() -> Bytes raise {
+  @text.parse_component_wat(
+    "(component (import \"inc\" (func $inc (param \"x\" u32) (result u32))) (export \"run\" (func $inc)))",
+  )
+}
