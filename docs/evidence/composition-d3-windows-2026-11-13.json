@@ -1,0 +1,445 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-13",
+  "platform": "Windows",
+  "base_commit": "05529c7",
+  "scope": "nine synchronous value-type constructors in type-only instances; 3-5 node DAGs",
+  "budgets": {
+    "command_timeout_seconds": 30,
+    "node_heap_mib": 256,
+    "binary_graph_nodes_max": 5,
+    "seeds_max": 27
+  },
+  "elapsed_seconds": 116.989,
+  "binary_dag_seeds": 27,
+  "binary_decisions": 81,
+  "rehashed_plan_mutations": 567,
+  "valid_transformations": 47,
+  "type_reference_seeds": 2000,
+  "type_reference_variants_per_seed": 4,
+  "dag_reference_seeds": 2000,
+  "new_package_tests_per_backend": 49,
+  "external_tool": {
+    "version": "0.12.0",
+    "repository": "https://github.com/bytecodealliance/wac",
+    "license": "Apache-2.0",
+    "release": "https://github.com/bytecodealliance/wac/releases/tag/v0.12.0",
+    "assets": {
+      "windows-x86_64": {
+        "url": "https://github.com/bytecodealliance/wac/releases/download/v0.12.0/wac-cli-x86_64-pc-windows-gnu",
+        "sha256": "33d92a2a73db1f8de69538038e594a14cc8f9e6feb8138bf29fdaf2598d425d9"
+      },
+      "linux-x86_64": {
+        "url": "https://github.com/bytecodealliance/wac/releases/download/v0.12.0/wac-cli-x86_64-unknown-linux-musl",
+        "sha256": "7cd490edbd452221ef89e6750fc43eacc9b71b1242095eb577cb9a3bf0d3beda"
+      }
+    }
+  },
+  "seeds": [
+    {
+      "seed": 0,
+      "nodes": 3,
+      "edges": 1,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 1,
+      "nodes": 4,
+      "edges": 3,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 2,
+      "nodes": 5,
+      "edges": 4,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 3,
+      "nodes": 3,
+      "edges": 1,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 4,
+      "nodes": 4,
+      "edges": 3,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 5,
+      "nodes": 5,
+      "edges": 5,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 6,
+      "nodes": 3,
+      "edges": 1,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 7,
+      "nodes": 4,
+      "edges": 3,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 8,
+      "nodes": 5,
+      "edges": 3,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 9,
+      "nodes": 3,
+      "edges": 3,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 10,
+      "nodes": 4,
+      "edges": 1,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 11,
+      "nodes": 5,
+      "edges": 5,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 12,
+      "nodes": 3,
+      "edges": 2,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 13,
+      "nodes": 4,
+      "edges": 3,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 14,
+      "nodes": 5,
+      "edges": 3,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 15,
+      "nodes": 3,
+      "edges": 1,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 16,
+      "nodes": 4,
+      "edges": 3,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 17,
+      "nodes": 5,
+      "edges": 3,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 18,
+      "nodes": 3,
+      "edges": 1,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 19,
+      "nodes": 4,
+      "edges": 1,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 20,
+      "nodes": 5,
+      "edges": 5,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 21,
+      "nodes": 3,
+      "edges": 2,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 22,
+      "nodes": 4,
+      "edges": 3,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 23,
+      "nodes": 5,
+      "edges": 5,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 24,
+      "nodes": 3,
+      "edges": 2,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 25,
+      "nodes": 4,
+      "edges": 5,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": 26,
+      "nodes": 5,
+      "edges": 4,
+      "weft_acceptance": [
+        true,
+        false,
+        false
+      ],
+      "external_acceptance": [
+        true,
+        false,
+        false
+      ]
+    }
+  ]
+}

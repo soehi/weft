@@ -19,7 +19,7 @@ with zipfile.ZipFile(archive) as reader:
         path = PurePosixPath(name)
         assert not path.is_absolute() and ".." not in path.parts, name
         assert not set(path.parts) & {"_build", ".mooncakes", ".git", "__pycache__"}, name
-        assert not name.startswith("docs/benchmarks/") and name not in {"项目申报书.md", "docs/SUBMISSION.md"}, name
+        assert not name.startswith(("docs/benchmarks/", "docs/evidence/")) and name not in {"项目申报书.md", "docs/SUBMISSION.md", "demo/deployment-planner.mjs"}, name
         if path.suffix in {".md", ".json", ".mod", ".pkg"}:
             text = reader.read(name).decode("utf-8")
             assert str(ROOT) not in text and "C:\\Users\\ASUS" not in text, name

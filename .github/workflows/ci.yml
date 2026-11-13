@@ -41,6 +41,9 @@ jobs:
     # plan each backend produces.
     name: portable (${{ matrix.target }})
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      NODE_OPTIONS: --max-old-space-size=256
     strategy:
       fail-fast: false
       matrix:
@@ -75,6 +78,16 @@ jobs:
         run: |
           python3 scripts/install-external-wac.py
           python3 scripts/test-external-wac.py
+      - name: D3 bounded binary differential and independent mutation oracle
+        if: matrix.target == 'native'
+        timeout-minutes: 5
+        run: python3 scripts/test-composition-differential.py
+      - uses: actions/upload-artifact@v4
+        if: matrix.target == 'native' && always()
+        with:
+          name: composition-differential-evidence
+          path: _build/d3/
+          if-no-files-found: error
 
   identical:
     # Byte-for-byte comparison of the three backends' plans. Runs the same

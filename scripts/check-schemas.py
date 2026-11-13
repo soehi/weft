@@ -27,6 +27,7 @@ for name, version in [("plan-v0.1.0", "0.1.0"), ("plan-v0.2.0", "0.2.0"), ("form
     assert value["plan_hash"] == f"{result:016x}", name
 schemas["manifest-instance-v0.3.0.schema.json"].validate(read("examples/instances/chain.json"))
 schemas["manifest-instance-v0.3.0.schema.json"].validate(read("examples/instances/function.json"))
+schemas["manifest-instance-v0.3.0.schema.json"].validate(read("examples/instances/reviewed.json"))
 schemas["plan-instance-v0.3.0.schema.json"].validate(read("docs/fixtures/plan-instance-v0.3.0.json"))
 for name in ["deployment-v0.4.0", "input-lock-v0.1.0"]:
     schemas[f"{name}.schema.json"].validate(read(f"docs/fixtures/{name}.json"))

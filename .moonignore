@@ -3,12 +3,14 @@ _build/
 docs/*.local.md
 
 demo/planner.mjs
+demo/deployment-planner.mjs
 demo/examples/
 
 __pycache__/
 
 # Repository evidence and submission material are not library package inputs.
 docs/benchmarks/
+docs/evidence/
 项目申报书.md
 !/.moonignore
 docs/SUBMISSION.md

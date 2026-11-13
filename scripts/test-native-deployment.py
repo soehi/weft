@@ -66,4 +66,27 @@ with tempfile.TemporaryDirectory(prefix="locked run 空格 ", dir=root / "_build
     run()  # valid noncanonical plans are executable after semantic verification
     seal(json.loads((root / "examples/instances/function.json").read_text(encoding="utf-8")))
     run(expected="42")
+    # D3 offline case keeps two compatible provider IDs in the reviewed set.
+    # Rewiring is structurally valid but must not inherit the original review.
+    reviewed = json.loads((root / "examples/instances/reviewed.json").read_text(encoding="utf-8"))
+    seal(reviewed)
+    run()
+    changed_plan = json.loads(plan.read_bytes())
+    changed_plan["bindings"][0]["from"]["component"] = "alternate"
+    changed_plan.pop("plan_digest")
+    payload = json.dumps(changed_plan, separators=(",", ":"), ensure_ascii=False)
+    changed_plan["plan_digest"] = {"algorithm": "sha256", "value": hashlib.sha256(("weft:deployment-plan:v1\n" + payload).encode("utf-8")).hexdigest()}
+    plan.write_text(json.dumps(changed_plan), encoding="utf-8")
+    run(1, "BINDING_INTENT_MISMATCH")
+    reviewed["bindings"][0]["from"]["component"] = "alternate"
+    seal(reviewed)
+    run(expected="102")
+    shutil.copyfile(root / "examples/instances/missing.wasm", work / "missing.wasm")
+    reviewed["components"][1]["path"] = "missing.wasm"
+    manifest.write_text(json.dumps(reviewed), encoding="utf-8")
+    previous_plan, previous_lock = plan.read_bytes(), lock.read_bytes()
+    rejected = subprocess.run(["node", str(planner), "seal", str(manifest), "--out", str(plan), "--lock", str(lock)], cwd=foreign, text=True, encoding="utf-8", capture_output=True, timeout=30)
+    assert rejected.returncode == 1 and "MISSING_MEMBER" in rejected.stdout and "twice" in rejected.stdout, rejected.stdout
+    assert plan.read_bytes() == previous_plan and lock.read_bytes() == previous_lock
+    checks += 1
 print(f"OK: {checks} native locked deployment CLI checks, guest 84/102/42 and rehashed mutations rejected")
