@@ -64,5 +64,7 @@ moon run src/runtime_instance --target native -- run examples/instances/chain.js
 
 `node scripts/check-backends.mjs`包含原139测试、D0各4测试、D1各30测试，原35 CLI与新实例26 CLI分别计数。
 `python scripts/test-external-wac.py`独立检查固定外部组合器；Linux另运行`python scripts/test-native-instance-cli.py`。
+`node scripts/test-instance-consumer.mjs`创建独立的本地workspace消费者，只导入compose纯API，三后端核对黄金计划及缺字节/类型错误诊断。
+它不引用宿主文件适配层，不作为尚未发布新版本的注册表验证证据。
 三后端实际新计划与docs/fixtures/plan-instance-v0.3.0.json逐字节一致；输入排列、部分绑定、重绑、未知格式、重复JSON键、
 非法UTF-8、Unicode/空格目录和失败不覆盖输出均已纳入实际CLI验证。

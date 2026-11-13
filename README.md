@@ -24,6 +24,7 @@
 | 本地库消费者 | [examples/consumer](examples/consumer/README.md)，通过本地workspace引入，不能替代注册表安装验证 |
 | 浏览器本地演示 | [demo](demo/README.md)，用户组件留在本机内存 |
 | Linux 可选执行 | [执行说明](docs/S3-EXECUTION.md)，独立实验命令；通用 weft run 仍未支持 |
+| main 的接口实例新模式 | [D1开发说明](docs/INSTANCE-COMPOSITION.md)，显式instance-sync-v1与独立源码命令；未包含在已发布0.3.1包中 |
 
 从新源码目录开始（Python 3.12+、Node 24系列；native构建需要平台C工具链）：
 

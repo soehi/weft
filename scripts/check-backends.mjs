@@ -39,6 +39,7 @@ try {
   }
   run('node', ['scripts/test-consumer.mjs']);
   run('node', ['scripts/test-instance-composition.mjs']);
+  run('node', ['scripts/test-instance-consumer.mjs']);
   console.log('OK: all three backends produced byte-identical plans, including Unicode/escaping/integer boundaries');
 } catch (e) {
   console.error(e.message);
